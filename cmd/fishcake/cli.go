@@ -2,7 +2,6 @@ package main
 
 import (
 	"context"
-	"github.com/FishcakeLab/fishcake-service/config"
 	"log"
 
 	"github.com/urfave/cli/v2"
@@ -10,6 +9,7 @@ import (
 	"github.com/ethereum/go-ethereum/params"
 
 	"github.com/FishcakeLab/fishcake-service/common/cliapp"
+	"github.com/FishcakeLab/fishcake-service/config"
 	flag2 "github.com/FishcakeLab/fishcake-service/flags"
 )
 
