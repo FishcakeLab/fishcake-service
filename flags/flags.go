@@ -36,19 +36,6 @@ var (
 		Value:    8987,
 		Required: true,
 	}
-	MetricsHostFlag = &cli.StringFlag{
-		Name:     "metrics-host",
-		Usage:    "The host of the metrics",
-		EnvVars:  prefixEnvVars("METRICS_HOST"),
-		Required: true,
-	}
-	MetricsPortFlag = &cli.IntFlag{
-		Name:     "metrics-port",
-		Usage:    "The port of the metrics",
-		EnvVars:  prefixEnvVars("METRICS_PORT"),
-		Value:    7214,
-		Required: true,
-	}
 	DbHostFlag = &cli.StringFlag{
 		Name:     "db-host",
 		Usage:    "The host of the database",
@@ -79,6 +66,19 @@ var (
 		EnvVars:  prefixEnvVars("DB_NAME"),
 		Required: true,
 	}
+	MetricsHostFlag = &cli.StringFlag{
+		Name:     "metrics-host",
+		Usage:    "The host of the metrics",
+		EnvVars:  prefixEnvVars("METRICS_HOST"),
+		Required: true,
+	}
+	MetricsPortFlag = &cli.IntFlag{
+		Name:     "metrics-port",
+		Usage:    "The port of the metrics",
+		EnvVars:  prefixEnvVars("METRICS_PORT"),
+		Value:    7214,
+		Required: true,
+	}
 )
 
 var requiredFlags = []cli.Flag{
@@ -86,8 +86,6 @@ var requiredFlags = []cli.Flag{
 	PolygonRpcFlag,
 	HttpPortFlag,
 	HttpHostFlag,
-	MetricsPortFlag,
-	MetricsHostFlag,
 	DbHostFlag,
 	DbPortFlag,
 	DbUserFlag,
@@ -95,7 +93,10 @@ var requiredFlags = []cli.Flag{
 	DbNameFlag,
 }
 
-var optionalFlags = []cli.Flag{}
+var optionalFlags = []cli.Flag{
+	MetricsPortFlag,
+	MetricsHostFlag,
+}
 
 func init() {
 	Flags = append(requiredFlags, optionalFlags...)

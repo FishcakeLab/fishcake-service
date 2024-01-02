@@ -2,6 +2,7 @@ package main
 
 import (
 	"context"
+	"github.com/FishcakeLab/fishcake-service/config"
 	"log"
 
 	"github.com/urfave/cli/v2"
@@ -14,16 +15,34 @@ import (
 
 func runIndexer(ctx *cli.Context, shutdown context.CancelCauseFunc) (cliapp.Lifecycle, error) {
 	log.Printf("run indexer start")
+	cfg, err := config.NewConfig(ctx)
+	if err != nil {
+		log.Printf("failed to load config", "err", err)
+		return nil, err
+	}
+	log.Printf("run api start", "HttpHostHost", cfg.HttpHost, "HttpHostHost", cfg.HttpPort)
 	return nil, nil
 }
 
 func runApi(ctx *cli.Context, _ context.CancelCauseFunc) (cliapp.Lifecycle, error) {
 	log.Printf("run api start")
+	cfg, err := config.NewConfig(ctx)
+	if err != nil {
+		log.Printf("failed to load config", "err", err)
+		return nil, err
+	}
+	log.Printf("run api start", "HttpHostHost", cfg.HttpHost, "HttpHostHost", cfg.HttpPort)
 	return nil, nil
 }
 
 func runMigrations(ctx *cli.Context) error {
 	log.Printf("run migration start")
+	cfg, err := config.NewConfig(ctx)
+	if err != nil {
+		log.Printf("failed to load config", "err", err)
+		return err
+	}
+	log.Printf("run api start", "HttpHostHost", cfg.HttpHost, "HttpHostHost", cfg.HttpPort)
 	return nil
 }
 
