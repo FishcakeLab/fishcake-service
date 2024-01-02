@@ -11,8 +11,6 @@ type CloneableGeneric interface {
 	Clone() any
 }
 
-// ProtectFlags ensures that no flags are safe to Apply() flag sets to without accidental flag-value mutations.
-// ProtectFlags panics if any of the flag definitions cannot be protected.
 func ProtectFlags(flags []cli.Flag) []cli.Flag {
 	out := make([]cli.Flag, 0, len(flags))
 	for _, f := range flags {
@@ -28,8 +26,6 @@ func ProtectFlags(flags []cli.Flag) []cli.Flag {
 func cloneFlag(f cli.Flag) (cli.Flag, error) {
 	switch typedFlag := f.(type) {
 	case *cli.GenericFlag:
-		// We have to clone Generic, since it's an interface,
-		// and setting it causes the next use of the flag to have a different default value.
 		if genValue, ok := typedFlag.Value.(CloneableGeneric); ok {
 			cpy := *typedFlag
 			cpyVal, ok := genValue.Clone().(cli.Generic)
@@ -42,8 +38,6 @@ func cloneFlag(f cli.Flag) (cli.Flag, error) {
 			return nil, fmt.Errorf("cannot clone Generic value: %T", typedFlag)
 		}
 	default:
-		// Other flag types are safe to re-use, although not strictly safe for concurrent use.
-		// urfave v3 hopefully fixes this.
 		return f, nil
 	}
 }

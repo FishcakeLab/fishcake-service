@@ -1,8 +1,9 @@
 package config
 
 import (
-	"github.com/FishcakeLab/fishcake-service/flags"
 	"github.com/urfave/cli/v2"
+
+	"github.com/FishcakeLab/fishcake-service/flags"
 )
 
 type Config struct {
