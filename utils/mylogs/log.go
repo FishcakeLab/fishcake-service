@@ -1,13 +1,14 @@
 package mylogs
 
 import (
-	"fishcake-service/global_const"
 	"log"
 	"os"
 	"time"
 
 	"crypto/rand"
 	"encoding/base64"
+
+	"github.com/FishcakeLab/fishcake-service/common/global_const"
 )
 
 func GetLogFile() (*os.File, error) {

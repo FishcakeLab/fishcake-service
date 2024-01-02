@@ -7,7 +7,7 @@ import (
 	"os"
 	"time"
 
-	"fishcake-service/global_const"
+	"github.com/FishcakeLab/fishcake-service/common/global_const"
 )
 
 var myLogWriter dateFileWriter
