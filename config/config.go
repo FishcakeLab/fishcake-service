@@ -25,7 +25,7 @@ func NewConfig(ctx *cli.Context) (*Config, error) {
 		Migrations:  ctx.String(flags.MigrationsFlag.Name),
 		PolygonRpc:  ctx.String(flags.PolygonRpcFlag.Name),
 		HttpHost:    ctx.String(flags.HttpHostFlag.Name),
-		HttpPort:    ctx.Int(flags.HttpHostFlag.Name),
+		HttpPort:    ctx.Int(flags.HttpPortFlag.Name),
 		DbHost:      ctx.String(flags.DbHostFlag.Name),
 		DbPort:      ctx.Int(flags.DbPortFlag.Name),
 		DbName:      ctx.String(flags.DbNameFlag.Name),
