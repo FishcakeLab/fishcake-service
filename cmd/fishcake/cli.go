@@ -2,6 +2,7 @@ package main
 
 import (
 	"context"
+	fishcake_service "github.com/FishcakeLab/fishcake-service"
 	"log"
 
 	"github.com/urfave/cli/v2"
@@ -32,7 +33,8 @@ func runApi(ctx *cli.Context, _ context.CancelCauseFunc) (cliapp.Lifecycle, erro
 		return nil, err
 	}
 	log.Printf("run api start", "HttpHostHost", cfg.HttpHost, "HttpHostHost", cfg.HttpPort)
-	return nil, nil
+
+	return fishcake_service.NewFishCake(cfg), nil
 }
 
 func runMigrations(ctx *cli.Context) error {

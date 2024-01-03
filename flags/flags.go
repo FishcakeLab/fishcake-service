@@ -18,10 +18,11 @@ var (
 		EnvVars: prefixEnvVars("MIGRATIONS_DIR"),
 	}
 	PolygonRpcFlag = &cli.StringFlag{
-		Name:     "polygon-rpc",
-		Usage:    "HTTP provider URL for L1",
-		EnvVars:  prefixEnvVars("POLYGON_RPC"),
-		Required: true,
+		Name:    "polygon-rpc",
+		Usage:   "HTTP provider URL for L1",
+		EnvVars: prefixEnvVars("POLYGON_RPC"),
+		Value:   "https://polygon-rpc.com",
+		//Required: true,
 	}
 	HttpHostFlag = &cli.StringFlag{
 		Name:    "http-host",
@@ -36,34 +37,39 @@ var (
 		Value:   8987,
 	}
 	DbHostFlag = &cli.StringFlag{
-		Name:     "db-host",
-		Usage:    "The host of the database",
-		EnvVars:  prefixEnvVars("DB_HOST"),
-		Required: true,
+		Name:    "db-host",
+		Usage:   "The host of the database",
+		EnvVars: prefixEnvVars("DB_HOST"),
+		Value:   "127.0.0.1",
+		//Required: true,
 	}
 	DbPortFlag = &cli.IntFlag{
-		Name:     "db-port",
-		Usage:    "The port of the database",
-		EnvVars:  prefixEnvVars("DB_PORT"),
-		Required: true,
+		Name:    "db-port",
+		Usage:   "The port of the database",
+		EnvVars: prefixEnvVars("DB_PORT"),
+		Value:   5432,
+		//Required: true,
 	}
 	DbUserFlag = &cli.StringFlag{
-		Name:     "db-user",
-		Usage:    "The user of the database",
-		EnvVars:  prefixEnvVars("DB_USER"),
-		Required: true,
+		Name:    "db-user",
+		Usage:   "The user of the database",
+		EnvVars: prefixEnvVars("DB_USER"),
+		Value:   "postgres",
+		//Required: true,
 	}
 	DbPasswordFlag = &cli.StringFlag{
-		Name:     "db-password",
-		Usage:    "The host of the database",
-		EnvVars:  prefixEnvVars("DB_PASSWORD"),
-		Required: true,
+		Name:    "db-password",
+		Usage:   "The host of the database",
+		EnvVars: prefixEnvVars("DB_PASSWORD"),
+		Value:   "postgres",
+		//Required: true,
 	}
 	DbNameFlag = &cli.StringFlag{
-		Name:     "db-name",
-		Usage:    "The db name of the database",
-		EnvVars:  prefixEnvVars("DB_NAME"),
-		Required: true,
+		Name:    "db-name",
+		Usage:   "The db name of the database",
+		EnvVars: prefixEnvVars("DB_NAME"),
+		Value:   "postgres",
+		//Required: true,
 	}
 	MetricsHostFlag = &cli.StringFlag{
 		Name:    "metrics-host",

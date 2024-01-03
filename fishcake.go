@@ -1,12 +1,35 @@
 package fishcake_service
 
 import (
-	"github.com/gin-gonic/gin"
-
+	"context"
+	"fmt"
+	"github.com/FishcakeLab/fishcake-service/config"
 	"github.com/FishcakeLab/fishcake-service/utils/mylogs"
+	"github.com/gin-gonic/gin"
 )
 
-func newApi() {
+type FishCake struct {
+}
+
+func (f *FishCake) Start(ctx context.Context) error {
+	return nil
+}
+
+func (f *FishCake) Stop(ctx context.Context) error {
+	return nil
+}
+
+func (f *FishCake) Stopped() bool {
+	return true
+}
+
+func NewFishCake(cfg *config.Config) *FishCake {
+	f := &FishCake{}
+	f.newApi(cfg)
+	return f
+}
+
+func (f *FishCake) newApi(cfg *config.Config) error {
 	gin.ForceConsoleColor()
 	gin.DefaultWriter = mylogs.MyLogWriter()
 
@@ -16,7 +39,7 @@ func newApi() {
 			"message": "pong",
 		})
 	})
-
-	r.Run()
-
+	port := fmt.Sprintf(":%d", cfg.HttpPort)
+	r.Run(port)
+	return nil
 }
