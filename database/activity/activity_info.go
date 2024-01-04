@@ -39,6 +39,6 @@ func (a activityInfoDB) ListActivityInfo() ([]ActivityInfo, error) {
 	return activityInfo, nil
 }
 
-func NewActivityInfoDb(db *gorm.DB) ActivityInfoDB {
+func NewActivityInfoDB(db *gorm.DB) ActivityInfoDB {
 	return &activityInfoDB{db: db}
 }

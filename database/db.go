@@ -66,7 +66,7 @@ func NewDB(dbConfig *config.Config) (*DB, error) {
 	db := &DB{
 		gorm:              gorm,
 		Blocks:            NewBlocksDB(gorm),
-		ActivityInfoDB:    activity.NewActivityInfoDb(gorm),
+		ActivityInfoDB:    activity.NewActivityInfoDB(gorm),
 		ActivityInfoExtDB: activity.NewActivityInfoExtDB(gorm),
 	}
 	return db, nil
@@ -77,7 +77,7 @@ func (db *DB) Transaction(fn func(db *DB) error) error {
 		txDB := &DB{
 			gorm:              tx,
 			Blocks:            NewBlocksDB(tx),
-			ActivityInfoDB:    activity.NewActivityInfoDb(tx),
+			ActivityInfoDB:    activity.NewActivityInfoDB(tx),
 			ActivityInfoExtDB: activity.NewActivityInfoExtDB(tx),
 		}
 		return fn(txDB)
