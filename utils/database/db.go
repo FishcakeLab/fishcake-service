@@ -51,12 +51,16 @@ func (db *orm) initDBConfig(cfg *config.Config) (err error) {
 		},
 	)
 
-	gormDb, err := gorm.Open(postgres.Open(dsn), &gorm.Config{
-		Logger: newLogger,
-		NowFunc: func() time.Time {
-			return time.Now().Local()
-		},
-	})
+	gormDb, err := gorm.Open(postgres.New(postgres.Config{
+		DSN:                  dsn,
+		PreferSimpleProtocol: true, // disables implicit prepared statement usage
+	}),
+		&gorm.Config{
+			Logger: newLogger,
+			NowFunc: func() time.Time {
+				return time.Now().Local()
+			},
+		})
 	if err != nil {
 		log.Fatalf("数据库连接错误：%v", err)
 		return err
