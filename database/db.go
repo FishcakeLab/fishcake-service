@@ -13,9 +13,9 @@ import (
 	"gorm.io/gorm"
 	"gorm.io/gorm/logger"
 
+	"github.com/FishcakeLab/fishcake-service/common/logs"
 	"github.com/FishcakeLab/fishcake-service/config"
 	"github.com/FishcakeLab/fishcake-service/synchronizer/retry"
-	"github.com/FishcakeLab/fishcake-service/utils/mylogs"
 )
 
 type DB struct {
@@ -24,7 +24,7 @@ type DB struct {
 }
 
 func NewDB(dbConfig *config.Config) (*DB, error) {
-	writer := mylogs.MyLogWriter()
+	writer := logs.MyLogWriter()
 	DbLogger := logger.New(
 		log.New(writer, "\r\n", log.Ldate|log.Ltime|log.LstdFlags), // io writer
 		logger.Config{

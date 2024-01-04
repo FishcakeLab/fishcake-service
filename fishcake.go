@@ -3,8 +3,8 @@ package fishcake_service
 import (
 	"context"
 	"fmt"
+	"github.com/FishcakeLab/fishcake-service/common/logs"
 	"github.com/FishcakeLab/fishcake-service/config"
-	"github.com/FishcakeLab/fishcake-service/utils/mylogs"
 	"github.com/gin-gonic/gin"
 )
 
@@ -31,7 +31,7 @@ func NewFishCake(cfg *config.Config) *FishCake {
 
 func (f *FishCake) newApi(cfg *config.Config) error {
 	gin.ForceConsoleColor()
-	gin.DefaultWriter = mylogs.MyLogWriter()
+	gin.DefaultWriter = logs.MyLogWriter()
 
 	r := gin.Default()
 	r.GET("/ping", func(c *gin.Context) {
