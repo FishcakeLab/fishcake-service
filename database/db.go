@@ -3,6 +3,7 @@ package database
 import (
 	"context"
 	"fmt"
+	"github.com/FishcakeLab/fishcake-service/database/activity"
 	"log"
 	"os"
 	"path/filepath"
@@ -19,8 +20,10 @@ import (
 )
 
 type DB struct {
-	gorm   *gorm.DB
-	Blocks BlocksDB
+	gorm              *gorm.DB
+	Blocks            BlocksDB
+	ActivityInfoDB    activity.ActivityInfoDB
+	ActivityInfoExtDB activity.ActivityInfoExtDB
 }
 
 func NewDB(dbConfig *config.Config) (*DB, error) {
@@ -61,8 +64,10 @@ func NewDB(dbConfig *config.Config) (*DB, error) {
 		return nil, err
 	}
 	db := &DB{
-		gorm:   gorm,
-		Blocks: NewBlocksDB(gorm),
+		gorm:              gorm,
+		Blocks:            NewBlocksDB(gorm),
+		ActivityInfoDB:    activity.NewActivityInfoDb(gorm),
+		ActivityInfoExtDB: activity.NewActivityInfoExtDB(gorm),
 	}
 	return db, nil
 }
@@ -70,8 +75,10 @@ func NewDB(dbConfig *config.Config) (*DB, error) {
 func (db *DB) Transaction(fn func(db *DB) error) error {
 	return db.gorm.Transaction(func(tx *gorm.DB) error {
 		txDB := &DB{
-			gorm:   tx,
-			Blocks: NewBlocksDB(tx),
+			gorm:              tx,
+			Blocks:            NewBlocksDB(tx),
+			ActivityInfoDB:    activity.NewActivityInfoDb(tx),
+			ActivityInfoExtDB: activity.NewActivityInfoExtDB(tx),
 		}
 		return fn(txDB)
 	})

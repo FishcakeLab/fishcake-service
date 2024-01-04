@@ -3,6 +3,7 @@ package fishcake_service
 import (
 	"context"
 	"fmt"
+	"github.com/FishcakeLab/fishcake-service/api/activity_info"
 	"github.com/FishcakeLab/fishcake-service/common/logs"
 	"github.com/FishcakeLab/fishcake-service/config"
 	"github.com/gin-gonic/gin"
@@ -39,6 +40,9 @@ func (f *FishCake) newApi(cfg *config.Config) error {
 			"message": "pong",
 		})
 	})
+
+	activity_info.ActivityInfoApi(r)
+
 	port := fmt.Sprintf(":%d", cfg.HttpPort)
 	r.Run(port)
 	return nil
