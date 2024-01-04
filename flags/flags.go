@@ -37,38 +37,38 @@ var (
 		Value:   8987,
 	}
 	DbHostFlag = &cli.StringFlag{
-		Name:    "db-host",
+		Name:    "migrations-host",
 		Usage:   "The host of the database",
 		EnvVars: prefixEnvVars("DB_HOST"),
 		Value:   "127.0.0.1",
 		//Required: true,
 	}
 	DbPortFlag = &cli.IntFlag{
-		Name:    "db-port",
+		Name:    "migrations-port",
 		Usage:   "The port of the database",
 		EnvVars: prefixEnvVars("DB_PORT"),
 		Value:   5432,
 		//Required: true,
 	}
 	DbUserFlag = &cli.StringFlag{
-		Name:    "db-user",
+		Name:    "migrations-user",
 		Usage:   "The user of the database",
 		EnvVars: prefixEnvVars("DB_USER"),
-		Value:   "postgres",
+		Value:   "graphnode",
 		//Required: true,
 	}
 	DbPasswordFlag = &cli.StringFlag{
-		Name:    "db-password",
+		Name:    "migrations-password",
 		Usage:   "The host of the database",
 		EnvVars: prefixEnvVars("DB_PASSWORD"),
-		Value:   "postgres",
+		Value:   "",
 		//Required: true,
 	}
 	DbNameFlag = &cli.StringFlag{
-		Name:    "db-name",
-		Usage:   "The db name of the database",
+		Name:    "migrations-name",
+		Usage:   "The migrations name of the database",
 		EnvVars: prefixEnvVars("DB_NAME"),
-		Value:   "postgres",
+		Value:   "fishcake",
 		//Required: true,
 	}
 	MetricsHostFlag = &cli.StringFlag{

@@ -4,7 +4,6 @@ import (
 	"context"
 	"fmt"
 	"github.com/FishcakeLab/fishcake-service/config"
-	"github.com/FishcakeLab/fishcake-service/utils/database"
 	"github.com/FishcakeLab/fishcake-service/utils/mylogs"
 	"github.com/gin-gonic/gin"
 )
@@ -26,7 +25,6 @@ func (f *FishCake) Stopped() bool {
 
 func NewFishCake(cfg *config.Config) *FishCake {
 	f := &FishCake{}
-	database.NewOrm(cfg)
 	f.newApi(cfg)
 	return f
 }

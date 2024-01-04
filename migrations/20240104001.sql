@@ -1,5 +1,17 @@
 CREATE EXTENSION "uuid-ossp";
-CREATE TABLE activity_info
+
+CREATE TABLE IF NOT EXISTS block_headers (
+    hash        VARCHAR PRIMARY KEY,
+    parent_hash VARCHAR NOT NULL UNIQUE,
+    number      BIGINT NOT NULL UNIQUE,
+    timestamp   BIGINT NOT NULL UNIQUE CHECK (timestamp > 0),
+    rlp_bytes   VARCHAR NOT NULL
+);
+CREATE INDEX IF NOT EXISTS block_headers_timestamp ON block_headers(timestamp);
+CREATE INDEX IF NOT EXISTS block_headers_number ON block_headers(number);
+
+
+CREATE TABLE IF NOT EXISTS activity_info
 (
     id                   UUID PRIMARY KEY DEFAULT uuid_generate_v4(), -- 唯一标识符，主键
     activity_id          BIGINT,                                      -- 活动ID
@@ -16,7 +28,7 @@ CREATE TABLE activity_info
     token_contract_addr  TEXT                                         -- Token合约地址，例如USDT合约地址
 );
 
-CREATE TABLE activity_info_ext
+CREATE TABLE IF NOT EXISTS activity_info_ext
 (
     id                            UUID PRIMARY KEY  DEFAULT uuid_generate_v4(), -- 唯一标识符，主键
     activity_id                   BIGINT,           -- 活动ID
@@ -25,4 +37,15 @@ CREATE TABLE activity_info_ext
     business_mined_amt            BIGINT,           -- 商家获得的挖矿奖励
     business_mined_withdrawed_amt BIGINT,           -- 商家已提取的挖矿奖励
     activity_status               SMALLINT          -- 活动状态：1表示进行中  2表示已结束
+);
+
+CREATE TABLE IF NOT EXISTS token_nft
+(
+    id                            UUID PRIMARY KEY  DEFAULT uuid_generate_v4(), -- 唯一标识符，主键
+    token_id                      BIGINT,           -- TokenID
+    address                       VARCHAR,          -- Token 地址
+    contract_address              VARCHAR,          -- 合约地址
+    token_url                     VARCHAR,          -- NFT URL
+    token_amount                  BIGINT,           -- token 数量
+    timestamp                     BIGINT            -- nft 链上时间戳
 );
