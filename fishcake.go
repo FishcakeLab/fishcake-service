@@ -6,6 +6,7 @@ import (
 	"github.com/FishcakeLab/fishcake-service/api/activity_info"
 	"github.com/FishcakeLab/fishcake-service/common/logs"
 	"github.com/FishcakeLab/fishcake-service/config"
+	"github.com/FishcakeLab/fishcake-service/database"
 	"github.com/gin-gonic/gin"
 )
 
@@ -24,13 +25,13 @@ func (f *FishCake) Stopped() bool {
 	return true
 }
 
-func NewFishCake(cfg *config.Config) *FishCake {
+func NewFishCake(cfg *config.Config, db *database.DB) *FishCake {
 	f := &FishCake{}
-	f.newApi(cfg)
+	f.newApi(cfg, db)
 	return f
 }
 
-func (f *FishCake) newApi(cfg *config.Config) error {
+func (f *FishCake) newApi(cfg *config.Config, db *database.DB) error {
 	gin.ForceConsoleColor()
 	gin.DefaultWriter = logs.MyLogWriter()
 
@@ -41,7 +42,7 @@ func (f *FishCake) newApi(cfg *config.Config) error {
 		})
 	})
 
-	activity_info.ActivityInfoApi(r)
+	activity_info.ActivityInfoApi(r, db)
 
 	port := fmt.Sprintf(":%d", cfg.HttpPort)
 	r.Run(port)

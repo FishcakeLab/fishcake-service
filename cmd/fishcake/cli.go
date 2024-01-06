@@ -18,7 +18,7 @@ import (
 
 func runIndexer(ctx *cli.Context, shutdown context.CancelCauseFunc) (cliapp.Lifecycle, error) {
 	log.Printf("run indexer start")
-	cfg, err := config.NewConfig(ctx)
+	cfg, err := config.New(ctx.String("api"))
 	if err != nil {
 		log.Printf("failed to load config", "err", err)
 		return nil, err
@@ -29,19 +29,30 @@ func runIndexer(ctx *cli.Context, shutdown context.CancelCauseFunc) (cliapp.Life
 
 func runApi(ctx *cli.Context, _ context.CancelCauseFunc) (cliapp.Lifecycle, error) {
 	log.Printf("run api start")
-	cfg, err := config.NewConfig(ctx)
+	cfg, err := config.New(ctx.String("api"))
+
 	if err != nil {
 		log.Printf("Failed to load config", "err", err)
 		return nil, err
 	}
 	log.Printf("Run api start", "HttpHostHost", cfg.HttpHost, "HttpHostHost", cfg.HttpPort)
-
-	return fishcake_service.NewFishCake(cfg), nil
+	db, err := database.NewDB(cfg)
+	if err != nil {
+		log.Fatalf("failed to connect to database", "err", err)
+		return nil, err
+	}
+	defer func(db *database.DB) {
+		err := db.Close()
+		if err != nil {
+			return
+		}
+	}(db)
+	return fishcake_service.NewFishCake(cfg, db), nil
 }
 
 func runMigrations(ctx *cli.Context) error {
 	log.Println("Running migrations...")
-	cfg, err := config.NewConfig(ctx)
+	cfg, err := config.New(ctx.String("api"))
 	if err != nil {
 		log.Printf("Failed to load config", "err", err)
 		return err

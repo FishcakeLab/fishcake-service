@@ -1,6 +1,12 @@
 package activity
 
-import "gorm.io/gorm"
+import (
+	"errors"
+	"gorm.io/gorm"
+
+	"github.com/FishcakeLab/fishcake-service/common/enum"
+	"github.com/FishcakeLab/fishcake-service/common/errors_h"
+)
 
 type ActivityInfo struct {
 	Id                 string `gorm:"id" `
@@ -19,7 +25,7 @@ type ActivityInfo struct {
 }
 
 type ActivityInfoView interface {
-	ListActivityInfo() ([]ActivityInfo, error)
+	ListActivityInfo(pageNum, pageSize int) ([]ActivityInfo, int64, error)
 }
 
 type ActivityInfoDB interface {
@@ -30,13 +36,23 @@ type activityInfoDB struct {
 	db *gorm.DB
 }
 
-func (a activityInfoDB) ListActivityInfo() ([]ActivityInfo, error) {
+func (a activityInfoDB) ListActivityInfo(pageNum, pageSize int) ([]ActivityInfo, int64, error) {
 	var activityInfo []ActivityInfo
-	err := a.db.Find(&activityInfo).Error
-	if err != nil {
-		return nil, err
+	var count int64
+	this := a.db
+	this = this.Count(&count)
+	if pageNum > 0 && pageSize > 0 {
+		this = this.Limit(pageSize).Offset((pageNum - 1) * pageSize)
 	}
-	return activityInfo, nil
+	result := this.Find(&activityInfo)
+	if result.Error == nil {
+		return activityInfo, count, nil
+	} else if !errors.Is(result.Error, gorm.ErrRecordNotFound) {
+		errors_h.NewErrorByEnum(enum.DataErr)
+		return nil, count, nil
+	} else {
+		return nil, count, nil
+	}
 }
 
 func NewActivityDB(db *gorm.DB) ActivityInfoDB {
