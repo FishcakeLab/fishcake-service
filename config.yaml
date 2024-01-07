@@ -1,11 +1,11 @@
-migrations:
+migrations: "./migrations"
 polygon_rpc:
 http_host: "127.0.0.1"
 http_port: 8087
-db_host: ""
+db_host: "120.77.251.247"
 db_port: 5432
-db_name: ""
-db_user: ""
-db_password: ""
+db_name: "fishcake"
+db_user: "postgres"
+db_password: "galamini"
 metrics_host:
 metrics_port:

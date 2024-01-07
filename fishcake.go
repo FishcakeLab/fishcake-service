@@ -4,7 +4,9 @@ import (
 	"context"
 	"fmt"
 	"github.com/FishcakeLab/fishcake-service/api/activity_info"
+	"github.com/FishcakeLab/fishcake-service/common/errors_h"
 	"github.com/FishcakeLab/fishcake-service/common/logs"
+	"github.com/FishcakeLab/fishcake-service/common/middleware"
 	"github.com/FishcakeLab/fishcake-service/config"
 	"github.com/FishcakeLab/fishcake-service/database"
 	"github.com/gin-gonic/gin"
@@ -36,6 +38,12 @@ func (f *FishCake) newApi(cfg *config.Config, db *database.DB) error {
 	gin.DefaultWriter = logs.MyLogWriter()
 
 	r := gin.Default()
+
+	// 统一异常处理
+	r.Use(errors_h.Recover)
+	// 跨域处理
+	r.Use(middleware.Cors())
+
 	r.GET("/ping", func(c *gin.Context) {
 		c.JSON(200, gin.H{
 			"message": "pong",

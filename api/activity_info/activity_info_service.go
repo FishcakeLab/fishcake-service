@@ -1,9 +1,9 @@
 package activity_info
 
 import (
-	"context"
 	"github.com/FishcakeLab/fishcake-service/config"
 	"github.com/FishcakeLab/fishcake-service/database"
+	"github.com/FishcakeLab/fishcake-service/database/activity"
 	"log"
 )
 
@@ -14,8 +14,7 @@ type activityInfoService struct {
 var ActivityInfoService *activityInfoService
 
 func init() {
-	ctx := context.Background()
-	cfg, err := config.New(ctx.String("api"))
+	cfg, err := config.New("./config.yaml")
 	if err != nil {
 		log.Fatalf("Failed to load config", "err", err)
 	}
@@ -24,16 +23,10 @@ func init() {
 	if err != nil {
 		log.Fatalf("failed to connect to database", "err", err)
 	}
-	defer func(db *database.DB) {
-		err := db.Close()
-		if err != nil {
-			return
-		}
-	}(db)
 	ActivityInfoService = &activityInfoService{Db: db}
 }
 
-func (s *activityInfoService) List(pageSize, pageNum string) {
-
-	s.Db.ActivityInfoDB.ListActivityInfo()
+func (s *activityInfoService) List(pageSize, pageNum string) ([]activity.ActivityInfo, int64) {
+	infos, count := s.Db.ActivityInfoDB.ListActivityInfo(0, 10)
+	return infos, count
 }

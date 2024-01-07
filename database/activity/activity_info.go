@@ -2,10 +2,9 @@ package activity
 
 import (
 	"errors"
-	"gorm.io/gorm"
-
 	"github.com/FishcakeLab/fishcake-service/common/enum"
 	"github.com/FishcakeLab/fishcake-service/common/errors_h"
+	"gorm.io/gorm"
 )
 
 type ActivityInfo struct {
@@ -24,8 +23,12 @@ type ActivityInfo struct {
 	TokenContractAddr  string `gorm:"token_contract_addr"`
 }
 
+func (ActivityInfo) TableName() string {
+	return "activity_info"
+}
+
 type ActivityInfoView interface {
-	ListActivityInfo(pageNum, pageSize int) ([]ActivityInfo, int64, error)
+	ListActivityInfo(pageNum, pageSize int) ([]ActivityInfo, int64)
 }
 
 type ActivityInfoDB interface {
@@ -36,22 +39,22 @@ type activityInfoDB struct {
 	db *gorm.DB
 }
 
-func (a activityInfoDB) ListActivityInfo(pageNum, pageSize int) ([]ActivityInfo, int64, error) {
+func (a activityInfoDB) ListActivityInfo(pageNum, pageSize int) ([]ActivityInfo, int64) {
 	var activityInfo []ActivityInfo
 	var count int64
-	this := a.db
+	this := a.db.Table("activity_info")
 	this = this.Count(&count)
 	if pageNum > 0 && pageSize > 0 {
 		this = this.Limit(pageSize).Offset((pageNum - 1) * pageSize)
 	}
 	result := this.Find(&activityInfo)
 	if result.Error == nil {
-		return activityInfo, count, nil
+		return activityInfo, count
 	} else if !errors.Is(result.Error, gorm.ErrRecordNotFound) {
 		errors_h.NewErrorByEnum(enum.DataErr)
-		return nil, count, nil
+		return nil, count
 	} else {
-		return nil, count, nil
+		return nil, count
 	}
 }
 

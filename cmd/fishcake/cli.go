@@ -18,7 +18,7 @@ import (
 
 func runIndexer(ctx *cli.Context, shutdown context.CancelCauseFunc) (cliapp.Lifecycle, error) {
 	log.Printf("run indexer start")
-	cfg, err := config.New(ctx.String("api"))
+	cfg, err := config.New("./config.yaml")
 	if err != nil {
 		log.Printf("failed to load config", "err", err)
 		return nil, err
@@ -29,7 +29,7 @@ func runIndexer(ctx *cli.Context, shutdown context.CancelCauseFunc) (cliapp.Life
 
 func runApi(ctx *cli.Context, _ context.CancelCauseFunc) (cliapp.Lifecycle, error) {
 	log.Printf("run api start")
-	cfg, err := config.New(ctx.String("api"))
+	cfg, err := config.New("./config.yaml")
 
 	if err != nil {
 		log.Printf("Failed to load config", "err", err)
@@ -52,7 +52,7 @@ func runApi(ctx *cli.Context, _ context.CancelCauseFunc) (cliapp.Lifecycle, erro
 
 func runMigrations(ctx *cli.Context) error {
 	log.Println("Running migrations...")
-	cfg, err := config.New(ctx.String("api"))
+	cfg, err := config.New("./config.yaml")
 	if err != nil {
 		log.Printf("Failed to load config", "err", err)
 		return err

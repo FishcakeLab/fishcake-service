@@ -1,4 +1,4 @@
-package format
+package api_result
 
 import (
 	"net/http"
@@ -24,7 +24,7 @@ func (r *apiResultJson) SetHeader(key, value string) *apiResultJson {
 func (r *apiResultJson) Success(data interface{}) {
 	apiResult := ApiResult{
 		Success: true,
-		Msg:     "成功",
+		Msg:     "success",
 		Obj:     data,
 		Code:    "0000",
 	}
@@ -60,7 +60,7 @@ func Error(errCode string, errMsg string) ApiResult {
 func Success(data interface{}) ApiResult {
 	return ApiResult{
 		Success: true,
-		Msg:     "成功",
+		Msg:     "success",
 		Obj:     data,
 		Code:    "0000",
 	}

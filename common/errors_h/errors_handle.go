@@ -6,7 +6,7 @@ import (
 
 	"github.com/gin-gonic/gin"
 
-	format "github.com/FishcakeLab/fishcake-service/common/api_result"
+	"github.com/FishcakeLab/fishcake-service/common/api_result"
 	"github.com/FishcakeLab/fishcake-service/common/enum"
 )
 
@@ -35,10 +35,10 @@ func Recover(c *gin.Context) {
 			if myErr, ok := r.(*error); ok {
 				//打印错误堆栈信息
 				log.Printf("panic: %v\n", r)
-				format.NewApiResult(c).Error(myErr.code, myErr.msg)
+				api_result.NewApiResult(c).Error(myErr.code, myErr.msg)
 			} else {
 				//封装通用json返回
-				format.NewApiResult(c).Error("9999", "Service upgrading. Please try again later.")
+				api_result.NewApiResult(c).Error("9999", "Service upgrading. Please try again later.")
 				// 未知错误
 				log.Printf("panic: %v\n", r)
 				debug.PrintStack()

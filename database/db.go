@@ -3,7 +3,6 @@ package database
 import (
 	"context"
 	"fmt"
-	"github.com/FishcakeLab/fishcake-service/database/activity"
 	"log"
 	"os"
 	"path/filepath"
@@ -16,6 +15,7 @@ import (
 
 	"github.com/FishcakeLab/fishcake-service/common/logs"
 	"github.com/FishcakeLab/fishcake-service/config"
+	"github.com/FishcakeLab/fishcake-service/database/activity"
 	"github.com/FishcakeLab/fishcake-service/synchronizer/retry"
 )
 
