@@ -42,7 +42,7 @@ type activityInfoDB struct {
 func (a activityInfoDB) ListActivityInfo(pageNum, pageSize int) ([]ActivityInfo, int64) {
 	var activityInfo []ActivityInfo
 	var count int64
-	this := a.db.Table("activity_info")
+	this := a.db.Table(ActivityInfo{}.TableName())
 	this = this.Count(&count)
 	if pageNum > 0 && pageSize > 0 {
 		this = this.Limit(pageSize).Offset((pageNum - 1) * pageSize)
