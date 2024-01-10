@@ -1,5 +1,5 @@
 migrations: "./migrations"
-polygon_rpc:
+polygon_rpc: "127.0.0.1:8189"
 http_host: "127.0.0.1"
 http_port: 8087
 db_host: "120.77.251.247"

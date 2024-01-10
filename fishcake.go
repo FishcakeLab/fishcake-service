@@ -4,12 +4,13 @@ import (
 	"context"
 	"fmt"
 	"github.com/FishcakeLab/fishcake-service/api/activity_info"
-	"github.com/FishcakeLab/fishcake-service/api/service"
+	"github.com/FishcakeLab/fishcake-service/api/chain_info"
 	"github.com/FishcakeLab/fishcake-service/common/errors_h"
 	"github.com/FishcakeLab/fishcake-service/common/logs"
 	"github.com/FishcakeLab/fishcake-service/common/middleware"
 	"github.com/FishcakeLab/fishcake-service/config"
 	"github.com/FishcakeLab/fishcake-service/database"
+	"github.com/FishcakeLab/fishcake-service/service"
 	"github.com/gin-gonic/gin"
 )
 
@@ -37,7 +38,7 @@ func NewFishCake(cfg *config.Config, db *database.DB) *FishCake {
 func (f *FishCake) newApi(cfg *config.Config, db *database.DB) error {
 
 	// init base service
-	service.NewBaseService(db)
+	service.NewBaseService(db, cfg)
 
 	gin.ForceConsoleColor()
 	gin.DefaultWriter = logs.MyLogWriter()
@@ -54,6 +55,7 @@ func (f *FishCake) newApi(cfg *config.Config, db *database.DB) error {
 	})
 
 	activity_info.ActivityInfoApi(r)
+	chain_info.ChainInfoApi(r)
 
 	port := fmt.Sprintf(":%d", cfg.HttpPort)
 	r.Run(port)

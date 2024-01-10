@@ -1,10 +1,10 @@
 package activity_info
 
 import (
-	"github.com/FishcakeLab/fishcake-service/api/service"
 	"github.com/gin-gonic/gin"
 
 	"github.com/FishcakeLab/fishcake-service/common/api_result"
+	"github.com/FishcakeLab/fishcake-service/service"
 )
 
 func ActivityInfoApi(rg *gin.Engine) {
