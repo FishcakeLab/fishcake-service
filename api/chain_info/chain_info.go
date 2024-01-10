@@ -18,7 +18,7 @@ func balance(c *gin.Context) {
 	address := c.Query("address")
 	//contractAddress := c.Query("contractAddress")
 	response := service.BaseService.RpcService.GetBalance(address)
-	if response.Code == global_const.RpcReturnCodeSUCCESS {
+	if response.Code == global_const.RpcReturnCodeSuccess {
 		api_result.NewApiResult(c).Success(response.Balance)
 		return
 	}

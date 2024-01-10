@@ -6,8 +6,8 @@ const ChainName = "chainName"
 
 const Polygon = "Polygon"
 
-const RpcReturnCodeSUCCESS = 0
-const RpcReturnCodeERROR = 1
+const RpcReturnCodeSuccess = 0
+const RpcReturnCodeError = 1
 
 // AssetsType20 erc20资产
 const AssetsType20 = 20
