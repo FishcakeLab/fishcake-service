@@ -1,5 +1,7 @@
+DROP EXTENSION IF EXISTS "uuid-ossp" cascade;
 CREATE EXTENSION "uuid-ossp";
 
+DROP TABLE IF EXISTS block_headers;
 CREATE TABLE IF NOT EXISTS block_headers (
     hash        VARCHAR PRIMARY KEY,
     parent_hash VARCHAR NOT NULL UNIQUE,
@@ -10,10 +12,10 @@ CREATE TABLE IF NOT EXISTS block_headers (
 CREATE INDEX IF NOT EXISTS block_headers_timestamp ON block_headers(timestamp);
 CREATE INDEX IF NOT EXISTS block_headers_number ON block_headers(number);
 
-
+DROP TABLE IF EXISTS activity_info;
 CREATE TABLE IF NOT EXISTS activity_info
 (
-    id                   UUID PRIMARY KEY DEFAULT uuid_generate_v4(), -- 唯一标识符，主键
+    id                   text PRIMARY KEY DEFAULT replace(uuid_generate_v4()::text,'-',''), -- 唯一标识符，主键
     activity_id          BIGINT,                                      -- 活动ID
     business_account     TEXT,                                        -- 发起人账户（商家0x...）
     business_name        TEXT,                                        -- 商家名称
@@ -28,9 +30,13 @@ CREATE TABLE IF NOT EXISTS activity_info
     token_contract_addr  TEXT                                         -- Token合约地址，例如USDT合约地址
 );
 
+CREATE INDEX IF NOT EXISTS activity_info_activity_id ON activity_info(activity_id);
+
+
+DROP TABLE IF EXISTS activity_info_ext;
 CREATE TABLE IF NOT EXISTS activity_info_ext
 (
-    id                            UUID PRIMARY KEY  DEFAULT uuid_generate_v4(), -- 唯一标识符，主键
+    id                            text PRIMARY KEY  DEFAULT replace(uuid_generate_v4()::text,'-',''), -- 唯一标识符，主键
     activity_id                   BIGINT,           -- 活动ID
     already_drop_amts             BIGINT,           -- 总共已奖励数量
     already_drop_number           BIGINT,           -- 总共已奖励份数
@@ -38,10 +44,12 @@ CREATE TABLE IF NOT EXISTS activity_info_ext
     business_mined_withdrawed_amt BIGINT,           -- 商家已提取的挖矿奖励
     activity_status               SMALLINT          -- 活动状态：1表示进行中  2表示已结束
 );
+CREATE INDEX IF NOT EXISTS activity_info_ext_activity_id ON activity_info_ext(activity_id);
 
+DROP TABLE IF EXISTS token_nft;
 CREATE TABLE IF NOT EXISTS token_nft
 (
-    id                            UUID PRIMARY KEY  DEFAULT uuid_generate_v4(), -- 唯一标识符，主键
+    id                            text PRIMARY KEY  DEFAULT replace(uuid_generate_v4()::text,'-',''), -- 唯一标识符，主键
     token_id                      BIGINT,           -- TokenID
     address                       VARCHAR,          -- Token 地址
     contract_address              VARCHAR,          -- 合约地址

@@ -3,13 +3,13 @@ package activity
 import "gorm.io/gorm"
 
 type ActivityInfoExt struct {
-	Id                         string `gorm:"id"`
-	ActivityId                 int64  `gorm:"activity_id"`
-	AlreadyDropAmts            int64  `gorm:"already_drop_amts"`
-	AlreadyDropNumber          int64  `gorm:"already_drop_number"`
-	BusinessMinedAmt           int64  `gorm:"business_mined_amt"`
-	BusinessMinedWithdrawedAmt int64  `gorm:"business_mined_withdrawed_amt"`
-	ActivityStatus             int8   `gorm:"activity_status"`
+	Id                         string `gorm:"id" json:"id"`
+	ActivityId                 int64  `gorm:"activity_id" json:"activityId"`
+	AlreadyDropAmts            int64  `gorm:"already_drop_amts" json:"alreadyDropAmts"`
+	AlreadyDropNumber          int64  `gorm:"already_drop_number" json:"alreadyDropNumber"`
+	BusinessMinedAmt           int64  `gorm:"business_mined_amt" json:"businessMinedAmt"`
+	BusinessMinedWithdrawedAmt int64  `gorm:"business_mined_withdrawed_amt" json:"businessMinedWithdrawedAmt"`
+	ActivityStatus             int8   `gorm:"activity_status" json:"activityStatus"`
 }
 
 type ActivityInfoExtView interface {

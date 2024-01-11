@@ -6,12 +6,28 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
+const (
+	Result      = "result"
+	Total       = "total"
+	CurrentPage = "currentPage"
+	PageSize    = "pageSize"
+)
+
 type apiResultJson struct {
 	context *gin.Context
 }
 
 func NewApiResult(ctx *gin.Context) *apiResultJson {
 	return &apiResultJson{context: ctx}
+}
+
+func NewPage(data interface{}, total, currentPage, pageSize int) gin.H {
+	return gin.H{
+		Result:      data,
+		Total:       total,
+		CurrentPage: currentPage,
+		PageSize:    pageSize,
+	}
 }
 
 // 设置响应头

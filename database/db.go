@@ -3,6 +3,7 @@ package database
 import (
 	"context"
 	"fmt"
+	"github.com/FishcakeLab/fishcake-service/database/token_nft"
 	"log"
 	"os"
 	"path/filepath"
@@ -24,6 +25,7 @@ type DB struct {
 	Blocks            BlocksDB
 	ActivityInfoDB    activity.ActivityInfoDB
 	ActivityInfoExtDB activity.ActivityInfoExtDB
+	TokenNftDb        token_nft.TokenNftDB
 }
 
 func NewDB(dbConfig *config.Config) (*DB, error) {
@@ -68,6 +70,7 @@ func NewDB(dbConfig *config.Config) (*DB, error) {
 		Blocks:            NewBlocksDB(gorm),
 		ActivityInfoDB:    activity.NewActivityDB(gorm),
 		ActivityInfoExtDB: activity.NewActivityInfoExtDB(gorm),
+		TokenNftDb:        token_nft.NewTokenNftDB(gorm),
 	}
 	return db, nil
 }
@@ -79,6 +82,7 @@ func (db *DB) Transaction(fn func(db *DB) error) error {
 			Blocks:            NewBlocksDB(tx),
 			ActivityInfoDB:    activity.NewActivityDB(tx),
 			ActivityInfoExtDB: activity.NewActivityInfoExtDB(tx),
+			TokenNftDb:        token_nft.NewTokenNftDB(tx),
 		}
 		return fn(txDB)
 	})

@@ -1,6 +1,7 @@
 package activity_info
 
 import (
+	"github.com/FishcakeLab/fishcake-service/common/bigint"
 	"github.com/gin-gonic/gin"
 
 	"github.com/FishcakeLab/fishcake-service/common/api_result"
@@ -13,13 +14,13 @@ func ActivityInfoApi(rg *gin.Engine) {
 }
 
 func list(c *gin.Context) {
-	pageSize := c.Query("")
-	pageNo := c.Query("")
-
-	infos, count := service.BaseService.ActivityInfoService.List(pageSize, pageNo)
-	api_result.NewApiResult(c).Success(gin.H{
-		"result": infos,
-		"total":  count,
-	})
-
+	pageSizeStr := c.Query("pageSize")
+	pageNumStr := c.Query("pageNum")
+	pageSize := bigint.StringToInt(pageSizeStr)
+	pageNum := bigint.StringToInt(pageNumStr)
+	infos, count := service.BaseService.ActivityInfoService.List(pageNum, pageSize)
+	page := api_result.NewPage(infos, count, pageNum, pageSize)
+	api_result.NewApiResult(c).Success(page)
 }
+
+//func

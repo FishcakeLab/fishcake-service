@@ -2,7 +2,6 @@ package rpc_service
 
 import (
 	"context"
-	"github.com/FishcakeLab/fishcake-service/common/global_const"
 	"log"
 
 	"google.golang.org/grpc"
@@ -10,6 +9,7 @@ import (
 
 	"github.com/FishcakeLab/fishcake-service/common/enum"
 	"github.com/FishcakeLab/fishcake-service/common/errors_h"
+	"github.com/FishcakeLab/fishcake-service/common/global_const"
 	"github.com/FishcakeLab/fishcake-service/rpc/wallet"
 )
 
