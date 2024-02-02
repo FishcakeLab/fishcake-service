@@ -18,7 +18,7 @@ type RpcService interface {
 }
 
 type rpcService struct {
-	walletSercice wallet.WalletServiceClient
+	walletService wallet.WalletServiceClient
 }
 
 func NewRpcService(rpcUrl string) RpcService {
@@ -33,7 +33,7 @@ func NewRpcService(rpcUrl string) RpcService {
 func (r *rpcService) GetBalance(address string) *wallet.BalanceResponse {
 	ctx := context.Background()
 	balanceRequest := &wallet.BalanceRequest{Chain: global_const.Polygon, Address: address}
-	balance, err := r.walletSercice.GetBalance(ctx, balanceRequest)
+	balance, err := r.walletService.GetBalance(ctx, balanceRequest)
 	if err != nil {
 		errors_h.NewErrorByEnum(enum.GrpcErr)
 	}
