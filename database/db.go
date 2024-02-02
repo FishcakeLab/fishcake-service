@@ -23,6 +23,7 @@ import (
 type DB struct {
 	gorm              *gorm.DB
 	Blocks            BlocksDB
+	ContractEvent     ContractEventDB
 	ActivityInfoDB    activity.ActivityInfoDB
 	ActivityInfoExtDB activity.ActivityInfoExtDB
 	TokenNftDb        token_nft.TokenNftDB
@@ -68,6 +69,7 @@ func NewDB(dbConfig *config.Config) (*DB, error) {
 	db := &DB{
 		gorm:              gorm,
 		Blocks:            NewBlocksDB(gorm),
+		ContractEvent:     NewContractEventsDB(gorm),
 		ActivityInfoDB:    activity.NewActivityDB(gorm),
 		ActivityInfoExtDB: activity.NewActivityInfoExtDB(gorm),
 		TokenNftDb:        token_nft.NewTokenNftDB(gorm),
@@ -80,6 +82,7 @@ func (db *DB) Transaction(fn func(db *DB) error) error {
 		txDB := &DB{
 			gorm:              tx,
 			Blocks:            NewBlocksDB(tx),
+			ContractEvent:     NewContractEventsDB(tx),
 			ActivityInfoDB:    activity.NewActivityDB(tx),
 			ActivityInfoExtDB: activity.NewActivityInfoExtDB(tx),
 			TokenNftDb:        token_nft.NewTokenNftDB(tx),
