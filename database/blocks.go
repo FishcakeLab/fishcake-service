@@ -6,6 +6,8 @@ import (
 	"gorm.io/gorm"
 
 	"github.com/ethereum/go-ethereum/common"
+
+	"github.com/FishcakeLab/fishcake-service/database/utils"
 )
 
 type BlockHeader struct {
@@ -13,13 +15,14 @@ type BlockHeader struct {
 	ParentHash common.Hash `gorm:"serializer:bytes"`
 	Number     *big.Int    `gorm:"serializer:u256"`
 	Timestamp  uint64
+	RLPHeader  *utils.RLPHeader `gorm:"serializer:rlp;column:rlp_bytes"`
 }
 
 type BlocksView interface {
 	BlockHeader(common.Hash) (*BlockHeader, error)
 	BlockHeaderWithFilter(BlockHeader) (*BlockHeader, error)
 	BlockHeaderWithScope(func(db *gorm.DB) *gorm.DB) (*BlockHeader, error)
-	L1LatestBlockHeader() (*BlockHeader, error)
+	LatestBlockHeader() (*BlockHeader, error)
 }
 
 type BlocksDB interface {
@@ -48,7 +51,7 @@ func (b blocksDB) BlockHeaderWithScope(f func(db *gorm.DB) *gorm.DB) (*BlockHead
 	panic("implement me")
 }
 
-func (b blocksDB) L1LatestBlockHeader() (*BlockHeader, error) {
+func (b blocksDB) LatestBlockHeader() (*BlockHeader, error) {
 	//TODO implement me
 	panic("implement me")
 }

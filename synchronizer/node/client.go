@@ -1,50 +1,54 @@
-package polygon_client
+package node
 
 import (
 	"context"
+	"errors"
 	"fmt"
+	"log"
 	"math/big"
 	"net"
 	"net/url"
+	"sync"
 	"time"
-
-	"github.com/pkg/errors"
 
 	"github.com/ethereum/go-ethereum"
 	"github.com/ethereum/go-ethereum/common"
 	"github.com/ethereum/go-ethereum/common/hexutil"
 	"github.com/ethereum/go-ethereum/core/types"
-	"github.com/ethereum/go-ethereum/crypto"
 	"github.com/ethereum/go-ethereum/rpc"
 
+	"github.com/FishcakeLab/fishcake-service/common/global_const"
 	"github.com/FishcakeLab/fishcake-service/synchronizer/retry"
 )
 
 const (
-	defaultDialTimeout    = 5 * time.Second
-	defaultDialAttempts   = 5
+	// defaultDialTimeout is default duration the processor will wait on
+	// startup to make a connection to the backend
+	defaultDialTimeout = 5 * time.Second
+
+	// defaultDialAttempts is the default attempts a connection will be made
+	// before failing
+	defaultDialAttempts = 5
+
+	// defaultRequestTimeout is the default duration the processor will
+	// wait for a request to be fulfilled
 	defaultRequestTimeout = 10 * time.Second
 )
 
-type PolygonClient interface {
+type EthClient interface {
 	BlockHeaderByNumber(*big.Int) (*types.Header, error)
-	BlockByNumber(*big.Int) (*types.Block, error)
 	LatestSafeBlockHeader() (*types.Header, error)
 	LatestFinalizedBlockHeader() (*types.Header, error)
 	BlockHeaderByHash(common.Hash) (*types.Header, error)
-	BlockByHash(common.Hash) (*types.Block, error)
-	BlockHeadersByRange(*big.Int, *big.Int) ([]types.Header, error)
+	BlockHeadersByRange(*big.Int, *big.Int, uint) ([]types.Header, error)
 
 	TxByHash(common.Hash) (*types.Transaction, error)
-	TxReceiptByHash(common.Hash) (*types.Receipt, error)
 
 	StorageHash(common.Address, *big.Int) (common.Hash, error)
 	FilterLogs(ethereum.FilterQuery) (Logs, error)
 
-	GetBalanceByBlockNumber(address string, blockNumber *big.Int) (*big.Int, error)
-	GetERC20Balance(contractAddress common.Address, ownerAddress common.Address, blocknumber *big.Int) (*big.Int, error)
-	GetERC20TotalSupply(contract string, blocknumber *big.Int) (*big.Int, error)
-
+	// Close closes the underlying RPC connection.
+	// RPC close does not return any errors, but does shut down e.g. a websocket connection.
 	Close()
 }
 
@@ -52,29 +56,36 @@ type clnt struct {
 	rpc RPC
 }
 
-func DialPolygonClient(ctx context.Context, rpcUrl string) (PolygonClient, error) {
+func DialEthClient(ctx context.Context, rpcUrl string) (EthClient, error) {
 	ctx, cancel := context.WithTimeout(ctx, defaultDialTimeout)
 	defer cancel()
+
 	bOff := retry.Exponential()
 	rpcClient, err := retry.Do(ctx, defaultDialAttempts, bOff, func() (*rpc.Client, error) {
-		if IsURLAvailable(rpcUrl) {
+		if !IsURLAvailable(rpcUrl) {
 			return nil, fmt.Errorf("address unavailable (%s)", rpcUrl)
 		}
+
 		client, err := rpc.DialContext(ctx, rpcUrl)
 		if err != nil {
 			return nil, fmt.Errorf("failed to dial address (%s): %w", rpcUrl, err)
 		}
+
 		return client, nil
 	})
+
 	if err != nil {
 		return nil, err
 	}
+
 	return &clnt{rpc: NewRPC(rpcClient)}, nil
 }
 
+// BlockHeaderByHash retrieves the block header attributed to the supplied hash
 func (c *clnt) BlockHeaderByHash(hash common.Hash) (*types.Header, error) {
 	ctxwt, cancel := context.WithTimeout(context.Background(), defaultRequestTimeout)
 	defer cancel()
+
 	var header *types.Header
 	err := c.rpc.CallContext(ctxwt, &header, "eth_getBlockByHash", hash, false)
 	if err != nil {
@@ -82,31 +93,19 @@ func (c *clnt) BlockHeaderByHash(hash common.Hash) (*types.Header, error) {
 	} else if header == nil {
 		return nil, ethereum.NotFound
 	}
+
+	// sanity check on the data returned
 	if header.Hash() != hash {
 		return nil, errors.New("header mismatch")
 	}
-	return header, nil
-}
 
-func (c *clnt) BlockByHash(hash common.Hash) (*types.Block, error) {
-	ctxwt, cancel := context.WithTimeout(context.Background(), defaultRequestTimeout)
-	defer cancel()
-	var block *types.Block
-	err := c.rpc.CallContext(ctxwt, &block, "eth_getBlockByHash", hash, false)
-	if err != nil {
-		return nil, err
-	} else if block == nil {
-		return nil, ethereum.NotFound
-	}
-	if block.Hash() != hash {
-		return nil, errors.New("block mismatch")
-	}
-	return block, nil
+	return header, nil
 }
 
 func (c *clnt) LatestSafeBlockHeader() (*types.Header, error) {
 	ctxwt, cancel := context.WithTimeout(context.Background(), defaultRequestTimeout)
 	defer cancel()
+
 	var header *types.Header
 	err := c.rpc.CallContext(ctxwt, &header, "eth_getBlockByNumber", "safe", false)
 	if err != nil {
@@ -114,12 +113,14 @@ func (c *clnt) LatestSafeBlockHeader() (*types.Header, error) {
 	} else if header == nil {
 		return nil, ethereum.NotFound
 	}
+
 	return header, nil
 }
 
 func (c *clnt) LatestFinalizedBlockHeader() (*types.Header, error) {
 	ctxwt, cancel := context.WithTimeout(context.Background(), defaultRequestTimeout)
 	defer cancel()
+
 	var header *types.Header
 	err := c.rpc.CallContext(ctxwt, &header, "eth_getBlockByNumber", "finalized", false)
 	if err != nil {
@@ -127,9 +128,11 @@ func (c *clnt) LatestFinalizedBlockHeader() (*types.Header, error) {
 	} else if header == nil {
 		return nil, ethereum.NotFound
 	}
+
 	return header, nil
 }
 
+// BlockHeaderByNumber retrieves the block header attributed to the supplied height
 func (c *clnt) BlockHeaderByNumber(number *big.Int) (*types.Header, error) {
 	ctxwt, cancel := context.WithTimeout(context.Background(), defaultRequestTimeout)
 	defer cancel()
@@ -137,28 +140,21 @@ func (c *clnt) BlockHeaderByNumber(number *big.Int) (*types.Header, error) {
 	var header *types.Header
 	err := c.rpc.CallContext(ctxwt, &header, "eth_getBlockByNumber", toBlockNumArg(number), false)
 	if err != nil {
+		log.Fatalln("Call eth_getBlockByNumber method fail", "err", err)
 		return nil, err
 	} else if header == nil {
+		log.Println("header not found")
 		return nil, ethereum.NotFound
 	}
 
 	return header, nil
 }
 
-func (c *clnt) BlockByNumber(number *big.Int) (*types.Block, error) {
-	ctxwt, cancel := context.WithTimeout(context.Background(), defaultRequestTimeout)
-	defer cancel()
-	var block *types.Block
-	err := c.rpc.CallContext(ctxwt, &block, "eth_getBlockByNumber", toBlockNumArg(number), false)
-	if err != nil {
-		return nil, err
-	} else if block == nil {
-		return nil, ethereum.NotFound
-	}
-	return block, nil
-}
-
-func (c *clnt) BlockHeadersByRange(startHeight, endHeight *big.Int) ([]types.Header, error) {
+// BlockHeadersByRange will retrieve block headers within the specified range -- inclusive. No restrictions
+// are placed on the range such as blocks in the "latest", "safe" or "finalized" states. If the specified
+// range is too large, `endHeight > latest`, the resulting list is truncated to the available headers
+func (c *clnt) BlockHeadersByRange(startHeight, endHeight *big.Int, chainId uint) ([]types.Header, error) {
+	// avoid the batch call if there's no range
 	if startHeight.Cmp(endHeight) == 0 {
 		header, err := c.BlockHeaderByNumber(startHeight)
 		if err != nil {
@@ -171,34 +167,79 @@ func (c *clnt) BlockHeadersByRange(startHeight, endHeight *big.Int) ([]types.Hea
 	headers := make([]types.Header, count)
 	batchElems := make([]rpc.BatchElem, count)
 
-	for i := uint64(0); i < count; i++ {
-		height := new(big.Int).Add(startHeight, new(big.Int).SetUint64(i))
-		batchElems[i] = rpc.BatchElem{Method: "eth_getBlockByNumber", Args: []interface{}{toBlockNumArg(height), false}, Result: &headers[i]}
-	}
+	if chainId != uint(global_const.PolygonChainId) {
+		for i := uint64(0); i < count; i++ {
+			height := new(big.Int).Add(startHeight, new(big.Int).SetUint64(i))
+			batchElems[i] = rpc.BatchElem{Method: "eth_getBlockByNumber", Args: []interface{}{toBlockNumArg(height), false}, Result: &headers[i]}
+		}
 
-	ctxwt, cancel := context.WithTimeout(context.Background(), defaultRequestTimeout)
-	defer cancel()
-	err := c.rpc.BatchCallContext(ctxwt, batchElems)
-	if err != nil {
-		return nil, err
+		ctxwt, cancel := context.WithTimeout(context.Background(), defaultRequestTimeout)
+		defer cancel()
+		err := c.rpc.BatchCallContext(ctxwt, batchElems)
+		if err != nil {
+			return nil, err
+		}
+	} else {
+		groupSize := 100
+		var wg sync.WaitGroup
+		numGroups := (int(count)-1)/groupSize + 1
+		wg.Add(numGroups)
+
+		for i := 0; i < int(count); i += groupSize {
+			start := i
+			end := i + groupSize - 1
+			if end > int(count) {
+				end = int(count) - 1
+			}
+			go func(start, end int) {
+				defer wg.Done()
+				for j := start; j <= end; j++ {
+					ctxwt, cancel := context.WithTimeout(context.Background(), defaultRequestTimeout)
+					defer cancel()
+					height := new(big.Int).Add(startHeight, new(big.Int).SetUint64(uint64(j)))
+					batchElems[j] = rpc.BatchElem{
+						Method: "eth_getBlockByNumber",
+						Result: new(types.Header),
+						Error:  nil,
+					}
+					header := new(types.Header)
+					batchElems[j].Error = c.rpc.CallContext(ctxwt, header, batchElems[j].Method, toBlockNumArg(height), false)
+					batchElems[j].Result = header
+				}
+			}(start, end)
+		}
+
+		wg.Wait()
 	}
+	// Parse the headers.
+	//  - Ensure integrity that they build on top of each other
+	//  - Truncate out headers that do not exist (endHeight > "latest")
 	size := 0
 	for i, batchElem := range batchElems {
-		if batchElem.Error != nil {
-			if size == 0 {
-				return nil, batchElem.Error
-			} else {
-				break
-			}
-		} else if batchElem.Result == nil {
-			break
+		//if batchElem.Error != nil {
+		//	if size == 0 {
+		//		return nil, batchElem.Error
+		//	} else {
+		//		break // try return whatever headers are available
+		//	}
+		//} else if batchElem.Result == nil {
+		//	break
+		//}
+		header, ok := batchElem.Result.(*types.Header)
+		if !ok {
+			return nil, fmt.Errorf("unable to transform rpc response %v into types.Header", batchElem.Result)
 		}
-		if i > 0 && headers[i].ParentHash != headers[i-1].Hash() {
-			return nil, fmt.Errorf("queried header %s does not follow parent %s", headers[i].Hash(), headers[i-1].Hash())
-		}
+
+		headers[i] = *header
+
+		//if i > 0 && headers[i].ParentHash != headers[i-1].Hash() {
+		//	return nil, fmt.Errorf("queried header %s does not follow parent %s", headers[i].Hash(), headers[i-1].Hash())
+		//}
+
 		size = size + 1
 	}
 	headers = headers[:size]
+
 	return headers, nil
 }
 
@@ -217,27 +258,17 @@ func (c *clnt) TxByHash(hash common.Hash) (*types.Transaction, error) {
 	return tx, nil
 }
 
-func (c *clnt) TxReceiptByHash(hash common.Hash) (*types.Receipt, error) {
-	ctxwt, cancel := context.WithTimeout(context.Background(), defaultRequestTimeout)
-	defer cancel()
-	var txReceipt *types.Receipt
-	err := c.rpc.CallContext(ctxwt, &txReceipt, "eth_getTransactionReceipt", hash)
-	if err != nil {
-		return nil, err
-	} else if txReceipt == nil {
-		return nil, ethereum.NotFound
-	}
-	return txReceipt, nil
-}
-
+// StorageHash returns the sha3 of the storage root for the specified account
 func (c *clnt) StorageHash(address common.Address, blockNumber *big.Int) (common.Hash, error) {
 	ctxwt, cancel := context.WithTimeout(context.Background(), defaultRequestTimeout)
 	defer cancel()
+
 	proof := struct{ StorageHash common.Hash }{}
 	err := c.rpc.CallContext(ctxwt, &proof, "eth_getProof", address, nil, toBlockNumArg(blockNumber))
 	if err != nil {
 		return common.Hash{}, err
 	}
+
 	return proof.StorageHash, nil
 }
 
@@ -250,6 +281,9 @@ type Logs struct {
 	ToBlockHeader *types.Header
 }
 
+// FilterLogs returns logs that fit the query parameters. The underlying request is a batch
+// request including `eth_getBlockByNumber` to allow the caller to check that connected
+// node has the state necessary to fulfill this request
 func (c *clnt) FilterLogs(query ethereum.FilterQuery) (Logs, error) {
 	arg, err := toFilterArg(query)
 	if err != nil {
@@ -263,7 +297,7 @@ func (c *clnt) FilterLogs(query ethereum.FilterQuery) (Logs, error) {
 	batchElems[0] = rpc.BatchElem{Method: "eth_getBlockByNumber", Args: []interface{}{toBlockNumArg(query.ToBlock), false}, Result: &header}
 	batchElems[1] = rpc.BatchElem{Method: "eth_getLogs", Args: []interface{}{arg}, Result: &logs}
 
-	ctxwt, cancel := context.WithTimeout(context.Background(), defaultRequestTimeout)
+	ctxwt, cancel := context.WithTimeout(context.Background(), defaultRequestTimeout*10)
 	defer cancel()
 	err = c.rpc.BatchCallContext(ctxwt, batchElems)
 	if err != nil {
@@ -281,69 +315,8 @@ func (c *clnt) FilterLogs(query ethereum.FilterQuery) (Logs, error) {
 	return Logs{Logs: logs, ToBlockHeader: &header}, nil
 }
 
-func (c *clnt) GetBalanceByBlockNumber(address string, blockNumber *big.Int) (*big.Int, error) {
-	var balance *big.Int
-	var err error
-	ctxwt, cancel := context.WithTimeout(context.Background(), defaultRequestTimeout)
-	defer cancel()
-
-	if balance, err = c.BalanceAt(ctxwt, common.HexToAddress(address), blockNumber); err != nil {
-		return nil, err
-	}
-	return balance, nil
-}
-
-func (c *clnt) BalanceAt(ctx context.Context, account common.Address, blockNumber *big.Int) (*big.Int, error) {
-	var result hexutil.Big
-	err := c.rpc.CallContext(ctx, &result, "eth_getBalance", account, toBlockNumArg(blockNumber))
-
-	return (*big.Int)(&result), err
-}
-
-func (c *clnt) GetERC20Balance(contractAddress common.Address, ownerAddress common.Address, blocknumber *big.Int) (*big.Int, error) {
-	data := append(crypto.Keccak256([]byte("balanceOf(address)"))[:4], common.LeftPadBytes(ownerAddress.Bytes(), 32)...)
-	callMsg := ethereum.CallMsg{
-		To:   &contractAddress,
-		Data: data,
-	}
-	ctxwt, cancel := context.WithTimeout(context.Background(), defaultRequestTimeout)
-	defer cancel()
-
-	res, err := c.CallContract(ctxwt, callMsg, blocknumber)
-	if err != nil && err.Error() != "execution reverted" {
-		return nil, err
-	}
-	balance := new(big.Int).SetBytes(res)
-	return balance, nil
-}
-
-func (c *clnt) CallContract(ctx context.Context, msg ethereum.CallMsg, blockNumber *big.Int) ([]byte, error) {
-	var hex hexutil.Bytes
-	err := c.rpc.CallContext(ctx, &hex, "eth_call", toCallArg(msg), toBlockNumArg(blockNumber))
-	if err != nil {
-		return nil, err
-	}
-	return hex, nil
-}
-
-func (c *clnt) GetERC20TotalSupply(contract string, blocknumber *big.Int) (*big.Int, error) {
-	method := crypto.Keccak256([]byte("totalSupply()"))[:4]
-	addr := common.HexToAddress(contract)
-	callMsg := ethereum.CallMsg{
-		To:   &addr,
-		Data: method,
-	}
-	ctxwt, cancel := context.WithTimeout(context.Background(), defaultRequestTimeout)
-	defer cancel()
-
-	res, err := c.CallContract(ctxwt, callMsg, blocknumber)
-	if err != nil && err.Error() != "execution reverted" {
-		return nil, err
-	}
-	supply := new(big.Int)
-	supply.SetBytes(res)
-	return supply, nil
-}
+// Modeled off op-service/client.go. We can refactor this once the client/metrics portion
+// of op-service/client has been generalized
 
 type RPC interface {
 	Close()
@@ -373,6 +346,8 @@ func (c *rpcClient) BatchCallContext(ctx context.Context, b []rpc.BatchElem) err
 	return err
 }
 
+// Needed private utils from geth
+
 func toBlockNumArg(number *big.Int) string {
 	if number == nil {
 		return "latest"
@@ -380,6 +355,7 @@ func toBlockNumArg(number *big.Int) string {
 	if number.Sign() >= 0 {
 		return hexutil.EncodeBig(number)
 	}
+	// It's negative.
 	return rpc.BlockNumber(number.Int64()).String()
 }
 
@@ -401,26 +377,6 @@ func toFilterArg(q ethereum.FilterQuery) (interface{}, error) {
 	return arg, nil
 }
 
-func toCallArg(msg ethereum.CallMsg) interface{} {
-	arg := map[string]interface{}{
-		"from": msg.From,
-		"to":   msg.To,
-	}
-	if len(msg.Data) > 0 {
-		arg["input"] = hexutil.Bytes(msg.Data)
-	}
-	if msg.Value != nil {
-		arg["value"] = (*hexutil.Big)(msg.Value)
-	}
-	if msg.Gas != 0 {
-		arg["gas"] = hexutil.Uint64(msg.Gas)
-	}
-	if msg.GasPrice != nil {
-		arg["gasPrice"] = (*hexutil.Big)(msg.GasPrice)
-	}
-	return arg
-}
-
 func IsURLAvailable(address string) bool {
 	u, err := url.Parse(address)
 	if err != nil {
@@ -434,6 +390,7 @@ func IsURLAvailable(address string) bool {
 		case "https", "wss":
 			addr += ":443"
 		default:
+			// Fail open if we can't figure out what the port should be
 			return true
 		}
 	}
