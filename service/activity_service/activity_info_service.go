@@ -18,6 +18,6 @@ func NewActivityInfoService(db *database.DB) ActivityInfoService {
 }
 
 func (s *activityInfoService) List(pageNum, pageSize int) ([]activity.ActivityInfo, int) {
-	infos, count := s.Db.ActivityInfoDB.ListActivityInfo(pageNum, pageSize)
+	infos, count := s.Db.ActivityInfoDB.ListActivityInfo(int(uint64(pageNum)), pageSize)
 	return infos, count
 }

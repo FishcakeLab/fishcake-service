@@ -12,6 +12,10 @@ type ActivityInfoExt struct {
 	ActivityStatus             int8   `gorm:"activity_status" json:"activityStatus"`
 }
 
+func (ActivityInfoExt) TableName() string {
+	return "activity_info_ext"
+}
+
 type ActivityInfoExtView interface {
 }
 
