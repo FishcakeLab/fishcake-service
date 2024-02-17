@@ -17,6 +17,7 @@ type Config struct {
 	DbPassword  string `yaml:"db_password"`
 	MetricsHost string `yaml:"metrics_host"`
 	MetricsPort int    `yaml:"metrics_port"`
+	StartBlock  int    `yaml:"start_block"`
 }
 
 func New(path string) (*Config, error) {

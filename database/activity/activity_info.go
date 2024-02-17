@@ -28,7 +28,8 @@ func (ActivityInfo) TableName() string {
 }
 
 type ActivityInfoView interface {
-	ListActivityInfo(pageNum, pageSize int) ([]ActivityInfo, int)
+	ActivityInfoList(pageNum, pageSize int) ([]ActivityInfo, int)
+	ActivityInfo(activityId int) ActivityInfo
 }
 
 type ActivityInfoDB interface {
@@ -39,7 +40,21 @@ type activityInfoDB struct {
 	db *gorm.DB
 }
 
-func (a activityInfoDB) ListActivityInfo(pageNum, pageSize int) ([]ActivityInfo, int) {
+func (a activityInfoDB) ActivityInfo(activityId int) ActivityInfo {
+	var activityInfo ActivityInfo
+	this := a.db.Table(ActivityInfo{}.TableName())
+	result := this.Where("activity_id = ?", activityId).Take(&activityInfo)
+	if result.Error == nil {
+		return activityInfo
+	} else if !errors.Is(result.Error, gorm.ErrRecordNotFound) {
+		errors_h.NewErrorByEnum(enum.DataErr)
+		return ActivityInfo{}
+	} else {
+		return ActivityInfo{}
+	}
+}
+
+func (a activityInfoDB) ActivityInfoList(pageNum, pageSize int) ([]ActivityInfo, int) {
 	var activityInfo []ActivityInfo
 	var count int64
 	this := a.db.Table(ActivityInfo{}.TableName())

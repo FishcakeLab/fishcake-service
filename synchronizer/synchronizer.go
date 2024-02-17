@@ -3,6 +3,7 @@ package synchronizer
 import (
 	"context"
 	"fmt"
+	"github.com/FishcakeLab/fishcake-service/database/utils"
 	"log"
 	"math/big"
 	"strconv"
@@ -148,6 +149,7 @@ func (syncer *Synchronizer) processBatch(headers []types.Header) error {
 			ParentHash: headers[i].ParentHash,
 			Number:     headers[i].Number,
 			Timestamp:  headers[i].Time,
+			RLPHeader:  (*utils.RLPHeader)(&headers[i]),
 		}
 		blockHeaders = append(blockHeaders, bHeader)
 	}
@@ -159,7 +161,9 @@ func (syncer *Synchronizer) processBatch(headers []types.Header) error {
 			continue
 		}
 		timestamp := headerMap[logEvent.BlockHash].Time
-		chainContractEvent[i] = database.ContractEventFromLog(&logs.Logs[i], timestamp)
+		blockNumber := headerMap[logEvent.BlockHash].Number
+		chainContractEvent[i] = database.ContractEventFromLog(&logs.Logs[i], timestamp, blockNumber)
+
 	}
 
 	retryStrategy := &retry.ExponentialStrategy{Min: 1000, Max: 20_000, MaxJitter: 250}
@@ -173,7 +177,7 @@ func (syncer *Synchronizer) processBatch(headers []types.Header) error {
 			}
 			return nil
 		}); err != nil {
-			log.Println("unable to persist batch", "err")
+			log.Println("unable to persist batch", err)
 			return nil, fmt.Errorf("unable to persist batch: %w", err)
 		}
 		return nil, nil

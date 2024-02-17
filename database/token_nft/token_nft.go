@@ -1,6 +1,9 @@
 package token_nft
 
 import (
+	"errors"
+	"github.com/FishcakeLab/fishcake-service/common/enum"
+	"github.com/FishcakeLab/fishcake-service/common/errors_h"
 	"gorm.io/gorm"
 )
 
@@ -19,6 +22,8 @@ func (TokenNft) TableName() string {
 }
 
 type TokenNftView interface {
+	List(pageNum, pageSize int, contractAddress string) ([]TokenNft, int)
+	NftInfo(activityId int) TokenNft
 }
 
 type TokenNftDB interface {
@@ -27,6 +32,42 @@ type TokenNftDB interface {
 
 type tokenNftDB struct {
 	db *gorm.DB
+}
+
+func (t tokenNftDB) List(pageNum, pageSize int, contractAddress string) ([]TokenNft, int) {
+	var tokenNft []TokenNft
+	var count int64
+	this := t.db.Table(TokenNft{}.TableName())
+	if contractAddress != "" {
+		this = this.Where("contract_address = ?", contractAddress)
+	}
+	this = this.Count(&count)
+	if pageNum > 0 && pageSize > 0 {
+		this = this.Limit(pageSize).Offset((pageNum - 1) * pageSize)
+	}
+	result := this.Find(&tokenNft)
+	if result.Error == nil {
+		return tokenNft, int(count)
+	} else if !errors.Is(result.Error, gorm.ErrRecordNotFound) {
+		errors_h.NewErrorByEnum(enum.DataErr)
+		return nil, int(count)
+	} else {
+		return nil, int(count)
+	}
+}
+
+func (t tokenNftDB) NftInfo(tokenId int) TokenNft {
+	var tokenNft TokenNft
+	this := t.db.Table(TokenNft{}.TableName())
+	result := this.Where("token_id = ?", tokenId).Take(&tokenNft)
+	if result.Error == nil {
+		return tokenNft
+	} else if !errors.Is(result.Error, gorm.ErrRecordNotFound) {
+		errors_h.NewErrorByEnum(enum.DataErr)
+		return TokenNft{}
+	} else {
+		return TokenNft{}
+	}
 }
 
 func NewTokenNftDB(db *gorm.DB) TokenNftDB {

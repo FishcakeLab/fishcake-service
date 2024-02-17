@@ -31,3 +31,18 @@ func WeiToETH(wei *big.Int) *big.Float {
 	f.SetString(wei.String())
 	return f.Quo(f, big.NewFloat(1e18))
 }
+
+func StringToInt(value string) int {
+	if value == "" {
+		return 0
+	}
+	return int(StringToBigInt(value).Int64())
+}
+
+func StringToBigInt(value string) *big.Int {
+	intValue, success := big.NewInt(0).SetString(value, 0)
+	if !success {
+		return nil
+	}
+	return intValue
+}

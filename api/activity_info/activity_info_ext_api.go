@@ -8,25 +8,25 @@ import (
 	"github.com/FishcakeLab/fishcake-service/service"
 )
 
-func ActivityInfoApi(rg *gin.Engine) {
-	r := rg.Group("/v1/activity")
-	r.GET("list", list)
-	r.GET("info", info)
+func ActivityInfoExtApi(rg *gin.Engine) {
+	r := rg.Group("/v1/activityExt")
+	r.GET("list", extList)
+	r.GET("info", extInfo)
 }
 
-func list(c *gin.Context) {
+func extList(c *gin.Context) {
 	pageSizeStr := c.Query("pageSize")
 	pageNumStr := c.Query("pageNum")
 	pageSize := bigint.StringToInt(pageSizeStr)
 	pageNum := bigint.StringToInt(pageNumStr)
-	infos, count := service.BaseService.ActivityInfoService.ActivityInfoList(pageNum, pageSize)
+	infos, count := service.BaseService.ActivityInfoExtService.ActivityInfoExtList(pageNum, pageSize)
 	page := api_result.NewPage(infos, count, pageNum, pageSize)
 	api_result.NewApiResult(c).Success(page)
 }
 
-func info(c *gin.Context) {
+func extInfo(c *gin.Context) {
 	activityIdStr := c.Query("activityId")
 	activityId := bigint.StringToInt(activityIdStr)
-	info := service.BaseService.ActivityInfoService.ActivityInfo(activityId)
+	info := service.BaseService.ActivityInfoExtService.ActivityInfoExt(activityId)
 	api_result.NewApiResult(c).Success(info)
 }

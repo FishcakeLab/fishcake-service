@@ -20,12 +20,13 @@ type ContractEvent struct {
 	ContractAddress common.Address `gorm:"serializer:bytes"`
 	TransactionHash common.Hash    `gorm:"serializer:bytes"`
 	LogIndex        uint64
+	BlockNumber     *big.Int    `gorm:"serializer:u256"`
 	EventSignature  common.Hash `gorm:"serializer:bytes"`
 	Timestamp       uint64
 	RLPLog          *types.Log `gorm:"serializer:rlp;column:rlp_bytes"`
 }
 
-func ContractEventFromLog(log *types.Log, timestamp uint64) ContractEvent {
+func ContractEventFromLog(log *types.Log, timestamp uint64, blockNumber *big.Int) ContractEvent {
 	eventSig := common.Hash{}
 	if len(log.Topics) > 0 {
 		eventSig = log.Topics[0]
@@ -36,6 +37,7 @@ func ContractEventFromLog(log *types.Log, timestamp uint64) ContractEvent {
 		TransactionHash: log.TxHash,
 		ContractAddress: log.Address,
 		EventSignature:  eventSig,
+		BlockNumber:     blockNumber,
 		LogIndex:        uint64(log.Index),
 		Timestamp:       timestamp,
 		RLPLog:          log,
@@ -112,10 +114,10 @@ func (db *contractEventDB) ContractEventsWithFilter(filter ContractEvent, fromHe
 	if fromHeight.Cmp(toHeight) > 0 {
 		return nil, fmt.Errorf("fromHeight %d is greater than toHeight %d", fromHeight, toHeight)
 	}
-	query := db.gorm.Table("l2_contract_events").Where(&filter)
-	query = query.Joins("INNER JOIN l2_block_headers ON l2_contract_events.block_hash = l2_block_headers.hash")
-	query = query.Where("l2_block_headers.number >= ? AND l2_block_headers.number <= ?", fromHeight, toHeight)
-	query = query.Order("l2_block_headers.number ASC").Select("l2_contract_events.*")
+	query := db.gorm.Table("contract_events").Where(&filter)
+	query = query.Joins("INNER JOIN block_headers ON contract_events.block_hash = block_headers.hash")
+	query = query.Where("block_headers.number >= ? AND block_headers.number <= ?", fromHeight, toHeight)
+	query = query.Order("block_headers.number ASC").Select("contract_events.*")
 	var events []ContractEvent
 	result := query.Find(&events)
 	if result.Error != nil {

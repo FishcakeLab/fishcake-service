@@ -1,5 +1,7 @@
 migrations: "./migrations"
-polygon_rpc: "127.0.0.1:8189"
+#polygon_rpc: "https://polygon-mumbai.infura.io/v3/f22a689113714ae8a41d02b18e1b1f7d"
+polygon_rpc: "https://rpc.ankr.com/polygon_mumbai"
+polygon_chain_id: "80001"
 http_host: "127.0.0.1"
 http_port: 8087
 db_host: "120.77.251.247"
@@ -9,3 +11,4 @@ db_user: "postgres"
 db_password: "galamini"
 metrics_host:
 metrics_port:
+start_block: 45984290

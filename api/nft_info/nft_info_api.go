@@ -1,4 +1,4 @@
-package activity_info
+package nft_info
 
 import (
 	"github.com/FishcakeLab/fishcake-service/common/bigint"
@@ -8,8 +8,8 @@ import (
 	"github.com/FishcakeLab/fishcake-service/service"
 )
 
-func ActivityInfoApi(rg *gin.Engine) {
-	r := rg.Group("/v1/activity")
+func NftInfoApi(rg *gin.Engine) {
+	r := rg.Group("/v1/nft")
 	r.GET("list", list)
 	r.GET("info", info)
 }
@@ -17,9 +17,10 @@ func ActivityInfoApi(rg *gin.Engine) {
 func list(c *gin.Context) {
 	pageSizeStr := c.Query("pageSize")
 	pageNumStr := c.Query("pageNum")
+	contractAddress := c.Query("contractAddress")
 	pageSize := bigint.StringToInt(pageSizeStr)
 	pageNum := bigint.StringToInt(pageNumStr)
-	infos, count := service.BaseService.ActivityInfoService.ActivityInfoList(pageNum, pageSize)
+	infos, count := service.BaseService.NftService.NftInfoList(pageNum, pageSize, contractAddress)
 	page := api_result.NewPage(infos, count, pageNum, pageSize)
 	api_result.NewApiResult(c).Success(page)
 }
@@ -27,6 +28,6 @@ func list(c *gin.Context) {
 func info(c *gin.Context) {
 	activityIdStr := c.Query("activityId")
 	activityId := bigint.StringToInt(activityIdStr)
-	info := service.BaseService.ActivityInfoService.ActivityInfo(activityId)
+	info := service.BaseService.NftService.NftInfo(activityId)
 	api_result.NewApiResult(c).Success(info)
 }

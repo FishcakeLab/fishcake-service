@@ -2,11 +2,9 @@ package main
 
 import (
 	"context"
-	"log"
-
-	"github.com/urfave/cli/v2"
-
 	"github.com/ethereum/go-ethereum/params"
+	"github.com/urfave/cli/v2"
+	"log"
 
 	fishcake_service "github.com/FishcakeLab/fishcake-service"
 	"github.com/FishcakeLab/fishcake-service/common/cliapp"
@@ -23,8 +21,19 @@ func runIndexer(ctx *cli.Context, shutdown context.CancelCauseFunc) (cliapp.Life
 		log.Printf("failed to load config", "err", err)
 		return nil, err
 	}
-	log.Printf("run api start", "HttpHostHost", cfg.HttpHost, "HttpHostHost", cfg.HttpPort)
-	return nil, nil
+	log.Printf("run indexer start", "HttpHostHost", cfg.HttpHost, "HttpHostHost", cfg.HttpPort)
+	db, err := database.NewDB(cfg)
+	if err != nil {
+		log.Fatalf("failed to connect to database", "err", err)
+		return nil, err
+	}
+	//defer func(db *database.DB) {
+	//	err := db.Close()
+	//	if err != nil {
+	//		return
+	//	}
+	//}(db)
+	return fishcake_service.NewIndex(ctx, cfg, db, shutdown), nil
 }
 
 func runApi(ctx *cli.Context, _ context.CancelCauseFunc) (cliapp.Lifecycle, error) {

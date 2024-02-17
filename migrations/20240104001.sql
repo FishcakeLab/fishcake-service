@@ -1,12 +1,26 @@
+DO
+$$
+    BEGIN
+        IF NOT EXISTS (SELECT 1 FROM pg_type WHERE typname = 'uint256') THEN
+            CREATE DOMAIN UINT256 AS NUMERIC
+                CHECK (VALUE >= 0 AND VALUE < POWER(CAST(2 AS NUMERIC), CAST(256 AS NUMERIC)) AND SCALE(VALUE) = 0);
+        ELSE
+            ALTER DOMAIN UINT256 DROP CONSTRAINT uint256_check;
+            ALTER DOMAIN UINT256 ADD
+                CHECK (VALUE >= 0 AND VALUE < POWER(CAST(2 AS NUMERIC), CAST(256 AS NUMERIC)) AND SCALE(VALUE) = 0);
+        END IF;
+    END
+$$;
 DROP EXTENSION IF EXISTS "uuid-ossp" cascade;
 CREATE EXTENSION "uuid-ossp";
 
 DROP TABLE IF EXISTS block_headers;
 CREATE TABLE IF NOT EXISTS block_headers (
-    hash        VARCHAR PRIMARY KEY,
-    parent_hash VARCHAR NOT NULL UNIQUE,
-    number      BIGINT NOT NULL UNIQUE,
-    timestamp   BIGINT NOT NULL UNIQUE CHECK (timestamp > 0),
+    guid        text PRIMARY KEY DEFAULT replace(uuid_generate_v4()::text, '-', ''),
+    hash        VARCHAR NOT NULL,
+    parent_hash VARCHAR NOT NULL ,
+    number      UINT256 NOT NULL ,
+    timestamp   INTEGER NOT NULL  CHECK (timestamp > 0),
     rlp_bytes   VARCHAR NOT NULL
 );
 CREATE INDEX IF NOT EXISTS block_headers_timestamp ON block_headers(timestamp);
