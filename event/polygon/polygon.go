@@ -28,7 +28,7 @@ type PolygonEventProcessor struct {
 	contracts       []string
 }
 
-func NewEventProcessor(db *database.DB, loopInterval time.Duration, contracts []string, eventStartBlock uint64, epoch uint64, shutdown context.CancelCauseFunc) (*PolygonEventProcessor, error) {
+func NewEventProcessor(db *database.DB, loopInterval time.Duration, contracts []string, startHeight uint64, eventStartBlock uint64, epoch uint64, shutdown context.CancelCauseFunc) (*PolygonEventProcessor, error) {
 	resCtx, resCancel := context.WithCancel(context.Background())
 	return &PolygonEventProcessor{
 		db:             db,
@@ -37,6 +37,7 @@ func NewEventProcessor(db *database.DB, loopInterval time.Duration, contracts []
 		tasks: tasks.Group{HandleCrit: func(err error) {
 			shutdown(fmt.Errorf("critical error processor: %w", err))
 		}},
+		startHeight:     new(big.Int).SetUint64(startHeight),
 		eventStartBlock: eventStartBlock,
 		contracts:       contracts,
 		loopInterval:    loopInterval,

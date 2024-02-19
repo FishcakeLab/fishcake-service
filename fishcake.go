@@ -46,6 +46,7 @@ func NewFishCake(cfg *config.Config, db *database.DB) *FishCake {
 func NewIndex(ctx *cli.Context, cfg *config.Config, db *database.DB, shutdown context.CancelCauseFunc) *FishCake {
 	f := &FishCake{}
 	f.newIndex(ctx, cfg, db, shutdown)
+	f.newEvent(cfg, db, shutdown)
 	return f
 }
 
@@ -105,7 +106,7 @@ func (f *FishCake) newIndex(ctx *cli.Context, cfg *config.Config, db *database.D
 func (f *FishCake) newEvent(cfg *config.Config, db *database.DB, shutdown context.CancelCauseFunc) error {
 	var epoch uint64 = 10_000
 	var loopInterval time.Duration = time.Second * 5
-	eventProcessor, _ := polygon.NewEventProcessor(db, loopInterval, cfg.Contracts, cfg.EventStartBlock, epoch, shutdown)
+	eventProcessor, _ := polygon.NewEventProcessor(db, loopInterval, cfg.Contracts, cfg.StartBlock, cfg.EventStartBlock, epoch, shutdown)
 	err := eventProcessor.Start()
 	if err != nil {
 		log.Println("failed to start eventProcessor:", err)
