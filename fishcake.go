@@ -50,12 +50,6 @@ func NewIndex(ctx *cli.Context, cfg *config.Config, db *database.DB, shutdown co
 	return f
 }
 
-func NewEvent(cfg *config.Config, db *database.DB, shutdown context.CancelCauseFunc) *FishCake {
-	f := &FishCake{}
-	f.newEvent(cfg, db, shutdown)
-	return f
-}
-
 func (f *FishCake) newApi(cfg *config.Config, db *database.DB) error {
 
 	// init base service
