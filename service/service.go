@@ -25,7 +25,7 @@ func NewBaseService(db *database.DB, cfg *config.Config) {
 		Cfg:                    cfg,
 		ActivityInfoService:    activity_service.NewActivityInfoService(db),
 		ActivityInfoExtService: activity_service.NewActivityInfoExtService(db),
-		RpcService:             rpc_service.NewRpcService(cfg.PolygonRpc),
+		RpcService:             rpc_service.NewRpcService(cfg.RpcUrl),
 		NftService:             nft_service.NewNftService(db),
 	}
 }

@@ -8,8 +8,8 @@ import (
 	"github.com/ethereum/go-ethereum/rlp"
 )
 
-// Wrapper over types.Header such that we can get an RLP
-// encoder over it via a `types.Block` wrapper
+// Wrapper over utils.Header such that we can get an RLP
+// encoder over it via a `utils.Block` wrapper
 
 type RLPHeader types.Header
 

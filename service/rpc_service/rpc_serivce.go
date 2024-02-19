@@ -15,6 +15,7 @@ import (
 
 type RpcService interface {
 	GetBalance(address string) *wallet.BalanceResponse
+	Transactions(address string) *wallet.TxAddressResponse
 }
 
 type rpcService struct {
@@ -38,4 +39,14 @@ func (r *rpcService) GetBalance(address string) *wallet.BalanceResponse {
 		errors_h.NewErrorByEnum(enum.GrpcErr)
 	}
 	return balance
+}
+
+func (r *rpcService) Transactions(address string) *wallet.TxAddressResponse {
+	ctx := context.Background()
+	transactionRequest := &wallet.TxAddressRequest{Chain: global_const.Polygon, Address: address}
+	transactions, err := r.walletService.GetTxByAddress(ctx, transactionRequest)
+	if err != nil {
+		errors_h.NewErrorByEnum(enum.GrpcErr)
+	}
+	return transactions
 }

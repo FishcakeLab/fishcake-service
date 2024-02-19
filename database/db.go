@@ -3,6 +3,9 @@ package database
 import (
 	"context"
 	"fmt"
+	"github.com/FishcakeLab/fishcake-service/database/block_listener"
+	"github.com/FishcakeLab/fishcake-service/database/common"
+	"github.com/FishcakeLab/fishcake-service/database/event"
 	"github.com/FishcakeLab/fishcake-service/database/token_nft"
 	"log"
 	"os"
@@ -22,11 +25,12 @@ import (
 
 type DB struct {
 	gorm              *gorm.DB
-	Blocks            BlocksDB
-	ContractEvent     ContractEventDB
+	Blocks            common.BlocksDB
+	ContractEvent     event.ContractEventDB
 	ActivityInfoDB    activity.ActivityInfoDB
 	ActivityInfoExtDB activity.ActivityInfoExtDB
 	TokenNftDb        token_nft.TokenNftDB
+	BlockListener     block_listener.BlockListenerDB
 }
 
 func NewDB(dbConfig *config.Config) (*DB, error) {
@@ -68,11 +72,12 @@ func NewDB(dbConfig *config.Config) (*DB, error) {
 	}
 	db := &DB{
 		gorm:              gorm,
-		Blocks:            NewBlocksDB(gorm),
-		ContractEvent:     NewContractEventsDB(gorm),
+		Blocks:            common.NewBlocksDB(gorm),
+		ContractEvent:     event.NewContractEventsDB(gorm),
 		ActivityInfoDB:    activity.NewActivityDB(gorm),
 		ActivityInfoExtDB: activity.NewActivityInfoExtDB(gorm),
 		TokenNftDb:        token_nft.NewTokenNftDB(gorm),
+		BlockListener:     block_listener.NewBlockListenerDB(gorm),
 	}
 	return db, nil
 }
@@ -81,11 +86,12 @@ func (db *DB) Transaction(fn func(db *DB) error) error {
 	return db.gorm.Transaction(func(tx *gorm.DB) error {
 		txDB := &DB{
 			gorm:              tx,
-			Blocks:            NewBlocksDB(tx),
-			ContractEvent:     NewContractEventsDB(tx),
+			Blocks:            common.NewBlocksDB(tx),
+			ContractEvent:     event.NewContractEventsDB(tx),
 			ActivityInfoDB:    activity.NewActivityDB(tx),
 			ActivityInfoExtDB: activity.NewActivityInfoExtDB(tx),
 			TokenNftDb:        token_nft.NewTokenNftDB(tx),
+			BlockListener:     block_listener.NewBlockListenerDB(tx),
 		}
 		return fn(txDB)
 	})

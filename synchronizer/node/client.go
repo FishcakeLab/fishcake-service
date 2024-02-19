@@ -227,7 +227,7 @@ func (c *clnt) BlockHeadersByRange(startHeight, endHeight *big.Int, chainId uint
 		//}
 		header, ok := batchElem.Result.(*types.Header)
 		if !ok {
-			return nil, fmt.Errorf("unable to transform rpc response %v into types.Header", batchElem.Result)
+			return nil, fmt.Errorf("unable to transform rpc response %v into utils.Header", batchElem.Result)
 		}
 
 		headers[i] = *header

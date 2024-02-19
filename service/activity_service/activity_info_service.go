@@ -8,10 +8,15 @@ import (
 type ActivityInfoService interface {
 	ActivityInfoList(pageNum, pageSize int) ([]activity.ActivityInfo, int)
 	ActivityInfo(activityId int) activity.ActivityInfo
+	AddActivityInfo(activity.ActivityInfo) error
 }
 
 type activityInfoService struct {
 	Db *database.DB
+}
+
+func (s *activityInfoService) AddActivityInfo(info activity.ActivityInfo) error {
+	return s.Db.ActivityInfoDB.StoreActivityInfo(info)
 }
 
 func NewActivityInfoService(db *database.DB) ActivityInfoService {

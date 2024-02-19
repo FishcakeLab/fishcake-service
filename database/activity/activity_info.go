@@ -34,10 +34,31 @@ type ActivityInfoView interface {
 
 type ActivityInfoDB interface {
 	ActivityInfoView
+	StoreActivityInfo(activityInfo ActivityInfo) error
+	ActivityFinish(activityId string) error
 }
 
 type activityInfoDB struct {
 	db *gorm.DB
+}
+
+func (a activityInfoDB) ActivityFinish(activityId string) error {
+	finishSql := `update activity_info set`
+	err := a.db.Exec(finishSql).Error
+	return err
+}
+
+func (a activityInfoDB) StoreActivityInfo(activityInfo ActivityInfo) error {
+	activityInfoRecord := new(ActivityInfo)
+	var exist ActivityInfo
+	err := a.db.Table(activityInfoRecord.TableName()).Where("activity_id = ?", activityInfo.ActivityId).Take(&exist).Error
+	if err != nil {
+		if errors.Is(err, gorm.ErrRecordNotFound) {
+			result := a.db.Table(activityInfoRecord.TableName()).Omit("guid").Create(&activityInfo)
+			return result.Error
+		}
+	}
+	return err
 }
 
 func (a activityInfoDB) ActivityInfo(activityId int) ActivityInfo {

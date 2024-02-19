@@ -14,7 +14,7 @@ type TokenNft struct {
 	ContractAddress string `json:"contractAddress" gorm:"contract_address"`
 	TokenUrl        string `json:"tokenUrl" gorm:"token_url"`
 	TokenAmount     int64  `json:"tokenAmount" gorm:"token_amount"`
-	Timestamp       int64  `json:"timestamp" gorm:"timestamp"`
+	Timestamp       uint64 `json:"timestamp" gorm:"timestamp"`
 }
 
 func (TokenNft) TableName() string {
@@ -23,15 +23,29 @@ func (TokenNft) TableName() string {
 
 type TokenNftView interface {
 	List(pageNum, pageSize int, contractAddress string) ([]TokenNft, int)
-	NftInfo(activityId int) TokenNft
+	NftInfo(tokenId int) TokenNft
 }
 
 type TokenNftDB interface {
 	TokenNftView
+	StoreTokenNft(token TokenNft) error
 }
 
 type tokenNftDB struct {
 	db *gorm.DB
+}
+
+func (t tokenNftDB) StoreTokenNft(token TokenNft) error {
+	tokenNft := new(TokenNft)
+	var exist TokenNft
+	err := t.db.Table(tokenNft.TableName()).Where("token_id = ?", token.TokenId).Take(&exist).Error
+	if err != nil {
+		if errors.Is(err, gorm.ErrRecordNotFound) {
+			result := t.db.Table(tokenNft.TableName()).Omit("id").Create(&token)
+			return result.Error
+		}
+	}
+	return err
 }
 
 func (t tokenNftDB) List(pageNum, pageSize int, contractAddress string) ([]TokenNft, int) {

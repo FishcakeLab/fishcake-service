@@ -1,4 +1,4 @@
-package database
+package event
 
 import (
 	"errors"

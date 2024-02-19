@@ -3,6 +3,8 @@ package synchronizer
 import (
 	"context"
 	"fmt"
+	common2 "github.com/FishcakeLab/fishcake-service/database/common"
+	"github.com/FishcakeLab/fishcake-service/database/event"
 	"github.com/FishcakeLab/fishcake-service/database/utils"
 	"log"
 	"math/big"
@@ -54,7 +56,7 @@ func NewSynchronizer(cfg *Config, db *database.DB, client node.EthClient, shutdo
 		log.Println("no indexed state starting from supplied L1 height;", "height =", cfg.StartHeight.String())
 		header, err := client.BlockHeaderByNumber(cfg.StartHeight)
 		if err != nil {
-			log.Fatalf("Fetch block header by number fail", "err", err)
+			log.Fatalf("fetch block header by number fail", "err", err)
 			return nil, fmt.Errorf("could not fetch starting block header: %w", err)
 		}
 		fromHeader = header
@@ -132,19 +134,19 @@ func (syncer *Synchronizer) processBatch(headers []types.Header) error {
 	if logs.ToBlockHeader.Number.Cmp(lastHeader.Number) != 0 {
 		return fmt.Errorf("mismatch in FilterLog#ToBlock number")
 	} else if logs.ToBlockHeader.Hash() != lastHeader.Hash() {
-		return fmt.Errorf("mismatch in FitlerLog#ToBlock block hash!!!")
+		return fmt.Errorf("mismatch in FitlerLog#ToBlock block hash")
 	}
 
 	if len(logs.Logs) > 0 {
 		log.Println("detected logs", "size", len(logs.Logs))
 	}
 
-	blockHeaders := make([]database.BlockHeader, 0, len(headers))
+	blockHeaders := make([]common2.BlockHeader, 0, len(headers))
 	for i := range headers {
 		if headers[i].Number == nil {
 			continue
 		}
-		bHeader := database.BlockHeader{
+		bHeader := common2.BlockHeader{
 			Hash:       headers[i].Hash(),
 			ParentHash: headers[i].ParentHash,
 			Number:     headers[i].Number,
@@ -154,7 +156,7 @@ func (syncer *Synchronizer) processBatch(headers []types.Header) error {
 		blockHeaders = append(blockHeaders, bHeader)
 	}
 
-	chainContractEvent := make([]database.ContractEvent, len(logs.Logs))
+	chainContractEvent := make([]event.ContractEvent, len(logs.Logs))
 	for i := range logs.Logs {
 		logEvent := logs.Logs[i]
 		if _, ok := headerMap[logEvent.BlockHash]; !ok {
@@ -162,7 +164,7 @@ func (syncer *Synchronizer) processBatch(headers []types.Header) error {
 		}
 		timestamp := headerMap[logEvent.BlockHash].Time
 		blockNumber := headerMap[logEvent.BlockHash].Number
-		chainContractEvent[i] = database.ContractEventFromLog(&logs.Logs[i], timestamp, blockNumber)
+		chainContractEvent[i] = event.ContractEventFromLog(&logs.Logs[i], timestamp, blockNumber)
 
 	}
 

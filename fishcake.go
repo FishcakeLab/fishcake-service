@@ -11,6 +11,7 @@ import (
 	"github.com/FishcakeLab/fishcake-service/common/middleware"
 	"github.com/FishcakeLab/fishcake-service/config"
 	"github.com/FishcakeLab/fishcake-service/database"
+	"github.com/FishcakeLab/fishcake-service/event/polygon"
 	"github.com/FishcakeLab/fishcake-service/service"
 	"github.com/FishcakeLab/fishcake-service/synchronizer"
 	"github.com/FishcakeLab/fishcake-service/synchronizer/node"
@@ -18,6 +19,7 @@ import (
 	"github.com/urfave/cli/v2"
 	"log"
 	"math/big"
+	"time"
 )
 
 type FishCake struct {
@@ -44,6 +46,12 @@ func NewFishCake(cfg *config.Config, db *database.DB) *FishCake {
 func NewIndex(ctx *cli.Context, cfg *config.Config, db *database.DB, shutdown context.CancelCauseFunc) *FishCake {
 	f := &FishCake{}
 	f.newIndex(ctx, cfg, db, shutdown)
+	return f
+}
+
+func NewEvent(cfg *config.Config, db *database.DB, shutdown context.CancelCauseFunc) *FishCake {
+	f := &FishCake{}
+	f.newEvent(cfg, db, shutdown)
 	return f
 }
 
@@ -80,7 +88,7 @@ func (f *FishCake) newIndex(ctx *cli.Context, cfg *config.Config, db *database.D
 	syncConfig := &synchronizer.Config{
 		LoopIntervalMsec:  5,
 		HeaderBufferSize:  500,
-		StartHeight:       big.NewInt(int64(cfg.StartBlock)),
+		StartHeight:       new(big.Int).SetUint64(cfg.StartBlock),
 		ConfirmationDepth: big.NewInt(12),
 		ChainId:           80001,
 	}
@@ -88,7 +96,19 @@ func (f *FishCake) newIndex(ctx *cli.Context, cfg *config.Config, db *database.D
 	syncer, _ := synchronizer.NewSynchronizer(syncConfig, db, client, shutdown)
 	err := syncer.Start()
 	if err != nil {
-		log.Println("Failed to start synchronizer:", err)
+		log.Println("failed to start synchronizer:", err)
+		return err
+	}
+	return nil
+}
+
+func (f *FishCake) newEvent(cfg *config.Config, db *database.DB, shutdown context.CancelCauseFunc) error {
+	var epoch uint64 = 10_000
+	var loopInterval time.Duration = time.Second * 5
+	eventProcessor, _ := polygon.NewEventProcessor(db, loopInterval, cfg.Contracts, cfg.EventStartBlock, epoch, shutdown)
+	err := eventProcessor.Start()
+	if err != nil {
+		log.Println("failed to start eventProcessor:", err)
 		return err
 	}
 	return nil

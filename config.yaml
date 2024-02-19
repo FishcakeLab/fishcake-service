@@ -1,6 +1,7 @@
 migrations: "./migrations"
 #polygon_rpc: "https://polygon-mumbai.infura.io/v3/f22a689113714ae8a41d02b18e1b1f7d"
 polygon_rpc: "https://rpc.ankr.com/polygon_mumbai"
+rpc_url:
 polygon_chain_id: "80001"
 http_host: "127.0.0.1"
 http_port: 8087
@@ -11,4 +12,8 @@ db_user: "postgres"
 db_password: "galamini"
 metrics_host:
 metrics_port:
-start_block: 45984290
+start_block: 46015596
+eventStartBlock: 46015596
+contracts:
+    - "0x69E8Cc9B495C53af0A655dd6cC3f16636F16AAF0"
+    - "0x2E52285aB955e92F6451402C23857DFaD99B1bba"

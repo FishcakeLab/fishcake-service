@@ -21,7 +21,6 @@ func runIndexer(ctx *cli.Context, shutdown context.CancelCauseFunc) (cliapp.Life
 		log.Printf("failed to load config", "err", err)
 		return nil, err
 	}
-	log.Printf("run indexer start", "HttpHostHost", cfg.HttpHost, "HttpHostHost", cfg.HttpPort)
 	db, err := database.NewDB(cfg)
 	if err != nil {
 		log.Fatalf("failed to connect to database", "err", err)
