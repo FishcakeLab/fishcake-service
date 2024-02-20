@@ -26,12 +26,12 @@ func runIndexer(ctx *cli.Context, shutdown context.CancelCauseFunc) (cliapp.Life
 		log.Fatalf("failed to connect to database", "err", err)
 		return nil, err
 	}
-	//defer func(db *database.DB) {
-	//	err := db.Close()
-	//	if err != nil {
-	//		return
-	//	}
-	//}(db)
+	defer func(db *database.DB) {
+		err := db.Close()
+		if err != nil {
+			return
+		}
+	}(db)
 	return fishcake_service.NewIndex(ctx, cfg, db, shutdown), nil
 }
 

@@ -21,6 +21,7 @@ type ActivityInfo struct {
 	MinDropAmt         int64  `gorm:"min_drop_amt" json:"minDropAmt"`
 	MaxDropAmt         int64  `gorm:"max_drop_amt" json:"maxDropAmt"`
 	TokenContractAddr  string `gorm:"token_contract_addr" json:"tokenContractAddr"`
+	ActivityStatus     int8   `gorm:"activity_status" json:"activityStatus"`
 }
 
 func (ActivityInfo) TableName() string {
@@ -43,8 +44,8 @@ type activityInfoDB struct {
 }
 
 func (a activityInfoDB) ActivityFinish(activityId string) error {
-	finishSql := `update activity_info set`
-	err := a.db.Exec(finishSql).Error
+	finishSql := `update activity_info set activity_status = 1 where activity_id = ?`
+	err := a.db.Exec(finishSql, activityId).Error
 	return err
 }
 
