@@ -55,7 +55,7 @@ func (a activityInfoDB) StoreActivityInfo(activityInfo ActivityInfo) error {
 	err := a.db.Table(activityInfoRecord.TableName()).Where("activity_id = ?", activityInfo.ActivityId).Take(&exist).Error
 	if err != nil {
 		if errors.Is(err, gorm.ErrRecordNotFound) {
-			result := a.db.Table(activityInfoRecord.TableName()).Omit("guid").Create(&activityInfo)
+			result := a.db.Table(activityInfoRecord.TableName()).Omit("id").Create(&activityInfo)
 			return result.Error
 		}
 	}

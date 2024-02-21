@@ -32,7 +32,7 @@ func ActivityAdd(event event.ContractEvent, db *database.DB) error {
 		DropNumber:         uEvent.DropNumber.Int64(),
 		MinDropAmt:         uEvent.MinDropAmt.Int64(),
 		MaxDropAmt:         uEvent.MaxDropAmt.Int64(),
-		TokenContractAddr:  event.ContractAddress.String(),
+		TokenContractAddr:  uEvent.TokenContractAddr.String(),
 		ActivityStatus:     0,
 	}
 	return db.ActivityInfoDB.StoreActivityInfo(activityInfo)
