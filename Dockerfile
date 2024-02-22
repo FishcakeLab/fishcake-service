@@ -7,7 +7,7 @@ WORKDIR /app
 COPY . /app
 
 RUN go mod download && go mod tidy
-RUN make acorus
+RUN make fishcake
 
 FROM alpine:3.18
 
