@@ -37,9 +37,7 @@ service:
 
 ports:
  - name: http
-   portNumber: 8080
- - name: metrics
-   portNumber: 8081
+   portNumber: 8087
 ingress:
   enabled: false
   className: ""
@@ -83,11 +81,11 @@ tolerations: []
 affinity: {}
 livenessProbe: 
   tcpSocket:
-    port: 8080
+    port: 8087
   initialDelaySeconds: 30
   periodSeconds: 10
 readinessProbe: 
   tcpSocket:
-    port: 8080
+    port: 8087
   initialDelaySeconds: 30
   periodSeconds: 10
