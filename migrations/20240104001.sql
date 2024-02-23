@@ -1,7 +1,8 @@
 DO
 $$
 BEGIN
-        IF NOT EXISTS (SELECT 1 FROM pg_type WHERE typname = 'uint256') THEN
+        IF
+NOT EXISTS (SELECT 1 FROM pg_type WHERE typname = 'uint256') THEN
 CREATE DOMAIN UINT256 AS NUMERIC
     CHECK (VALUE >= 0 AND VALUE < POWER(CAST(2 AS NUMERIC), CAST(256 AS NUMERIC)) AND SCALE(VALUE) = 0);
 ELSE
@@ -11,8 +12,10 @@ ALTER DOMAIN UINT256 ADD
 END IF;
 END
 $$;
-DROP EXTENSION IF EXISTS "uuid-ossp" cascade;
-CREATE EXTENSION "uuid-ossp";
+DROP
+EXTENSION IF EXISTS "uuid-ossp" cascade;
+CREATE
+EXTENSION "uuid-ossp";
 
 DROP TABLE IF EXISTS block_headers;
 CREATE TABLE block_headers
@@ -27,8 +30,8 @@ CREATE TABLE block_headers
     CONSTRAINT "block_headers_timestamp_check" CHECK ("timestamp" > 0)
 );
 
-DROP TABLE IF EXISTS block_headers;
-CREATE TABLE block_headers
+DROP TABLE IF EXISTS block_listener;
+CREATE TABLE block_listener
 (
     "guid"         text COLLATE "pg_catalog"."default" NOT NULL DEFAULT replace((uuid_generate_v4())::text, '-'::text, ''::text),
     "block_number" "public"."uint256"                           DEFAULT 0,
@@ -76,8 +79,8 @@ CREATE TABLE token_nft
 )
 ;
 
-DROP TABLE IF EXISTS token_nft;
-CREATE TABLE token_nft
+DROP TABLE IF EXISTS activity_info;
+CREATE TABLE activity_info
 (
     "id"                   text COLLATE "pg_catalog"."default" NOT NULL DEFAULT replace((uuid_generate_v4())::text, '-'::text, ''::text),
     "activity_id"          int8,
@@ -94,5 +97,19 @@ CREATE TABLE token_nft
     "token_contract_addr"  text COLLATE "pg_catalog"."default",
     "activity_status"      int2,
     CONSTRAINT "activity_info_pkey" PRIMARY KEY ("id")
+)
+;
+
+DROP TABLE IF EXISTS activity_info;
+CREATE TABLE activity_info
+(
+    "id"                            text COLLATE "pg_catalog"."default" NOT NULL DEFAULT replace((uuid_generate_v4())::text, '-'::text, ''::text),
+    "activity_id"                   int8,
+    "already_drop_amts"             int8,
+    "already_drop_number"           int8,
+    "business_mined_amt"            int8,
+    "business_mined_withdrawed_amt" int8,
+    "activity_status"               int2,
+    CONSTRAINT "activity_info_ext_pkey" PRIMARY KEY ("id")
 )
 ;
