@@ -26,8 +26,8 @@ func list(c *gin.Context) {
 }
 
 func info(c *gin.Context) {
-	activityIdStr := c.Query("activityId")
-	activityId := bigint.StringToInt(activityIdStr)
-	info := service.BaseService.NftService.NftInfo(activityId)
+	tokenIdStr := c.Query("tokenId")
+	tokenId := bigint.StringToInt(tokenIdStr)
+	info := service.BaseService.NftService.NftInfo(tokenId)
 	api_result.NewApiResult(c).Success(info)
 }

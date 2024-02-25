@@ -7,7 +7,7 @@ import (
 
 type NftService interface {
 	NftInfoList(pageNum, pageSize int, contractAddress string) ([]token_nft.TokenNft, int)
-	NftInfo(activityId int) token_nft.TokenNft
+	NftInfo(tokenId int) token_nft.TokenNft
 }
 
 type nftService struct {
