@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"github.com/FishcakeLab/fishcake-service/api/activity_info"
 	"github.com/FishcakeLab/fishcake-service/api/chain_info"
+	"github.com/FishcakeLab/fishcake-service/api/drop_info"
 	"github.com/FishcakeLab/fishcake-service/api/nft_info"
 	"github.com/FishcakeLab/fishcake-service/common/errors_h"
 	"github.com/FishcakeLab/fishcake-service/common/logs"
@@ -19,6 +20,7 @@ import (
 	"github.com/urfave/cli/v2"
 	"log"
 	"math/big"
+	"strconv"
 	"time"
 )
 
@@ -73,6 +75,7 @@ func (f *FishCake) newApi(cfg *config.Config, db *database.DB) error {
 	activity_info.ActivityInfoExtApi(r)
 	chain_info.ChainInfoApi(r)
 	nft_info.NftInfoApi(r)
+	drop_info.DropInfoApi(r)
 
 	port := fmt.Sprintf(":%d", cfg.HttpPort)
 	r.Run(port)
@@ -80,12 +83,13 @@ func (f *FishCake) newApi(cfg *config.Config, db *database.DB) error {
 }
 
 func (f *FishCake) newIndex(ctx *cli.Context, cfg *config.Config, db *database.DB, shutdown context.CancelCauseFunc) error {
+	chainId, _ := strconv.ParseUint(cfg.PolygonChainId, 10, 64)
 	syncConfig := &synchronizer.Config{
 		LoopIntervalMsec:  5,
 		HeaderBufferSize:  500,
 		StartHeight:       new(big.Int).SetUint64(cfg.StartBlock),
 		ConfirmationDepth: big.NewInt(12),
-		ChainId:           80001,
+		ChainId:           uint(chainId),
 	}
 	client, _ := node.DialEthClient(ctx.Context, cfg.PolygonRpc)
 	syncer, _ := synchronizer.NewSynchronizer(syncConfig, db, client, shutdown)

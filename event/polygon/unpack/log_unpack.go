@@ -4,6 +4,7 @@ import (
 	"github.com/FishcakeLab/fishcake-service/common/global_const"
 	"github.com/FishcakeLab/fishcake-service/database"
 	"github.com/FishcakeLab/fishcake-service/database/activity"
+	"github.com/FishcakeLab/fishcake-service/database/drop"
 	"github.com/FishcakeLab/fishcake-service/database/event"
 	"github.com/FishcakeLab/fishcake-service/database/token_nft"
 	"github.com/FishcakeLab/fishcake-service/event/polygon/abi"
@@ -63,7 +64,24 @@ func MintNft(event event.ContractEvent, db *database.DB) error {
 			TokenUrl:        "baseUrl:" + uEvent.TokenId.String(),
 			Timestamp:       event.Timestamp,
 		}
-		return db.TokenNftDb.StoreTokenNft(token)
+		return db.TokenNftDB.StoreTokenNft(token)
 	}
+	return nil
+}
+
+func Drop(event event.ContractEvent, db *database.DB) error {
+	rlpLog := event.RLPLog
+	uEvent, unpackErr := MerchantUnpack.ParseDrop(*rlpLog)
+	if unpackErr != nil {
+		return unpackErr
+	}
+	drop := drop.DropInfo{
+		Address:    uEvent.Who.String(),
+		DropAmount: uEvent.DropAmt.Int64(),
+		ActivityId: uEvent.ActivityId.Int64(),
+		Timestamp:  event.Timestamp,
+	}
+	return db.DropInfoDB.StoreDropInfo(drop)
+
 	return nil
 }

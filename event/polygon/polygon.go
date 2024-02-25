@@ -155,6 +155,9 @@ func (pp *PolygonEventProcessor) eventUnpack(event event.ContractEvent) error {
 	case nftTokenAbi.Events["Transfer"].ID.String():
 		err := unpack.MintNft(event, pp.db)
 		return err
+	case merchantAbi.Events["Drop"].ID.String():
+		err := unpack.Drop(event, pp.db)
+		return err
 	}
 	return nil
 }

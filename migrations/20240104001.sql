@@ -61,21 +61,14 @@ CREATE TABLE contract_events
 DROP TABLE IF EXISTS token_nft;
 CREATE TABLE token_nft
 (
-    "id"                   text COLLATE "pg_catalog"."default" NOT NULL DEFAULT replace((uuid_generate_v4())::text, '-'::text, ''::text),
-    "activity_id"          int8,
-    "business_account"     text COLLATE "pg_catalog"."default",
-    "business_name"        text COLLATE "pg_catalog"."default",
-    "activity_content"     text COLLATE "pg_catalog"."default",
-    "latitude_longitude"   text COLLATE "pg_catalog"."default",
-    "activity_create_time" int8,
-    "activity_deadline"    int8,
-    "drop_type"            int2,
-    "drop_number"          int8,
-    "min_drop_amt"         int8,
-    "max_drop_amt"         int8,
-    "token_contract_addr"  text COLLATE "pg_catalog"."default",
-    "activity_status"      int2,
-    CONSTRAINT "activity_info_pkey" PRIMARY KEY ("id")
+    "id"               text COLLATE "pg_catalog"."default" NOT NULL DEFAULT replace((uuid_generate_v4())::text, '-'::text, ''::text),
+    "token_id"         int8,
+    "address"          varchar COLLATE "pg_catalog"."default",
+    "contract_address" varchar COLLATE "pg_catalog"."default",
+    "token_url"        varchar COLLATE "pg_catalog"."default",
+    "token_amount"     int8,
+    "timestamp"        int8,
+    CONSTRAINT "token_nft_pkey" PRIMARY KEY ("id")
 )
 ;
 
@@ -100,8 +93,8 @@ CREATE TABLE activity_info
 )
 ;
 
-DROP TABLE IF EXISTS activity_info;
-CREATE TABLE activity_info
+DROP TABLE IF EXISTS activity_info_ext;
+CREATE TABLE activity_info_ext
 (
     "id"                            text COLLATE "pg_catalog"."default" NOT NULL DEFAULT replace((uuid_generate_v4())::text, '-'::text, ''::text),
     "activity_id"                   int8,
@@ -111,5 +104,17 @@ CREATE TABLE activity_info
     "business_mined_withdrawed_amt" int8,
     "activity_status"               int2,
     CONSTRAINT "activity_info_ext_pkey" PRIMARY KEY ("id")
+)
+;
+
+DROP TABLE IF EXISTS drop_info;
+CREATE TABLE drop_info
+(
+    "id"          text COLLATE "pg_catalog"."default" NOT NULL DEFAULT replace((uuid_generate_v4())::text, '-'::text, ''::text),
+    "activity_id" int8,
+    "address"     varchar COLLATE "pg_catalog"."default",
+    "drop_amount" int8,
+    "timestamp"   int8,
+    CONSTRAINT "drop_info_pkey" PRIMARY KEY ("id")
 )
 ;
