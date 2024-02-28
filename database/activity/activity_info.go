@@ -44,7 +44,7 @@ type activityInfoDB struct {
 }
 
 func (a activityInfoDB) ActivityFinish(activityId string) error {
-	finishSql := `update activity_info set activity_status = 1 where activity_id = ?`
+	finishSql := `update activity_info set activity_status = 2 where activity_id = ?`
 	err := a.db.Exec(finishSql, activityId).Error
 	return err
 }

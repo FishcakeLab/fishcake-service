@@ -1,21 +1,21 @@
 DO
 $$
-BEGIN
+    BEGIN
         IF
-NOT EXISTS (SELECT 1 FROM pg_type WHERE typname = 'uint256') THEN
-CREATE DOMAIN UINT256 AS NUMERIC
-    CHECK (VALUE >= 0 AND VALUE < POWER(CAST(2 AS NUMERIC), CAST(256 AS NUMERIC)) AND SCALE(VALUE) = 0);
-ELSE
-ALTER DOMAIN UINT256 DROP CONSTRAINT uint256_check;
-ALTER DOMAIN UINT256 ADD
-    CHECK (VALUE >= 0 AND VALUE < POWER(CAST(2 AS NUMERIC), CAST(256 AS NUMERIC)) AND SCALE(VALUE) = 0);
-END IF;
-END
+            NOT EXISTS (SELECT 1 FROM pg_type WHERE typname = 'uint256') THEN
+            CREATE DOMAIN UINT256 AS NUMERIC
+                CHECK (VALUE >= 0 AND VALUE < POWER(CAST(2 AS NUMERIC), CAST(256 AS NUMERIC)) AND SCALE(VALUE) = 0);
+        ELSE
+            ALTER DOMAIN UINT256 DROP CONSTRAINT uint256_check;
+            ALTER DOMAIN UINT256 ADD
+                CHECK (VALUE >= 0 AND VALUE < POWER(CAST(2 AS NUMERIC), CAST(256 AS NUMERIC)) AND SCALE(VALUE) = 0);
+        END IF;
+    END
 $$;
 DROP
-EXTENSION IF EXISTS "uuid-ossp" cascade;
+    EXTENSION IF EXISTS "uuid-ossp" cascade;
 CREATE
-EXTENSION "uuid-ossp";
+    EXTENSION "uuid-ossp";
 
 DROP TABLE IF EXISTS block_headers;
 CREATE TABLE block_headers
@@ -29,6 +29,9 @@ CREATE TABLE block_headers
     CONSTRAINT "block_headers_pkey" PRIMARY KEY ("guid"),
     CONSTRAINT "block_headers_timestamp_check" CHECK ("timestamp" > 0)
 );
+
+CREATE INDEX IF NOT EXISTS block_headers_timestamp ON block_headers (timestamp);
+CREATE INDEX IF NOT EXISTS block_headers_number ON block_headers (number);
 
 DROP TABLE IF EXISTS block_listener;
 CREATE TABLE block_listener
@@ -55,8 +58,13 @@ CREATE TABLE contract_events
     "timestamp"        int4                                   NOT NULL,
     "rlp_bytes"        varchar COLLATE "pg_catalog"."default" NOT NULL,
     CONSTRAINT "contract_events_pkey" PRIMARY KEY ("guid")
-)
-;
+);
+
+CREATE INDEX IF NOT EXISTS contract_events_timestamp ON contract_events (timestamp);
+CREATE INDEX IF NOT EXISTS contract_events_block_hash ON contract_events (block_hash);
+CREATE INDEX IF NOT EXISTS contract_events_event_signature ON contract_events (event_signature);
+CREATE INDEX IF NOT EXISTS contract_events_contract_address ON contract_events (contract_address);
+CREATE INDEX IF NOT EXISTS contract_events_block_number ON contract_events (block_number);
 
 DROP TABLE IF EXISTS token_nft;
 CREATE TABLE token_nft
@@ -69,8 +77,7 @@ CREATE TABLE token_nft
     "token_amount"     int8,
     "timestamp"        int8,
     CONSTRAINT "token_nft_pkey" PRIMARY KEY ("id")
-)
-;
+);
 
 DROP TABLE IF EXISTS activity_info;
 CREATE TABLE activity_info
@@ -90,10 +97,8 @@ CREATE TABLE activity_info
     "token_contract_addr"  text COLLATE "pg_catalog"."default",
     "activity_status"      int2,
     CONSTRAINT "activity_info_pkey" PRIMARY KEY ("id")
-)
-;
+);
 
-DROP TABLE IF EXISTS activity_info_ext;
 CREATE TABLE activity_info_ext
 (
     "id"                            text COLLATE "pg_catalog"."default" NOT NULL DEFAULT replace((uuid_generate_v4())::text, '-'::text, ''::text),
@@ -107,7 +112,6 @@ CREATE TABLE activity_info_ext
 )
 ;
 
-DROP TABLE IF EXISTS drop_info;
 CREATE TABLE drop_info
 (
     "id"          text COLLATE "pg_catalog"."default" NOT NULL DEFAULT replace((uuid_generate_v4())::text, '-'::text, ''::text),

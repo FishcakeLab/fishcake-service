@@ -25,6 +25,7 @@ func ActivityAdd(event event.ContractEvent, db *database.DB) error {
 	activityInfo := activity.ActivityInfo{
 		ActivityId:         uEvent.ActivityId.Int64(),
 		BusinessName:       uEvent.BusinessName,
+		BusinessAccount:    uEvent.Who.String(),
 		ActivityContent:    uEvent.ActivityContent,
 		LatitudeLongitude:  uEvent.LatitudeLongitude,
 		ActivityCreateTime: int64(event.Timestamp),
@@ -34,7 +35,7 @@ func ActivityAdd(event event.ContractEvent, db *database.DB) error {
 		MinDropAmt:         uEvent.MinDropAmt.Int64(),
 		MaxDropAmt:         uEvent.MaxDropAmt.Int64(),
 		TokenContractAddr:  uEvent.TokenContractAddr.String(),
-		ActivityStatus:     0,
+		ActivityStatus:     1,
 	}
 	return db.ActivityInfoDB.StoreActivityInfo(activityInfo)
 }
