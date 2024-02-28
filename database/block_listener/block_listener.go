@@ -55,7 +55,7 @@ func (db blockListenerDB) SaveOrUpdateLastBlockNumber(lastBlock BlockListener) e
 		return err
 	} else {
 		lastBlock.Updated = uint64(time.Now().Unix())
-		updateResult := db.gorm.Table(bl.TableName()).Omit("guid", "created").Updates(&lastBlock)
+		updateResult := db.gorm.Table(bl.TableName()).Where("1 = ?", 1).Omit("guid", "created").Updates(&lastBlock)
 		if updateResult.Error != nil {
 			return updateResult.Error
 		}
