@@ -86,7 +86,7 @@ func (f *FishCake) newIndex(ctx *cli.Context, cfg *config.Config, db *database.D
 	chainId, _ := strconv.ParseUint(cfg.PolygonChainId, 10, 64)
 	syncConfig := &synchronizer.Config{
 		LoopIntervalMsec:  5,
-		HeaderBufferSize:  500,
+		HeaderBufferSize:  20,
 		StartHeight:       new(big.Int).SetUint64(cfg.StartBlock),
 		ConfirmationDepth: big.NewInt(12),
 		ChainId:           uint(chainId),
