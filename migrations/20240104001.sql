@@ -12,13 +12,10 @@ $$
         END IF;
     END
 $$;
-DROP
-    EXTENSION IF EXISTS "uuid-ossp" cascade;
-CREATE
-    EXTENSION "uuid-ossp";
+CREATE EXTENSION IF NOT EXISTS "uuid-ossp" cascade;
 
-DROP TABLE IF EXISTS block_headers;
-CREATE TABLE block_headers
+
+CREATE TABLE IF NOT EXISTS block_headers
 (
     "guid"        text COLLATE "pg_catalog"."default"    NOT NULL DEFAULT replace((uuid_generate_v4())::text, '-'::text, ''::text),
     "hash"        varchar COLLATE "pg_catalog"."default" NOT NULL,
@@ -33,8 +30,7 @@ CREATE TABLE block_headers
 CREATE INDEX IF NOT EXISTS block_headers_timestamp ON block_headers (timestamp);
 CREATE INDEX IF NOT EXISTS block_headers_number ON block_headers (number);
 
-DROP TABLE IF EXISTS block_listener;
-CREATE TABLE block_listener
+CREATE TABLE IF NOT EXISTS block_listener
 (
     "guid"         text COLLATE "pg_catalog"."default" NOT NULL DEFAULT replace((uuid_generate_v4())::text, '-'::text, ''::text),
     "block_number" "public"."uint256"                           DEFAULT 0,
@@ -45,8 +41,7 @@ CREATE TABLE block_listener
     CONSTRAINT "block_listener_updated_check" CHECK (updated > 0)
 );
 
-DROP TABLE IF EXISTS contract_events;
-CREATE TABLE contract_events
+CREATE TABLE IF NOT EXISTS contract_events
 (
     "guid"             text COLLATE "pg_catalog"."default"    NOT NULL DEFAULT replace((uuid_generate_v4())::text, '-'::text, ''::text),
     "block_hash"       varchar COLLATE "pg_catalog"."default" NOT NULL,
@@ -66,8 +61,7 @@ CREATE INDEX IF NOT EXISTS contract_events_event_signature ON contract_events (e
 CREATE INDEX IF NOT EXISTS contract_events_contract_address ON contract_events (contract_address);
 CREATE INDEX IF NOT EXISTS contract_events_block_number ON contract_events (block_number);
 
-DROP TABLE IF EXISTS token_nft;
-CREATE TABLE token_nft
+CREATE TABLE IF NOT EXISTS token_nft
 (
     "id"               text COLLATE "pg_catalog"."default" NOT NULL DEFAULT replace((uuid_generate_v4())::text, '-'::text, ''::text),
     "token_id"         int8,
@@ -79,8 +73,7 @@ CREATE TABLE token_nft
     CONSTRAINT "token_nft_pkey" PRIMARY KEY ("id")
 );
 
-DROP TABLE IF EXISTS activity_info;
-CREATE TABLE activity_info
+CREATE TABLE IF NOT EXISTS activity_info
 (
     "id"                   text COLLATE "pg_catalog"."default" NOT NULL DEFAULT replace((uuid_generate_v4())::text, '-'::text, ''::text),
     "activity_id"          int8,
@@ -98,9 +91,7 @@ CREATE TABLE activity_info
     "activity_status"      int2,
     CONSTRAINT "activity_info_pkey" PRIMARY KEY ("id")
 );
-DROP TABLE IF EXISTS activity_info_ext;
-
-CREATE TABLE activity_info_ext
+CREATE TABLE IF NOT EXISTS activity_info_ext
 (
     "id"                            text COLLATE "pg_catalog"."default" NOT NULL DEFAULT replace((uuid_generate_v4())::text, '-'::text, ''::text),
     "activity_id"                   int8,
@@ -112,8 +103,7 @@ CREATE TABLE activity_info_ext
     CONSTRAINT "activity_info_ext_pkey" PRIMARY KEY ("id")
 )
 ;
-DROP TABLE IF EXISTS drop_info;
-CREATE TABLE drop_info
+CREATE TABLE IF NOT EXISTS drop_info
 (
     "id"          text COLLATE "pg_catalog"."default" NOT NULL DEFAULT replace((uuid_generate_v4())::text, '-'::text, ''::text),
     "activity_id" int8,
