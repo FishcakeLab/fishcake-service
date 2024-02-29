@@ -98,6 +98,7 @@ CREATE TABLE activity_info
     "activity_status"      int2,
     CONSTRAINT "activity_info_pkey" PRIMARY KEY ("id")
 );
+DROP TABLE IF EXISTS activity_info_ext;
 
 CREATE TABLE activity_info_ext
 (
@@ -111,7 +112,7 @@ CREATE TABLE activity_info_ext
     CONSTRAINT "activity_info_ext_pkey" PRIMARY KEY ("id")
 )
 ;
-
+DROP TABLE IF EXISTS drop_info;
 CREATE TABLE drop_info
 (
     "id"          text COLLATE "pg_catalog"."default" NOT NULL DEFAULT replace((uuid_generate_v4())::text, '-'::text, ''::text),

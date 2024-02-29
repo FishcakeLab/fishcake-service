@@ -1,15 +1,15 @@
 migrations: "./migrations"
 #polygon_rpc: "https://polygon-mumbai.infura.io/v3/f22a689113714ae8a41d02b18e1b1f7d"
-polygon_rpc: "https://rpc.ankr.com/polygon_mumbai"
-rpc_url: "193.203.215.185:8189"
+polygon_rpc: "https://polygon-mainnet.g.alchemy.com/v2/QySv9gLuQUaXy0BJnpNwW1d1N8ve0as4"
+rpc_url: "wallet-chain-node:8189"
 polygon_chain_id: "80001"
-http_host: "127.0.0.1"
+http_host: "0.0.0.0"
 http_port: 8087
-db_host: "120.77.251.247"
+db_host: "postgresql"
 db_port: 5432
 db_name: "fishcake"
 db_user: "postgres"
-db_password: "galamini"
+db_password: "vVb9NhLYui"
 metrics_host:
 metrics_port:
 start_block: 46140600
