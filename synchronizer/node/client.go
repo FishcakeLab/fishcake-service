@@ -32,7 +32,7 @@ const (
 
 	// defaultRequestTimeout is the default duration the processor will
 	// wait for a request to be fulfilled
-	defaultRequestTimeout = 10 * time.Second
+	defaultRequestTimeout = 100 * time.Second
 )
 
 type EthClient interface {
