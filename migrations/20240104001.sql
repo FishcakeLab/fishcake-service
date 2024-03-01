@@ -26,9 +26,6 @@ CREATE TABLE IF NOT EXISTS block_headers
     CONSTRAINT "block_headers_timestamp_check" CHECK ("timestamp" > 0)
 );
 
-CREATE INDEX IF NOT EXISTS block_headers_timestamp ON block_headers (timestamp);
-CREATE INDEX IF NOT EXISTS block_headers_number ON block_headers (number);
-
 
 CREATE TABLE IF NOT EXISTS block_listener
 (
@@ -55,12 +52,6 @@ CREATE TABLE IF NOT EXISTS contract_events
     "rlp_bytes"        varchar COLLATE "pg_catalog"."default" NOT NULL,
     CONSTRAINT "contract_events_pkey" PRIMARY KEY ("guid")
 );
-
-CREATE INDEX IF NOT EXISTS contract_events_timestamp ON contract_events (timestamp);
-CREATE INDEX IF NOT EXISTS contract_events_block_hash ON contract_events (block_hash);
-CREATE INDEX IF NOT EXISTS contract_events_event_signature ON contract_events (event_signature);
-CREATE INDEX IF NOT EXISTS contract_events_contract_address ON contract_events (contract_address);
-CREATE INDEX IF NOT EXISTS contract_events_block_number ON contract_events (block_number);
 
 CREATE TABLE IF NOT EXISTS token_nft
 (
