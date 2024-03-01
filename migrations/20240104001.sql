@@ -17,7 +17,6 @@ DROP
 CREATE
     EXTENSION "uuid-ossp";
 
-DROP TABLE IF EXISTS block_headers;
 CREATE TABLE block_headers
 (
     "guid"        text COLLATE "pg_catalog"."default"    NOT NULL DEFAULT replace((uuid_generate_v4())::text, '-'::text, ''::text),
@@ -33,7 +32,6 @@ CREATE TABLE block_headers
 CREATE INDEX IF NOT EXISTS block_headers_timestamp ON block_headers (timestamp);
 CREATE INDEX IF NOT EXISTS block_headers_number ON block_headers (number);
 
-DROP TABLE IF EXISTS block_listener;
 CREATE TABLE block_listener
 (
     "guid"         text COLLATE "pg_catalog"."default" NOT NULL DEFAULT replace((uuid_generate_v4())::text, '-'::text, ''::text),
@@ -45,7 +43,6 @@ CREATE TABLE block_listener
     CONSTRAINT "block_listener_updated_check" CHECK (updated > 0)
 );
 
-DROP TABLE IF EXISTS contract_events;
 CREATE TABLE contract_events
 (
     "guid"             text COLLATE "pg_catalog"."default"    NOT NULL DEFAULT replace((uuid_generate_v4())::text, '-'::text, ''::text),
@@ -66,7 +63,6 @@ CREATE INDEX IF NOT EXISTS contract_events_event_signature ON contract_events (e
 CREATE INDEX IF NOT EXISTS contract_events_contract_address ON contract_events (contract_address);
 CREATE INDEX IF NOT EXISTS contract_events_block_number ON contract_events (block_number);
 
-DROP TABLE IF EXISTS token_nft;
 CREATE TABLE token_nft
 (
     "id"               text COLLATE "pg_catalog"."default" NOT NULL DEFAULT replace((uuid_generate_v4())::text, '-'::text, ''::text),
@@ -79,7 +75,6 @@ CREATE TABLE token_nft
     CONSTRAINT "token_nft_pkey" PRIMARY KEY ("id")
 );
 
-DROP TABLE IF EXISTS activity_info;
 CREATE TABLE activity_info
 (
     "id"                   text COLLATE "pg_catalog"."default" NOT NULL DEFAULT replace((uuid_generate_v4())::text, '-'::text, ''::text),
@@ -96,6 +91,7 @@ CREATE TABLE activity_info
     "max_drop_amt"         int8,
     "token_contract_addr"  text COLLATE "pg_catalog"."default",
     "activity_status"      int2,
+    "already_drop_number"  int8,
     CONSTRAINT "activity_info_pkey" PRIMARY KEY ("id")
 );
 

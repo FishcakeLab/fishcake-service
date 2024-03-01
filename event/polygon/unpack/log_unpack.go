@@ -36,6 +36,7 @@ func ActivityAdd(event event.ContractEvent, db *database.DB) error {
 		MaxDropAmt:         uEvent.MaxDropAmt.Int64(),
 		TokenContractAddr:  uEvent.TokenContractAddr.String(),
 		ActivityStatus:     1,
+		AlreadyDropNumber:  0,
 	}
 	return db.ActivityInfoDB.StoreActivityInfo(activityInfo)
 }
@@ -82,7 +83,17 @@ func Drop(event event.ContractEvent, db *database.DB) error {
 		ActivityId: uEvent.ActivityId.Int64(),
 		Timestamp:  event.Timestamp,
 	}
-	return db.DropInfoDB.StoreDropInfo(drop)
 
+	if err := db.Transaction(func(tx *database.DB) error {
+		if err := tx.DropInfoDB.StoreDropInfo(drop); err != nil {
+			return err
+		}
+		if err := tx.ActivityInfoDB.UpdateActivityInfo(uEvent.ActivityId.String()); err != nil {
+			return err
+		}
+		return nil
+	}); err != nil {
+		return err
+	}
 	return nil
 }

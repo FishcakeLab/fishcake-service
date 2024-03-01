@@ -22,6 +22,7 @@ type ActivityInfo struct {
 	MaxDropAmt         int64  `gorm:"max_drop_amt" json:"maxDropAmt"`
 	TokenContractAddr  string `gorm:"token_contract_addr" json:"tokenContractAddr"`
 	ActivityStatus     int8   `gorm:"activity_status" json:"activityStatus"`
+	AlreadyDropNumber  int64  `gorm:"already_drop_number" json:"alreadyDropNumber"`
 }
 
 func (ActivityInfo) TableName() string {
@@ -37,10 +38,17 @@ type ActivityInfoDB interface {
 	ActivityInfoView
 	StoreActivityInfo(activityInfo ActivityInfo) error
 	ActivityFinish(activityId string) error
+	UpdateActivityInfo(activityId string) error
 }
 
 type activityInfoDB struct {
 	db *gorm.DB
+}
+
+func (a activityInfoDB) UpdateActivityInfo(activityId string) error {
+	sql := `update activity_info set already_drop_number = already_drop_number + 1 where activity_id = ?`
+	err := a.db.Exec(sql, activityId).Error
+	return err
 }
 
 func (a activityInfoDB) ActivityFinish(activityId string) error {
