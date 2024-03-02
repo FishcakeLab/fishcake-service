@@ -33,23 +33,11 @@ type BlocksView interface {
 
 type BlocksDB interface {
 	BlocksView
-	DelHeadersByNumber(number *big.Int) error
 	StoreBlockHeaders([]BlockHeader) error
 }
 
 type blocksDB struct {
 	gorm *gorm.DB
-}
-
-func (b blocksDB) DelHeadersByNumber(number *big.Int) error {
-	header := BlockHeader{}
-	condition := &BlockHeader{Number: number}
-	result := b.gorm.Delete(&header, condition)
-	if result.Error != nil {
-		return result.Error
-	}
-	return nil
-
 }
 
 func (b blocksDB) BlockHeader(hash common.Hash) (*BlockHeader, error) {
