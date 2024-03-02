@@ -32,8 +32,8 @@ func ActivityAdd(event event.ContractEvent, db *database.DB) error {
 		ActivityDeadline:   uEvent.ActivityDeadLine.Int64(),
 		DropType:           int8(uEvent.DropType),
 		DropNumber:         uEvent.DropNumber.Int64(),
-		MinDropAmt:         uEvent.MinDropAmt.Int64(),
-		MaxDropAmt:         uEvent.MaxDropAmt.Int64(),
+		MinDropAmt:         uEvent.MinDropAmt,
+		MaxDropAmt:         uEvent.MaxDropAmt,
 		TokenContractAddr:  uEvent.TokenContractAddr.String(),
 		ActivityStatus:     1,
 		AlreadyDropNumber:  0,
@@ -79,7 +79,7 @@ func Drop(event event.ContractEvent, db *database.DB) error {
 	}
 	drop := drop.DropInfo{
 		Address:    uEvent.Who.String(),
-		DropAmount: uEvent.DropAmt.Int64(),
+		DropAmount: uEvent.DropAmt,
 		ActivityId: uEvent.ActivityId.Int64(),
 		Timestamp:  event.Timestamp,
 	}

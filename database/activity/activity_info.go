@@ -4,25 +4,27 @@ import (
 	"errors"
 	"github.com/FishcakeLab/fishcake-service/common/enum"
 	"github.com/FishcakeLab/fishcake-service/common/errors_h"
+	_ "github.com/FishcakeLab/fishcake-service/database/utils/serializers"
 	"gorm.io/gorm"
+	"math/big"
 )
 
 type ActivityInfo struct {
-	Id                 string `gorm:"id" json:"id"`
-	ActivityId         int64  `gorm:"activity_id" json:"activityId"`
-	BusinessAccount    string `gorm:"business_account" json:"businessAccount"`
-	BusinessName       string `gorm:"business_name" json:"businessName"`
-	ActivityContent    string `gorm:"activity_content" json:"activityContent"`
-	LatitudeLongitude  string `gorm:"latitude_longitude" json:"latitudeLongitude"`
-	ActivityCreateTime int64  `gorm:"activity_create_time" json:"activityCreateTime"`
-	ActivityDeadline   int64  `gorm:"activity_deadline" json:"activityDeadline"`
-	DropType           int8   `gorm:"drop_type" json:"dropType"`
-	DropNumber         int64  `gorm:"drop_number" json:"dropNumber"`
-	MinDropAmt         int64  `gorm:"min_drop_amt" json:"minDropAmt"`
-	MaxDropAmt         int64  `gorm:"max_drop_amt" json:"maxDropAmt"`
-	TokenContractAddr  string `gorm:"token_contract_addr" json:"tokenContractAddr"`
-	ActivityStatus     int8   `gorm:"activity_status" json:"activityStatus"`
-	AlreadyDropNumber  int64  `gorm:"already_drop_number" json:"alreadyDropNumber"`
+	Id                 string   `gorm:"id" json:"id"`
+	ActivityId         int64    `gorm:"activity_id" json:"activityId"`
+	BusinessAccount    string   `gorm:"business_account" json:"businessAccount"`
+	BusinessName       string   `gorm:"business_name" json:"businessName"`
+	ActivityContent    string   `gorm:"activity_content" json:"activityContent"`
+	LatitudeLongitude  string   `gorm:"latitude_longitude" json:"latitudeLongitude"`
+	ActivityCreateTime int64    `gorm:"activity_create_time" json:"activityCreateTime"`
+	ActivityDeadline   int64    `gorm:"activity_deadline" json:"activityDeadline"`
+	DropType           int8     `gorm:"drop_type" json:"dropType"`
+	DropNumber         int64    `gorm:"drop_number" json:"dropNumber"`
+	MinDropAmt         *big.Int `gorm:"serializer:u256;column:min_drop_amt" json:"minDropAmt"`
+	MaxDropAmt         *big.Int `gorm:"serializer:u256;column:max_drop_amt" json:"maxDropAmt"`
+	TokenContractAddr  string   `gorm:"token_contract_addr" json:"tokenContractAddr"`
+	ActivityStatus     int8     `gorm:"activity_status" json:"activityStatus"`
+	AlreadyDropNumber  int64    `gorm:"already_drop_number" json:"alreadyDropNumber"`
 }
 
 func (ActivityInfo) TableName() string {

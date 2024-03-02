@@ -4,15 +4,17 @@ import (
 	"errors"
 	"github.com/FishcakeLab/fishcake-service/common/enum"
 	"github.com/FishcakeLab/fishcake-service/common/errors_h"
+	_ "github.com/FishcakeLab/fishcake-service/database/utils/serializers"
 	"gorm.io/gorm"
+	"math/big"
 )
 
 type DropInfo struct {
-	Id         string `json:"id" gorm:"id"`
-	ActivityId int64  `gorm:"activity_id" json:"activityId"`
-	Address    string `json:"address" gorm:"address"`
-	DropAmount int64  `json:"tokenAmount" gorm:"drop_amount"`
-	Timestamp  uint64 `json:"timestamp" gorm:"timestamp"`
+	Id         string   `json:"id" gorm:"id"`
+	ActivityId int64    `gorm:"activity_id" json:"activityId"`
+	Address    string   `json:"address" gorm:"address"`
+	DropAmount *big.Int `json:"tokenAmount" gorm:"serializer:u256;column:drop_amount"`
+	Timestamp  uint64   `json:"timestamp" gorm:"timestamp"`
 }
 
 func (DropInfo) TableName() string {

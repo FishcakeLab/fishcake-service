@@ -77,8 +77,8 @@ CREATE TABLE IF NOT EXISTS activity_info
     "activity_deadline"    int8,
     "drop_type"            int2,
     "drop_number"          int8,
-    "min_drop_amt"         int8,
-    "max_drop_amt"         int8,
+    "min_drop_amt"         "public"."uint256",
+    "max_drop_amt"         "public"."uint256",
     "token_contract_addr"  text COLLATE "pg_catalog"."default",
     "activity_status"      int2,
     "already_drop_number"  int8,
@@ -102,7 +102,7 @@ CREATE TABLE IF NOT EXISTS drop_info
     "id"          text COLLATE "pg_catalog"."default" NOT NULL DEFAULT replace((uuid_generate_v4())::text, '-'::text, ''::text),
     "activity_id" int8,
     "address"     varchar COLLATE "pg_catalog"."default",
-    "drop_amount" int8,
+    "drop_amount" "public"."uint256",
     "timestamp"   int8,
     CONSTRAINT "drop_info_pkey" PRIMARY KEY ("id")
 )
