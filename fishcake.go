@@ -92,7 +92,7 @@ func (f *FishCake) newIndex(ctx *cli.Context, cfg *config.Config, db *database.D
 		ChainId:           uint(chainId),
 	}
 	client, _ := node.DialEthClient(ctx.Context, cfg.PolygonRpc)
-	syncer, _ := synchronizer.NewSynchronizer(syncConfig, db, client, shutdown)
+	syncer, _ := synchronizer.NewSynchronizer(cfg, syncConfig, db, client, shutdown)
 	err := syncer.Start()
 	if err != nil {
 		log.Println("failed to start synchronizer:", err)

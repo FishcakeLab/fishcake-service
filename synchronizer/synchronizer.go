@@ -3,6 +3,7 @@ package synchronizer
 import (
 	"context"
 	"fmt"
+	"github.com/FishcakeLab/fishcake-service/config"
 	common2 "github.com/FishcakeLab/fishcake-service/database/common"
 	"github.com/FishcakeLab/fishcake-service/database/event"
 	"github.com/FishcakeLab/fishcake-service/database/utils"
@@ -41,9 +42,10 @@ type Synchronizer struct {
 	tasks            tasks.Group
 	db               *database.DB
 	chainId          string
+	ymlCfg           *config.Config
 }
 
-func NewSynchronizer(cfg *Config, db *database.DB, client node.EthClient, shutdown context.CancelCauseFunc) (*Synchronizer, error) {
+func NewSynchronizer(ymlCfg *config.Config, cfg *Config, db *database.DB, client node.EthClient, shutdown context.CancelCauseFunc) (*Synchronizer, error) {
 	latestHeader, err := db.Blocks.LatestBlockHeader()
 	if err != nil {
 		return nil, err
@@ -79,6 +81,7 @@ func NewSynchronizer(cfg *Config, db *database.DB, client node.EthClient, shutdo
 			shutdown(fmt.Errorf("critical error in L1 Synchronizer: %w", err))
 		}},
 		chainId: strconv.Itoa(int(cfg.ChainId)),
+		ymlCfg:  ymlCfg,
 	}, nil
 }
 
@@ -102,7 +105,7 @@ func (syncer *Synchronizer) Start() error {
 					log.Println("Latest header", "latestHeader Number", latestHeader.Number)
 				}
 			}
-			err := syncer.processBatch(syncer.headers)
+			err := syncer.processBatch(syncer.headers, syncer.ymlCfg)
 			if err == nil {
 				syncer.headers = nil
 			}
@@ -112,7 +115,7 @@ func (syncer *Synchronizer) Start() error {
 	return nil
 }
 
-func (syncer *Synchronizer) processBatch(headers []types.Header) error {
+func (syncer *Synchronizer) processBatch(headers []types.Header, ymlCfg *config.Config) error {
 	if len(headers) == 0 {
 		return nil
 	}
@@ -124,7 +127,11 @@ func (syncer *Synchronizer) processBatch(headers []types.Header) error {
 		header := headers[i]
 		headerMap[header.Hash()] = &header
 	}
-	filterQuery := ethereum.FilterQuery{FromBlock: firstHeader.Number, ToBlock: lastHeader.Number}
+	addresses := make([]common.Address, len(ymlCfg.Contracts))
+	addresses[0] = common.HexToAddress(ymlCfg.Contracts[0])
+	addresses[1] = common.HexToAddress(ymlCfg.Contracts[1])
+
+	filterQuery := ethereum.FilterQuery{FromBlock: firstHeader.Number, ToBlock: lastHeader.Number, Addresses: addresses}
 	logs, err := syncer.ethClient.FilterLogs(filterQuery)
 	if err != nil {
 		log.Println("failed to extract logs", "err", err)
