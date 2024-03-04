@@ -85,10 +85,10 @@ func (f *FishCake) newApi(cfg *config.Config, db *database.DB) error {
 func (f *FishCake) newIndex(ctx *cli.Context, cfg *config.Config, db *database.DB, shutdown context.CancelCauseFunc) error {
 	chainId, _ := strconv.ParseUint(cfg.PolygonChainId, 10, 64)
 	syncConfig := &synchronizer.Config{
-		LoopIntervalMsec:  5,
-		HeaderBufferSize:  20,
+		LoopIntervalMsec:  2,
+		HeaderBufferSize:  500,
 		StartHeight:       new(big.Int).SetUint64(cfg.StartBlock),
-		ConfirmationDepth: big.NewInt(50),
+		ConfirmationDepth: big.NewInt(20),
 		ChainId:           uint(chainId),
 	}
 	client, _ := node.DialEthClient(ctx.Context, cfg.PolygonRpc)
@@ -103,7 +103,7 @@ func (f *FishCake) newIndex(ctx *cli.Context, cfg *config.Config, db *database.D
 
 func (f *FishCake) newEvent(cfg *config.Config, db *database.DB, shutdown context.CancelCauseFunc) error {
 	var epoch uint64 = 10_000
-	var loopInterval time.Duration = time.Second * 5
+	var loopInterval time.Duration = time.Second * 2
 	eventProcessor, _ := polygon.NewEventProcessor(db, loopInterval, cfg.Contracts, cfg.StartBlock, cfg.EventStartBlock, epoch, shutdown)
 	err := eventProcessor.Start()
 	if err != nil {
