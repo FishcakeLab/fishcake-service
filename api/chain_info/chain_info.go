@@ -17,7 +17,9 @@ func ChainInfoApi(rg *gin.Engine) {
 
 func balance(c *gin.Context) {
 	address := c.Query("address")
-	//contractAddress := c.Query("contractAddress")
+	if address == "" {
+		api_result.NewApiResult(c).Error(enum.ParamErr.Code, enum.ParamErr.Msg)
+	}
 	response := service.BaseService.RpcService.GetBalance(address)
 	if response.Code == global_const.RpcReturnCodeSuccess {
 		api_result.NewApiResult(c).Success(response.Balance)
@@ -29,6 +31,9 @@ func balance(c *gin.Context) {
 func transactions(c *gin.Context) {
 	address := c.Query("address")
 	contractAddress := c.Query("contractAddress")
+	if address == "" || contractAddress == "" {
+		api_result.NewApiResult(c).Error(enum.ParamErr.Code, enum.ParamErr.Msg)
+	}
 	response := service.BaseService.RpcService.Transactions(address, contractAddress)
 	if response.Code == global_const.RpcReturnCodeSuccess {
 		api_result.NewApiResult(c).Success(response)
