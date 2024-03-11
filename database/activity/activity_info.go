@@ -94,6 +94,7 @@ func (a activityInfoDB) ActivityInfoList(pageNum, pageSize int) ([]ActivityInfo,
 	if pageNum > 0 && pageSize > 0 {
 		this = this.Limit(pageSize).Offset((pageNum - 1) * pageSize)
 	}
+	this = this.Order("activity_create_time DESC, activity_status ASC")
 	result := this.Find(&activityInfo)
 	if result.Error == nil {
 		return activityInfo, int(count)

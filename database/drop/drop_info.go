@@ -13,7 +13,7 @@ type DropInfo struct {
 	Id         string   `json:"id" gorm:"id"`
 	ActivityId int64    `gorm:"activity_id" json:"activityId"`
 	Address    string   `json:"address" gorm:"address"`
-	DropAmount *big.Int `json:"tokenAmount" gorm:"serializer:u256;column:drop_amount"`
+	DropAmount *big.Int `json:"dropAmount" gorm:"serializer:u256;column:drop_amount"`
 	Timestamp  uint64   `json:"timestamp" gorm:"timestamp"`
 }
 
