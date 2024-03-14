@@ -5,16 +5,22 @@ import (
 	"github.com/FishcakeLab/fishcake-service/common/enum"
 	"github.com/FishcakeLab/fishcake-service/common/errors_h"
 	"gorm.io/gorm"
+	"math/big"
 )
 
 type TokenNft struct {
-	Id              string `json:"id" gorm:"id"`
-	TokenId         int64  `json:"tokenId" gorm:"token_id"`
-	Address         string `json:"address" gorm:"address"`
-	ContractAddress string `json:"contractAddress" gorm:"contract_address"`
-	TokenUrl        string `json:"tokenUrl" gorm:"token_url"`
-	TokenAmount     int64  `json:"tokenAmount" gorm:"token_amount"`
-	Timestamp       uint64 `json:"timestamp" gorm:"timestamp"`
+	Id              string   `json:"id" gorm:"id"`
+	TokenId         int64    `json:"tokenId" gorm:"token_id"`
+	BusinessName    string   `json:"businessName" gorm:"business_name"`
+	Description     string   `json:"description" gorm:"description"`
+	ImgUrl          string   `json:"imgUrl" gorm:"img_url"`
+	BusinessAddress string   `json:"businessAddress" gorm:"business_address"`
+	WebSite         string   `json:"webSite" gorm:"web_site"`
+	Social          string   `json:"social" gorm:"social"`
+	ContractAddress string   `json:"contractAddress" gorm:"contract_address"`
+	CostValue       *big.Int `json:"costValue" gorm:"serializer:u256;column:cost_value"`
+	Deadline        uint64   `json:"deadline" gorm:"deadline"`
+	NftType         int8     `json:"nftType" gorm:"nft_type"`
 }
 
 func (TokenNft) TableName() string {

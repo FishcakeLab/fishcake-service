@@ -31,7 +31,7 @@ var (
 
 // MerchantMangerMetaData contains all meta data concerning the MerchantManger contract.
 var MerchantMangerMetaData = &bind.MetaData{
-	ABI: "[{\"type\":\"function\",\"name\":\"FccTokenAddr\",\"inputs\":[],\"outputs\":[{\"name\":\"\",\"type\":\"address\",\"internalType\":\"contractIERC20\"}],\"stateMutability\":\"view\"},{\"type\":\"function\",\"name\":\"activityAdd\",\"inputs\":[{\"name\":\"_businessName\",\"type\":\"string\",\"internalType\":\"string\"},{\"name\":\"_activityContent\",\"type\":\"string\",\"internalType\":\"string\"},{\"name\":\"_latitudeLongitude\",\"type\":\"string\",\"internalType\":\"string\"},{\"name\":\"_activityDeadLine\",\"type\":\"uint256\",\"internalType\":\"uint256\"},{\"name\":\"_totalDropAmts\",\"type\":\"uint256\",\"internalType\":\"uint256\"},{\"name\":\"_dropType\",\"type\":\"uint8\",\"internalType\":\"uint8\"},{\"name\":\"_dropNumber\",\"type\":\"uint256\",\"internalType\":\"uint256\"},{\"name\":\"_minDropAmt\",\"type\":\"uint256\",\"internalType\":\"uint256\"},{\"name\":\"_maxDropAmt\",\"type\":\"uint256\",\"internalType\":\"uint256\"},{\"name\":\"_tokenContractAddr\",\"type\":\"address\",\"internalType\":\"address\"}],\"outputs\":[{\"name\":\"_ret\",\"type\":\"bool\",\"internalType\":\"bool\"},{\"name\":\"_activityId\",\"type\":\"uint256\",\"internalType\":\"uint256\"}],\"stateMutability\":\"nonpayable\"},{\"type\":\"function\",\"name\":\"activityDropedToAccount\",\"inputs\":[{\"name\":\"\",\"type\":\"uint256\",\"internalType\":\"uint256\"},{\"name\":\"\",\"type\":\"address\",\"internalType\":\"address\"}],\"outputs\":[{\"name\":\"\",\"type\":\"bool\",\"internalType\":\"bool\"}],\"stateMutability\":\"view\"},{\"type\":\"function\",\"name\":\"activityFinish\",\"inputs\":[{\"name\":\"_activityId\",\"type\":\"uint256\",\"internalType\":\"uint256\"}],\"outputs\":[{\"name\":\"_ret\",\"type\":\"bool\",\"internalType\":\"bool\"}],\"stateMutability\":\"nonpayable\"},{\"type\":\"function\",\"name\":\"activityInfoArrs\",\"inputs\":[{\"name\":\"\",\"type\":\"uint256\",\"internalType\":\"uint256\"}],\"outputs\":[{\"name\":\"activityId\",\"type\":\"uint256\",\"internalType\":\"uint256\"},{\"name\":\"businessAccount\",\"type\":\"address\",\"internalType\":\"address\"},{\"name\":\"businessName\",\"type\":\"string\",\"internalType\":\"string\"},{\"name\":\"activityContent\",\"type\":\"string\",\"internalType\":\"string\"},{\"name\":\"latitudeLongitude\",\"type\":\"string\",\"internalType\":\"string\"},{\"name\":\"activityCreateTime\",\"type\":\"uint256\",\"internalType\":\"uint256\"},{\"name\":\"activityDeadLine\",\"type\":\"uint256\",\"internalType\":\"uint256\"},{\"name\":\"dropType\",\"type\":\"uint8\",\"internalType\":\"uint8\"},{\"name\":\"dropNumber\",\"type\":\"uint256\",\"internalType\":\"uint256\"},{\"name\":\"minDropAmt\",\"type\":\"uint256\",\"internalType\":\"uint256\"},{\"name\":\"maxDropAmt\",\"type\":\"uint256\",\"internalType\":\"uint256\"},{\"name\":\"tokenContractAddr\",\"type\":\"address\",\"internalType\":\"address\"}],\"stateMutability\":\"view\"},{\"type\":\"function\",\"name\":\"activityInfoChangedIdx\",\"inputs\":[{\"name\":\"\",\"type\":\"uint256\",\"internalType\":\"uint256\"}],\"outputs\":[{\"name\":\"\",\"type\":\"uint256\",\"internalType\":\"uint256\"}],\"stateMutability\":\"view\"},{\"type\":\"function\",\"name\":\"activityInfoExtArrs\",\"inputs\":[{\"name\":\"\",\"type\":\"uint256\",\"internalType\":\"uint256\"}],\"outputs\":[{\"name\":\"activityId\",\"type\":\"uint256\",\"internalType\":\"uint256\"},{\"name\":\"alreadyDropAmts\",\"type\":\"uint256\",\"internalType\":\"uint256\"},{\"name\":\"alreadyDropNumber\",\"type\":\"uint256\",\"internalType\":\"uint256\"},{\"name\":\"businessMinedAmt\",\"type\":\"uint256\",\"internalType\":\"uint256\"},{\"name\":\"businessMinedWithdrawedAmt\",\"type\":\"uint256\",\"internalType\":\"uint256\"},{\"name\":\"activityStatus\",\"type\":\"uint8\",\"internalType\":\"uint8\"}],\"stateMutability\":\"view\"},{\"type\":\"function\",\"name\":\"addMineAmt\",\"inputs\":[{\"name\":\"_addMineAmt\",\"type\":\"uint256\",\"internalType\":\"uint256\"}],\"outputs\":[{\"name\":\"_ret\",\"type\":\"bool\",\"internalType\":\"bool\"}],\"stateMutability\":\"nonpayable\"},{\"type\":\"function\",\"name\":\"drop\",\"inputs\":[{\"name\":\"_activityId\",\"type\":\"uint256\",\"internalType\":\"uint256\"},{\"name\":\"_userAccount\",\"type\":\"address\",\"internalType\":\"address\"},{\"name\":\"_dropAmt\",\"type\":\"uint256\",\"internalType\":\"uint256\"}],\"outputs\":[{\"name\":\"_ret\",\"type\":\"bool\",\"internalType\":\"bool\"}],\"stateMutability\":\"nonpayable\"},{\"type\":\"function\",\"name\":\"dropInfoArrs\",\"inputs\":[{\"name\":\"\",\"type\":\"uint256\",\"internalType\":\"uint256\"}],\"outputs\":[{\"name\":\"activityId\",\"type\":\"uint256\",\"internalType\":\"uint256\"},{\"name\":\"userAccount\",\"type\":\"address\",\"internalType\":\"address\"},{\"name\":\"dropTime\",\"type\":\"uint256\",\"internalType\":\"uint256\"},{\"name\":\"dropAmt\",\"type\":\"uint256\",\"internalType\":\"uint256\"}],\"stateMutability\":\"view\"},{\"type\":\"function\",\"name\":\"initialize\",\"inputs\":[{\"name\":\"fcc\",\"type\":\"address\",\"internalType\":\"address\"}],\"outputs\":[],\"stateMutability\":\"nonpayable\"},{\"type\":\"function\",\"name\":\"minePercent\",\"inputs\":[],\"outputs\":[{\"name\":\"\",\"type\":\"uint8\",\"internalType\":\"uint8\"}],\"stateMutability\":\"view\"},{\"type\":\"function\",\"name\":\"minedAmt\",\"inputs\":[],\"outputs\":[{\"name\":\"\",\"type\":\"uint256\",\"internalType\":\"uint256\"}],\"stateMutability\":\"view\"},{\"type\":\"function\",\"name\":\"owner\",\"inputs\":[],\"outputs\":[{\"name\":\"\",\"type\":\"address\",\"internalType\":\"address\"}],\"stateMutability\":\"view\"},{\"type\":\"function\",\"name\":\"renounceOwnership\",\"inputs\":[],\"outputs\":[],\"stateMutability\":\"nonpayable\"},{\"type\":\"function\",\"name\":\"setMinePercent\",\"inputs\":[{\"name\":\"_minePercent\",\"type\":\"uint8\",\"internalType\":\"uint8\"}],\"outputs\":[{\"name\":\"_ret\",\"type\":\"bool\",\"internalType\":\"bool\"}],\"stateMutability\":\"nonpayable\"},{\"type\":\"function\",\"name\":\"totalMineAmt\",\"inputs\":[],\"outputs\":[{\"name\":\"\",\"type\":\"uint256\",\"internalType\":\"uint256\"}],\"stateMutability\":\"view\"},{\"type\":\"function\",\"name\":\"transferOwnership\",\"inputs\":[{\"name\":\"newOwner\",\"type\":\"address\",\"internalType\":\"address\"}],\"outputs\":[],\"stateMutability\":\"nonpayable\"},{\"type\":\"event\",\"name\":\"ActivityAdd\",\"inputs\":[{\"name\":\"who\",\"type\":\"address\",\"indexed\":true,\"internalType\":\"address\"},{\"name\":\"_activityId\",\"type\":\"uint256\",\"indexed\":true,\"internalType\":\"uint256\"},{\"name\":\"_totalDropAmts\",\"type\":\"uint256\",\"indexed\":false,\"internalType\":\"uint256\"},{\"name\":\"_businessName\",\"type\":\"string\",\"indexed\":false,\"internalType\":\"string\"},{\"name\":\"_activityContent\",\"type\":\"string\",\"indexed\":false,\"internalType\":\"string\"},{\"name\":\"_latitudeLongitude\",\"type\":\"string\",\"indexed\":false,\"internalType\":\"string\"},{\"name\":\"_activityDeadLine\",\"type\":\"uint256\",\"indexed\":false,\"internalType\":\"uint256\"},{\"name\":\"_dropType\",\"type\":\"uint8\",\"indexed\":false,\"internalType\":\"uint8\"},{\"name\":\"_dropNumber\",\"type\":\"uint256\",\"indexed\":false,\"internalType\":\"uint256\"},{\"name\":\"_minDropAmt\",\"type\":\"uint256\",\"indexed\":false,\"internalType\":\"uint256\"},{\"name\":\"_maxDropAmt\",\"type\":\"uint256\",\"indexed\":false,\"internalType\":\"uint256\"},{\"name\":\"_tokenContractAddr\",\"type\":\"address\",\"indexed\":false,\"internalType\":\"address\"}],\"anonymous\":false},{\"type\":\"event\",\"name\":\"ActivityFinish\",\"inputs\":[{\"name\":\"_activityId\",\"type\":\"uint256\",\"indexed\":true,\"internalType\":\"uint256\"}],\"anonymous\":false},{\"type\":\"event\",\"name\":\"AddMineAmt\",\"inputs\":[{\"name\":\"who\",\"type\":\"address\",\"indexed\":true,\"internalType\":\"address\"},{\"name\":\"_addMineAmt\",\"type\":\"uint256\",\"indexed\":false,\"internalType\":\"uint256\"}],\"anonymous\":false},{\"type\":\"event\",\"name\":\"Drop\",\"inputs\":[{\"name\":\"who\",\"type\":\"address\",\"indexed\":true,\"internalType\":\"address\"},{\"name\":\"_activityId\",\"type\":\"uint256\",\"indexed\":true,\"internalType\":\"uint256\"},{\"name\":\"_dropAmt\",\"type\":\"uint256\",\"indexed\":false,\"internalType\":\"uint256\"}],\"anonymous\":false},{\"type\":\"event\",\"name\":\"Initialized\",\"inputs\":[{\"name\":\"version\",\"type\":\"uint8\",\"indexed\":false,\"internalType\":\"uint8\"}],\"anonymous\":false},{\"type\":\"event\",\"name\":\"OwnershipTransferred\",\"inputs\":[{\"name\":\"previousOwner\",\"type\":\"address\",\"indexed\":true,\"internalType\":\"address\"},{\"name\":\"newOwner\",\"type\":\"address\",\"indexed\":true,\"internalType\":\"address\"}],\"anonymous\":false},{\"type\":\"event\",\"name\":\"SetMinePercent\",\"inputs\":[{\"name\":\"minePercent\",\"type\":\"uint8\",\"indexed\":false,\"internalType\":\"uint8\"}],\"anonymous\":false},{\"type\":\"error\",\"name\":\"AddressEmptyCode\",\"inputs\":[{\"name\":\"target\",\"type\":\"address\",\"internalType\":\"address\"}]},{\"type\":\"error\",\"name\":\"AddressInsufficientBalance\",\"inputs\":[{\"name\":\"account\",\"type\":\"address\",\"internalType\":\"address\"}]},{\"type\":\"error\",\"name\":\"FailedInnerCall\",\"inputs\":[]},{\"type\":\"error\",\"name\":\"SafeERC20FailedOperation\",\"inputs\":[{\"name\":\"token\",\"type\":\"address\",\"internalType\":\"address\"}]}]",
+	ABI: "[{\"type\":\"receive\",\"stateMutability\":\"payable\"},{\"type\":\"function\",\"name\":\"FccTokenAddr\",\"inputs\":[],\"outputs\":[{\"name\":\"\",\"type\":\"address\",\"internalType\":\"contractIERC20\"}],\"stateMutability\":\"view\"},{\"type\":\"function\",\"name\":\"activityAdd\",\"inputs\":[{\"name\":\"_businessName\",\"type\":\"string\",\"internalType\":\"string\"},{\"name\":\"_activityContent\",\"type\":\"string\",\"internalType\":\"string\"},{\"name\":\"_latitudeLongitude\",\"type\":\"string\",\"internalType\":\"string\"},{\"name\":\"_activityDeadLine\",\"type\":\"uint256\",\"internalType\":\"uint256\"},{\"name\":\"_totalDropAmts\",\"type\":\"uint256\",\"internalType\":\"uint256\"},{\"name\":\"_dropType\",\"type\":\"uint8\",\"internalType\":\"uint8\"},{\"name\":\"_dropNumber\",\"type\":\"uint256\",\"internalType\":\"uint256\"},{\"name\":\"_minDropAmt\",\"type\":\"uint256\",\"internalType\":\"uint256\"},{\"name\":\"_maxDropAmt\",\"type\":\"uint256\",\"internalType\":\"uint256\"},{\"name\":\"_tokenContractAddr\",\"type\":\"address\",\"internalType\":\"address\"}],\"outputs\":[{\"name\":\"_ret\",\"type\":\"bool\",\"internalType\":\"bool\"},{\"name\":\"_activityId\",\"type\":\"uint256\",\"internalType\":\"uint256\"}],\"stateMutability\":\"nonpayable\"},{\"type\":\"function\",\"name\":\"activityDropedToAccount\",\"inputs\":[{\"name\":\"\",\"type\":\"uint256\",\"internalType\":\"uint256\"},{\"name\":\"\",\"type\":\"address\",\"internalType\":\"address\"}],\"outputs\":[{\"name\":\"\",\"type\":\"bool\",\"internalType\":\"bool\"}],\"stateMutability\":\"view\"},{\"type\":\"function\",\"name\":\"activityFinish\",\"inputs\":[{\"name\":\"_activityId\",\"type\":\"uint256\",\"internalType\":\"uint256\"}],\"outputs\":[{\"name\":\"_ret\",\"type\":\"bool\",\"internalType\":\"bool\"}],\"stateMutability\":\"nonpayable\"},{\"type\":\"function\",\"name\":\"activityInfoArrs\",\"inputs\":[{\"name\":\"\",\"type\":\"uint256\",\"internalType\":\"uint256\"}],\"outputs\":[{\"name\":\"activityId\",\"type\":\"uint256\",\"internalType\":\"uint256\"},{\"name\":\"businessAccount\",\"type\":\"address\",\"internalType\":\"address\"},{\"name\":\"businessName\",\"type\":\"string\",\"internalType\":\"string\"},{\"name\":\"activityContent\",\"type\":\"string\",\"internalType\":\"string\"},{\"name\":\"latitudeLongitude\",\"type\":\"string\",\"internalType\":\"string\"},{\"name\":\"activityCreateTime\",\"type\":\"uint256\",\"internalType\":\"uint256\"},{\"name\":\"activityDeadLine\",\"type\":\"uint256\",\"internalType\":\"uint256\"},{\"name\":\"dropType\",\"type\":\"uint8\",\"internalType\":\"uint8\"},{\"name\":\"dropNumber\",\"type\":\"uint256\",\"internalType\":\"uint256\"},{\"name\":\"minDropAmt\",\"type\":\"uint256\",\"internalType\":\"uint256\"},{\"name\":\"maxDropAmt\",\"type\":\"uint256\",\"internalType\":\"uint256\"},{\"name\":\"tokenContractAddr\",\"type\":\"address\",\"internalType\":\"address\"}],\"stateMutability\":\"view\"},{\"type\":\"function\",\"name\":\"activityInfoChangedIdx\",\"inputs\":[{\"name\":\"\",\"type\":\"uint256\",\"internalType\":\"uint256\"}],\"outputs\":[{\"name\":\"\",\"type\":\"uint256\",\"internalType\":\"uint256\"}],\"stateMutability\":\"view\"},{\"type\":\"function\",\"name\":\"activityInfoExtArrs\",\"inputs\":[{\"name\":\"\",\"type\":\"uint256\",\"internalType\":\"uint256\"}],\"outputs\":[{\"name\":\"activityId\",\"type\":\"uint256\",\"internalType\":\"uint256\"},{\"name\":\"alreadyDropAmts\",\"type\":\"uint256\",\"internalType\":\"uint256\"},{\"name\":\"alreadyDropNumber\",\"type\":\"uint256\",\"internalType\":\"uint256\"},{\"name\":\"businessMinedAmt\",\"type\":\"uint256\",\"internalType\":\"uint256\"},{\"name\":\"businessMinedWithdrawedAmt\",\"type\":\"uint256\",\"internalType\":\"uint256\"},{\"name\":\"activityStatus\",\"type\":\"uint8\",\"internalType\":\"uint8\"}],\"stateMutability\":\"view\"},{\"type\":\"function\",\"name\":\"addMineAmt\",\"inputs\":[{\"name\":\"_addMineAmt\",\"type\":\"uint256\",\"internalType\":\"uint256\"}],\"outputs\":[{\"name\":\"_ret\",\"type\":\"bool\",\"internalType\":\"bool\"}],\"stateMutability\":\"nonpayable\"},{\"type\":\"function\",\"name\":\"drop\",\"inputs\":[{\"name\":\"_activityId\",\"type\":\"uint256\",\"internalType\":\"uint256\"},{\"name\":\"_userAccount\",\"type\":\"address\",\"internalType\":\"address\"},{\"name\":\"_dropAmt\",\"type\":\"uint256\",\"internalType\":\"uint256\"}],\"outputs\":[{\"name\":\"_ret\",\"type\":\"bool\",\"internalType\":\"bool\"}],\"stateMutability\":\"nonpayable\"},{\"type\":\"function\",\"name\":\"dropInfoArrs\",\"inputs\":[{\"name\":\"\",\"type\":\"uint256\",\"internalType\":\"uint256\"}],\"outputs\":[{\"name\":\"activityId\",\"type\":\"uint256\",\"internalType\":\"uint256\"},{\"name\":\"userAccount\",\"type\":\"address\",\"internalType\":\"address\"},{\"name\":\"dropTime\",\"type\":\"uint256\",\"internalType\":\"uint256\"},{\"name\":\"dropAmt\",\"type\":\"uint256\",\"internalType\":\"uint256\"}],\"stateMutability\":\"view\"},{\"type\":\"function\",\"name\":\"iNFTManager\",\"inputs\":[],\"outputs\":[{\"name\":\"\",\"type\":\"address\",\"internalType\":\"contractINFTManager\"}],\"stateMutability\":\"view\"},{\"type\":\"function\",\"name\":\"initialize\",\"inputs\":[{\"name\":\"initialOwner\",\"type\":\"address\",\"internalType\":\"address\"},{\"name\":\"_fcc\",\"type\":\"address\",\"internalType\":\"address\"},{\"name\":\"_NFTManagerAddr\",\"type\":\"address\",\"internalType\":\"address\"}],\"outputs\":[],\"stateMutability\":\"nonpayable\"},{\"type\":\"function\",\"name\":\"minePercent\",\"inputs\":[],\"outputs\":[{\"name\":\"\",\"type\":\"uint8\",\"internalType\":\"uint8\"}],\"stateMutability\":\"view\"},{\"type\":\"function\",\"name\":\"minedAmt\",\"inputs\":[],\"outputs\":[{\"name\":\"\",\"type\":\"uint256\",\"internalType\":\"uint256\"}],\"stateMutability\":\"view\"},{\"type\":\"function\",\"name\":\"owner\",\"inputs\":[],\"outputs\":[{\"name\":\"\",\"type\":\"address\",\"internalType\":\"address\"}],\"stateMutability\":\"view\"},{\"type\":\"function\",\"name\":\"renounceOwnership\",\"inputs\":[],\"outputs\":[],\"stateMutability\":\"nonpayable\"},{\"type\":\"function\",\"name\":\"setMinePercent\",\"inputs\":[{\"name\":\"_minePercent\",\"type\":\"uint8\",\"internalType\":\"uint8\"}],\"outputs\":[{\"name\":\"_ret\",\"type\":\"bool\",\"internalType\":\"bool\"}],\"stateMutability\":\"nonpayable\"},{\"type\":\"function\",\"name\":\"totalMineAmt\",\"inputs\":[],\"outputs\":[{\"name\":\"\",\"type\":\"uint256\",\"internalType\":\"uint256\"}],\"stateMutability\":\"view\"},{\"type\":\"function\",\"name\":\"transferOwnership\",\"inputs\":[{\"name\":\"newOwner\",\"type\":\"address\",\"internalType\":\"address\"}],\"outputs\":[],\"stateMutability\":\"nonpayable\"},{\"type\":\"function\",\"name\":\"withdraw\",\"inputs\":[{\"name\":\"_recipient\",\"type\":\"address\",\"internalType\":\"addresspayable\"},{\"name\":\"_amount\",\"type\":\"uint256\",\"internalType\":\"uint256\"}],\"outputs\":[{\"name\":\"_ret\",\"type\":\"bool\",\"internalType\":\"bool\"}],\"stateMutability\":\"nonpayable\"},{\"type\":\"function\",\"name\":\"withdrawUToken\",\"inputs\":[{\"name\":\"_tokenAddr\",\"type\":\"address\",\"internalType\":\"address\"},{\"name\":\"_account\",\"type\":\"address\",\"internalType\":\"address\"},{\"name\":\"_value\",\"type\":\"uint256\",\"internalType\":\"uint256\"}],\"outputs\":[{\"name\":\"_ret\",\"type\":\"bool\",\"internalType\":\"bool\"}],\"stateMutability\":\"nonpayable\"},{\"type\":\"event\",\"name\":\"ActivityAdd\",\"inputs\":[{\"name\":\"who\",\"type\":\"address\",\"indexed\":true,\"internalType\":\"address\"},{\"name\":\"_activityId\",\"type\":\"uint256\",\"indexed\":true,\"internalType\":\"uint256\"},{\"name\":\"_totalDropAmts\",\"type\":\"uint256\",\"indexed\":false,\"internalType\":\"uint256\"},{\"name\":\"_businessName\",\"type\":\"string\",\"indexed\":false,\"internalType\":\"string\"},{\"name\":\"_activityContent\",\"type\":\"string\",\"indexed\":false,\"internalType\":\"string\"},{\"name\":\"_latitudeLongitude\",\"type\":\"string\",\"indexed\":false,\"internalType\":\"string\"},{\"name\":\"_activityDeadLine\",\"type\":\"uint256\",\"indexed\":false,\"internalType\":\"uint256\"},{\"name\":\"_dropType\",\"type\":\"uint8\",\"indexed\":false,\"internalType\":\"uint8\"},{\"name\":\"_dropNumber\",\"type\":\"uint256\",\"indexed\":false,\"internalType\":\"uint256\"},{\"name\":\"_minDropAmt\",\"type\":\"uint256\",\"indexed\":false,\"internalType\":\"uint256\"},{\"name\":\"_maxDropAmt\",\"type\":\"uint256\",\"indexed\":false,\"internalType\":\"uint256\"},{\"name\":\"_tokenContractAddr\",\"type\":\"address\",\"indexed\":false,\"internalType\":\"address\"}],\"anonymous\":false},{\"type\":\"event\",\"name\":\"ActivityFinish\",\"inputs\":[{\"name\":\"_activityId\",\"type\":\"uint256\",\"indexed\":true,\"internalType\":\"uint256\"}],\"anonymous\":false},{\"type\":\"event\",\"name\":\"AddMineAmt\",\"inputs\":[{\"name\":\"who\",\"type\":\"address\",\"indexed\":true,\"internalType\":\"address\"},{\"name\":\"_addMineAmt\",\"type\":\"uint256\",\"indexed\":false,\"internalType\":\"uint256\"}],\"anonymous\":false},{\"type\":\"event\",\"name\":\"Drop\",\"inputs\":[{\"name\":\"who\",\"type\":\"address\",\"indexed\":true,\"internalType\":\"address\"},{\"name\":\"_activityId\",\"type\":\"uint256\",\"indexed\":true,\"internalType\":\"uint256\"},{\"name\":\"_dropAmt\",\"type\":\"uint256\",\"indexed\":false,\"internalType\":\"uint256\"}],\"anonymous\":false},{\"type\":\"event\",\"name\":\"Initialized\",\"inputs\":[{\"name\":\"version\",\"type\":\"uint64\",\"indexed\":false,\"internalType\":\"uint64\"}],\"anonymous\":false},{\"type\":\"event\",\"name\":\"OwnershipTransferred\",\"inputs\":[{\"name\":\"previousOwner\",\"type\":\"address\",\"indexed\":true,\"internalType\":\"address\"},{\"name\":\"newOwner\",\"type\":\"address\",\"indexed\":true,\"internalType\":\"address\"}],\"anonymous\":false},{\"type\":\"event\",\"name\":\"Received\",\"inputs\":[{\"name\":\"who\",\"type\":\"address\",\"indexed\":true,\"internalType\":\"address\"},{\"name\":\"_value\",\"type\":\"uint256\",\"indexed\":false,\"internalType\":\"uint256\"}],\"anonymous\":false},{\"type\":\"event\",\"name\":\"SetMinePercent\",\"inputs\":[{\"name\":\"minePercent\",\"type\":\"uint8\",\"indexed\":false,\"internalType\":\"uint8\"}],\"anonymous\":false},{\"type\":\"event\",\"name\":\"SetValidTime\",\"inputs\":[{\"name\":\"who\",\"type\":\"address\",\"indexed\":true,\"internalType\":\"address\"},{\"name\":\"_time\",\"type\":\"uint256\",\"indexed\":false,\"internalType\":\"uint256\"}],\"anonymous\":false},{\"type\":\"event\",\"name\":\"WithdrawUToken\",\"inputs\":[{\"name\":\"who\",\"type\":\"address\",\"indexed\":true,\"internalType\":\"address\"},{\"name\":\"_tokenAddr\",\"type\":\"address\",\"indexed\":true,\"internalType\":\"address\"},{\"name\":\"_account\",\"type\":\"address\",\"indexed\":true,\"internalType\":\"address\"},{\"name\":\"_value\",\"type\":\"uint256\",\"indexed\":false,\"internalType\":\"uint256\"}],\"anonymous\":false},{\"type\":\"event\",\"name\":\"Wthdraw\",\"inputs\":[{\"name\":\"who\",\"type\":\"address\",\"indexed\":true,\"internalType\":\"address\"},{\"name\":\"_amount\",\"type\":\"uint256\",\"indexed\":false,\"internalType\":\"uint256\"}],\"anonymous\":false},{\"type\":\"error\",\"name\":\"AddressEmptyCode\",\"inputs\":[{\"name\":\"target\",\"type\":\"address\",\"internalType\":\"address\"}]},{\"type\":\"error\",\"name\":\"FailedCall\",\"inputs\":[]},{\"type\":\"error\",\"name\":\"InsufficientBalance\",\"inputs\":[{\"name\":\"balance\",\"type\":\"uint256\",\"internalType\":\"uint256\"},{\"name\":\"needed\",\"type\":\"uint256\",\"internalType\":\"uint256\"}]},{\"type\":\"error\",\"name\":\"InvalidInitialization\",\"inputs\":[]},{\"type\":\"error\",\"name\":\"NotInitializing\",\"inputs\":[]},{\"type\":\"error\",\"name\":\"OwnableInvalidOwner\",\"inputs\":[{\"name\":\"owner\",\"type\":\"address\",\"internalType\":\"address\"}]},{\"type\":\"error\",\"name\":\"OwnableUnauthorizedAccount\",\"inputs\":[{\"name\":\"account\",\"type\":\"address\",\"internalType\":\"address\"}]},{\"type\":\"error\",\"name\":\"ReentrancyGuardReentrantCall\",\"inputs\":[]},{\"type\":\"error\",\"name\":\"SafeERC20FailedOperation\",\"inputs\":[{\"name\":\"token\",\"type\":\"address\",\"internalType\":\"address\"}]}]",
 }
 
 // MerchantMangerABI is the input ABI used to generate the binding from.
@@ -488,6 +488,37 @@ func (_MerchantManger *MerchantMangerCallerSession) DropInfoArrs(arg0 *big.Int) 
 	return _MerchantManger.Contract.DropInfoArrs(&_MerchantManger.CallOpts, arg0)
 }
 
+// INFTManager is a free data retrieval call binding the contract method 0xbbe68511.
+//
+// Solidity: function iNFTManager() view returns(address)
+func (_MerchantManger *MerchantMangerCaller) INFTManager(opts *bind.CallOpts) (common.Address, error) {
+	var out []interface{}
+	err := _MerchantManger.contract.Call(opts, &out, "iNFTManager")
+
+	if err != nil {
+		return *new(common.Address), err
+	}
+
+	out0 := *abi.ConvertType(out[0], new(common.Address)).(*common.Address)
+
+	return out0, err
+
+}
+
+// INFTManager is a free data retrieval call binding the contract method 0xbbe68511.
+//
+// Solidity: function iNFTManager() view returns(address)
+func (_MerchantManger *MerchantMangerSession) INFTManager() (common.Address, error) {
+	return _MerchantManger.Contract.INFTManager(&_MerchantManger.CallOpts)
+}
+
+// INFTManager is a free data retrieval call binding the contract method 0xbbe68511.
+//
+// Solidity: function iNFTManager() view returns(address)
+func (_MerchantManger *MerchantMangerCallerSession) INFTManager() (common.Address, error) {
+	return _MerchantManger.Contract.INFTManager(&_MerchantManger.CallOpts)
+}
+
 // MinePercent is a free data retrieval call binding the contract method 0xa6d93915.
 //
 // Solidity: function minePercent() view returns(uint8)
@@ -696,25 +727,25 @@ func (_MerchantManger *MerchantMangerTransactorSession) Drop(_activityId *big.In
 	return _MerchantManger.Contract.Drop(&_MerchantManger.TransactOpts, _activityId, _userAccount, _dropAmt)
 }
 
-// Initialize is a paid mutator transaction binding the contract method 0xc4d66de8.
+// Initialize is a paid mutator transaction binding the contract method 0xc0c53b8b.
 //
-// Solidity: function initialize(address fcc) returns()
-func (_MerchantManger *MerchantMangerTransactor) Initialize(opts *bind.TransactOpts, fcc common.Address) (*types.Transaction, error) {
-	return _MerchantManger.contract.Transact(opts, "initialize", fcc)
+// Solidity: function initialize(address initialOwner, address _fcc, address _NFTManagerAddr) returns()
+func (_MerchantManger *MerchantMangerTransactor) Initialize(opts *bind.TransactOpts, initialOwner common.Address, _fcc common.Address, _NFTManagerAddr common.Address) (*types.Transaction, error) {
+	return _MerchantManger.contract.Transact(opts, "initialize", initialOwner, _fcc, _NFTManagerAddr)
 }
 
-// Initialize is a paid mutator transaction binding the contract method 0xc4d66de8.
+// Initialize is a paid mutator transaction binding the contract method 0xc0c53b8b.
 //
-// Solidity: function initialize(address fcc) returns()
-func (_MerchantManger *MerchantMangerSession) Initialize(fcc common.Address) (*types.Transaction, error) {
-	return _MerchantManger.Contract.Initialize(&_MerchantManger.TransactOpts, fcc)
+// Solidity: function initialize(address initialOwner, address _fcc, address _NFTManagerAddr) returns()
+func (_MerchantManger *MerchantMangerSession) Initialize(initialOwner common.Address, _fcc common.Address, _NFTManagerAddr common.Address) (*types.Transaction, error) {
+	return _MerchantManger.Contract.Initialize(&_MerchantManger.TransactOpts, initialOwner, _fcc, _NFTManagerAddr)
 }
 
-// Initialize is a paid mutator transaction binding the contract method 0xc4d66de8.
+// Initialize is a paid mutator transaction binding the contract method 0xc0c53b8b.
 //
-// Solidity: function initialize(address fcc) returns()
-func (_MerchantManger *MerchantMangerTransactorSession) Initialize(fcc common.Address) (*types.Transaction, error) {
-	return _MerchantManger.Contract.Initialize(&_MerchantManger.TransactOpts, fcc)
+// Solidity: function initialize(address initialOwner, address _fcc, address _NFTManagerAddr) returns()
+func (_MerchantManger *MerchantMangerTransactorSession) Initialize(initialOwner common.Address, _fcc common.Address, _NFTManagerAddr common.Address) (*types.Transaction, error) {
+	return _MerchantManger.Contract.Initialize(&_MerchantManger.TransactOpts, initialOwner, _fcc, _NFTManagerAddr)
 }
 
 // RenounceOwnership is a paid mutator transaction binding the contract method 0x715018a6.
@@ -778,6 +809,69 @@ func (_MerchantManger *MerchantMangerSession) TransferOwnership(newOwner common.
 // Solidity: function transferOwnership(address newOwner) returns()
 func (_MerchantManger *MerchantMangerTransactorSession) TransferOwnership(newOwner common.Address) (*types.Transaction, error) {
 	return _MerchantManger.Contract.TransferOwnership(&_MerchantManger.TransactOpts, newOwner)
+}
+
+// Withdraw is a paid mutator transaction binding the contract method 0xf3fef3a3.
+//
+// Solidity: function withdraw(address _recipient, uint256 _amount) returns(bool _ret)
+func (_MerchantManger *MerchantMangerTransactor) Withdraw(opts *bind.TransactOpts, _recipient common.Address, _amount *big.Int) (*types.Transaction, error) {
+	return _MerchantManger.contract.Transact(opts, "withdraw", _recipient, _amount)
+}
+
+// Withdraw is a paid mutator transaction binding the contract method 0xf3fef3a3.
+//
+// Solidity: function withdraw(address _recipient, uint256 _amount) returns(bool _ret)
+func (_MerchantManger *MerchantMangerSession) Withdraw(_recipient common.Address, _amount *big.Int) (*types.Transaction, error) {
+	return _MerchantManger.Contract.Withdraw(&_MerchantManger.TransactOpts, _recipient, _amount)
+}
+
+// Withdraw is a paid mutator transaction binding the contract method 0xf3fef3a3.
+//
+// Solidity: function withdraw(address _recipient, uint256 _amount) returns(bool _ret)
+func (_MerchantManger *MerchantMangerTransactorSession) Withdraw(_recipient common.Address, _amount *big.Int) (*types.Transaction, error) {
+	return _MerchantManger.Contract.Withdraw(&_MerchantManger.TransactOpts, _recipient, _amount)
+}
+
+// WithdrawUToken is a paid mutator transaction binding the contract method 0xde3f2b22.
+//
+// Solidity: function withdrawUToken(address _tokenAddr, address _account, uint256 _value) returns(bool _ret)
+func (_MerchantManger *MerchantMangerTransactor) WithdrawUToken(opts *bind.TransactOpts, _tokenAddr common.Address, _account common.Address, _value *big.Int) (*types.Transaction, error) {
+	return _MerchantManger.contract.Transact(opts, "withdrawUToken", _tokenAddr, _account, _value)
+}
+
+// WithdrawUToken is a paid mutator transaction binding the contract method 0xde3f2b22.
+//
+// Solidity: function withdrawUToken(address _tokenAddr, address _account, uint256 _value) returns(bool _ret)
+func (_MerchantManger *MerchantMangerSession) WithdrawUToken(_tokenAddr common.Address, _account common.Address, _value *big.Int) (*types.Transaction, error) {
+	return _MerchantManger.Contract.WithdrawUToken(&_MerchantManger.TransactOpts, _tokenAddr, _account, _value)
+}
+
+// WithdrawUToken is a paid mutator transaction binding the contract method 0xde3f2b22.
+//
+// Solidity: function withdrawUToken(address _tokenAddr, address _account, uint256 _value) returns(bool _ret)
+func (_MerchantManger *MerchantMangerTransactorSession) WithdrawUToken(_tokenAddr common.Address, _account common.Address, _value *big.Int) (*types.Transaction, error) {
+	return _MerchantManger.Contract.WithdrawUToken(&_MerchantManger.TransactOpts, _tokenAddr, _account, _value)
+}
+
+// Receive is a paid mutator transaction binding the contract receive function.
+//
+// Solidity: receive() payable returns()
+func (_MerchantManger *MerchantMangerTransactor) Receive(opts *bind.TransactOpts) (*types.Transaction, error) {
+	return _MerchantManger.contract.RawTransact(opts, nil) // calldata is disallowed for receive function
+}
+
+// Receive is a paid mutator transaction binding the contract receive function.
+//
+// Solidity: receive() payable returns()
+func (_MerchantManger *MerchantMangerSession) Receive() (*types.Transaction, error) {
+	return _MerchantManger.Contract.Receive(&_MerchantManger.TransactOpts)
+}
+
+// Receive is a paid mutator transaction binding the contract receive function.
+//
+// Solidity: receive() payable returns()
+func (_MerchantManger *MerchantMangerTransactorSession) Receive() (*types.Transaction, error) {
+	return _MerchantManger.Contract.Receive(&_MerchantManger.TransactOpts)
 }
 
 // MerchantMangerActivityAddIterator is returned from FilterActivityAdd and is used to iterate over the raw logs and unpacked data for ActivityAdd events raised by the MerchantManger contract.
@@ -1455,13 +1549,13 @@ func (it *MerchantMangerInitializedIterator) Close() error {
 
 // MerchantMangerInitialized represents a Initialized event raised by the MerchantManger contract.
 type MerchantMangerInitialized struct {
-	Version uint8
+	Version uint64
 	Raw     types.Log // Blockchain specific contextual infos
 }
 
-// FilterInitialized is a free log retrieval operation binding the contract event 0x7f26b83ff96e1f2b6a682f133852f6798a09c465da95921460cefb3847402498.
+// FilterInitialized is a free log retrieval operation binding the contract event 0xc7f505b2f371ae2175ee4913f4499e1f2633a7b5936321eed1cdaeb6115181d2.
 //
-// Solidity: event Initialized(uint8 version)
+// Solidity: event Initialized(uint64 version)
 func (_MerchantManger *MerchantMangerFilterer) FilterInitialized(opts *bind.FilterOpts) (*MerchantMangerInitializedIterator, error) {
 
 	logs, sub, err := _MerchantManger.contract.FilterLogs(opts, "Initialized")
@@ -1471,9 +1565,9 @@ func (_MerchantManger *MerchantMangerFilterer) FilterInitialized(opts *bind.Filt
 	return &MerchantMangerInitializedIterator{contract: _MerchantManger.contract, event: "Initialized", logs: logs, sub: sub}, nil
 }
 
-// WatchInitialized is a free log subscription operation binding the contract event 0x7f26b83ff96e1f2b6a682f133852f6798a09c465da95921460cefb3847402498.
+// WatchInitialized is a free log subscription operation binding the contract event 0xc7f505b2f371ae2175ee4913f4499e1f2633a7b5936321eed1cdaeb6115181d2.
 //
-// Solidity: event Initialized(uint8 version)
+// Solidity: event Initialized(uint64 version)
 func (_MerchantManger *MerchantMangerFilterer) WatchInitialized(opts *bind.WatchOpts, sink chan<- *MerchantMangerInitialized) (event.Subscription, error) {
 
 	logs, sub, err := _MerchantManger.contract.WatchLogs(opts, "Initialized")
@@ -1508,9 +1602,9 @@ func (_MerchantManger *MerchantMangerFilterer) WatchInitialized(opts *bind.Watch
 	}), nil
 }
 
-// ParseInitialized is a log parse operation binding the contract event 0x7f26b83ff96e1f2b6a682f133852f6798a09c465da95921460cefb3847402498.
+// ParseInitialized is a log parse operation binding the contract event 0xc7f505b2f371ae2175ee4913f4499e1f2633a7b5936321eed1cdaeb6115181d2.
 //
-// Solidity: event Initialized(uint8 version)
+// Solidity: event Initialized(uint64 version)
 func (_MerchantManger *MerchantMangerFilterer) ParseInitialized(log types.Log) (*MerchantMangerInitialized, error) {
 	event := new(MerchantMangerInitialized)
 	if err := _MerchantManger.contract.UnpackLog(event, "Initialized", log); err != nil {
@@ -1673,6 +1767,151 @@ func (_MerchantManger *MerchantMangerFilterer) ParseOwnershipTransferred(log typ
 	return event, nil
 }
 
+// MerchantMangerReceivedIterator is returned from FilterReceived and is used to iterate over the raw logs and unpacked data for Received events raised by the MerchantManger contract.
+type MerchantMangerReceivedIterator struct {
+	Event *MerchantMangerReceived // Event containing the contract specifics and raw log
+
+	contract *bind.BoundContract // Generic contract to use for unpacking event data
+	event    string              // Event name to use for unpacking event data
+
+	logs chan types.Log        // Log channel receiving the found contract events
+	sub  ethereum.Subscription // Subscription for errors, completion and termination
+	done bool                  // Whether the subscription completed delivering logs
+	fail error                 // Occurred error to stop iteration
+}
+
+// Next advances the iterator to the subsequent event, returning whether there
+// are any more events found. In case of a retrieval or parsing error, false is
+// returned and Error() can be queried for the exact failure.
+func (it *MerchantMangerReceivedIterator) Next() bool {
+	// If the iterator failed, stop iterating
+	if it.fail != nil {
+		return false
+	}
+	// If the iterator completed, deliver directly whatever's available
+	if it.done {
+		select {
+		case log := <-it.logs:
+			it.Event = new(MerchantMangerReceived)
+			if err := it.contract.UnpackLog(it.Event, it.event, log); err != nil {
+				it.fail = err
+				return false
+			}
+			it.Event.Raw = log
+			return true
+
+		default:
+			return false
+		}
+	}
+	// Iterator still in progress, wait for either a data or an error event
+	select {
+	case log := <-it.logs:
+		it.Event = new(MerchantMangerReceived)
+		if err := it.contract.UnpackLog(it.Event, it.event, log); err != nil {
+			it.fail = err
+			return false
+		}
+		it.Event.Raw = log
+		return true
+
+	case err := <-it.sub.Err():
+		it.done = true
+		it.fail = err
+		return it.Next()
+	}
+}
+
+// Error returns any retrieval or parsing error occurred during filtering.
+func (it *MerchantMangerReceivedIterator) Error() error {
+	return it.fail
+}
+
+// Close terminates the iteration process, releasing any pending underlying
+// resources.
+func (it *MerchantMangerReceivedIterator) Close() error {
+	it.sub.Unsubscribe()
+	return nil
+}
+
+// MerchantMangerReceived represents a Received event raised by the MerchantManger contract.
+type MerchantMangerReceived struct {
+	Who   common.Address
+	Value *big.Int
+	Raw   types.Log // Blockchain specific contextual infos
+}
+
+// FilterReceived is a free log retrieval operation binding the contract event 0x88a5966d370b9919b20f3e2c13ff65706f196a4e32cc2c12bf57088f88525874.
+//
+// Solidity: event Received(address indexed who, uint256 _value)
+func (_MerchantManger *MerchantMangerFilterer) FilterReceived(opts *bind.FilterOpts, who []common.Address) (*MerchantMangerReceivedIterator, error) {
+
+	var whoRule []interface{}
+	for _, whoItem := range who {
+		whoRule = append(whoRule, whoItem)
+	}
+
+	logs, sub, err := _MerchantManger.contract.FilterLogs(opts, "Received", whoRule)
+	if err != nil {
+		return nil, err
+	}
+	return &MerchantMangerReceivedIterator{contract: _MerchantManger.contract, event: "Received", logs: logs, sub: sub}, nil
+}
+
+// WatchReceived is a free log subscription operation binding the contract event 0x88a5966d370b9919b20f3e2c13ff65706f196a4e32cc2c12bf57088f88525874.
+//
+// Solidity: event Received(address indexed who, uint256 _value)
+func (_MerchantManger *MerchantMangerFilterer) WatchReceived(opts *bind.WatchOpts, sink chan<- *MerchantMangerReceived, who []common.Address) (event.Subscription, error) {
+
+	var whoRule []interface{}
+	for _, whoItem := range who {
+		whoRule = append(whoRule, whoItem)
+	}
+
+	logs, sub, err := _MerchantManger.contract.WatchLogs(opts, "Received", whoRule)
+	if err != nil {
+		return nil, err
+	}
+	return event.NewSubscription(func(quit <-chan struct{}) error {
+		defer sub.Unsubscribe()
+		for {
+			select {
+			case log := <-logs:
+				// New log arrived, parse the event and forward to the user
+				event := new(MerchantMangerReceived)
+				if err := _MerchantManger.contract.UnpackLog(event, "Received", log); err != nil {
+					return err
+				}
+				event.Raw = log
+
+				select {
+				case sink <- event:
+				case err := <-sub.Err():
+					return err
+				case <-quit:
+					return nil
+				}
+			case err := <-sub.Err():
+				return err
+			case <-quit:
+				return nil
+			}
+		}
+	}), nil
+}
+
+// ParseReceived is a log parse operation binding the contract event 0x88a5966d370b9919b20f3e2c13ff65706f196a4e32cc2c12bf57088f88525874.
+//
+// Solidity: event Received(address indexed who, uint256 _value)
+func (_MerchantManger *MerchantMangerFilterer) ParseReceived(log types.Log) (*MerchantMangerReceived, error) {
+	event := new(MerchantMangerReceived)
+	if err := _MerchantManger.contract.UnpackLog(event, "Received", log); err != nil {
+		return nil, err
+	}
+	event.Raw = log
+	return event, nil
+}
+
 // MerchantMangerSetMinePercentIterator is returned from FilterSetMinePercent and is used to iterate over the raw logs and unpacked data for SetMinePercent events raised by the MerchantManger contract.
 type MerchantMangerSetMinePercentIterator struct {
 	Event *MerchantMangerSetMinePercent // Event containing the contract specifics and raw log
@@ -1801,6 +2040,459 @@ func (_MerchantManger *MerchantMangerFilterer) WatchSetMinePercent(opts *bind.Wa
 func (_MerchantManger *MerchantMangerFilterer) ParseSetMinePercent(log types.Log) (*MerchantMangerSetMinePercent, error) {
 	event := new(MerchantMangerSetMinePercent)
 	if err := _MerchantManger.contract.UnpackLog(event, "SetMinePercent", log); err != nil {
+		return nil, err
+	}
+	event.Raw = log
+	return event, nil
+}
+
+// MerchantMangerSetValidTimeIterator is returned from FilterSetValidTime and is used to iterate over the raw logs and unpacked data for SetValidTime events raised by the MerchantManger contract.
+type MerchantMangerSetValidTimeIterator struct {
+	Event *MerchantMangerSetValidTime // Event containing the contract specifics and raw log
+
+	contract *bind.BoundContract // Generic contract to use for unpacking event data
+	event    string              // Event name to use for unpacking event data
+
+	logs chan types.Log        // Log channel receiving the found contract events
+	sub  ethereum.Subscription // Subscription for errors, completion and termination
+	done bool                  // Whether the subscription completed delivering logs
+	fail error                 // Occurred error to stop iteration
+}
+
+// Next advances the iterator to the subsequent event, returning whether there
+// are any more events found. In case of a retrieval or parsing error, false is
+// returned and Error() can be queried for the exact failure.
+func (it *MerchantMangerSetValidTimeIterator) Next() bool {
+	// If the iterator failed, stop iterating
+	if it.fail != nil {
+		return false
+	}
+	// If the iterator completed, deliver directly whatever's available
+	if it.done {
+		select {
+		case log := <-it.logs:
+			it.Event = new(MerchantMangerSetValidTime)
+			if err := it.contract.UnpackLog(it.Event, it.event, log); err != nil {
+				it.fail = err
+				return false
+			}
+			it.Event.Raw = log
+			return true
+
+		default:
+			return false
+		}
+	}
+	// Iterator still in progress, wait for either a data or an error event
+	select {
+	case log := <-it.logs:
+		it.Event = new(MerchantMangerSetValidTime)
+		if err := it.contract.UnpackLog(it.Event, it.event, log); err != nil {
+			it.fail = err
+			return false
+		}
+		it.Event.Raw = log
+		return true
+
+	case err := <-it.sub.Err():
+		it.done = true
+		it.fail = err
+		return it.Next()
+	}
+}
+
+// Error returns any retrieval or parsing error occurred during filtering.
+func (it *MerchantMangerSetValidTimeIterator) Error() error {
+	return it.fail
+}
+
+// Close terminates the iteration process, releasing any pending underlying
+// resources.
+func (it *MerchantMangerSetValidTimeIterator) Close() error {
+	it.sub.Unsubscribe()
+	return nil
+}
+
+// MerchantMangerSetValidTime represents a SetValidTime event raised by the MerchantManger contract.
+type MerchantMangerSetValidTime struct {
+	Who  common.Address
+	Time *big.Int
+	Raw  types.Log // Blockchain specific contextual infos
+}
+
+// FilterSetValidTime is a free log retrieval operation binding the contract event 0x8651cd625889c15ab8587456aba8cc25b781c5fa977a1811f04967c2acad02b8.
+//
+// Solidity: event SetValidTime(address indexed who, uint256 _time)
+func (_MerchantManger *MerchantMangerFilterer) FilterSetValidTime(opts *bind.FilterOpts, who []common.Address) (*MerchantMangerSetValidTimeIterator, error) {
+
+	var whoRule []interface{}
+	for _, whoItem := range who {
+		whoRule = append(whoRule, whoItem)
+	}
+
+	logs, sub, err := _MerchantManger.contract.FilterLogs(opts, "SetValidTime", whoRule)
+	if err != nil {
+		return nil, err
+	}
+	return &MerchantMangerSetValidTimeIterator{contract: _MerchantManger.contract, event: "SetValidTime", logs: logs, sub: sub}, nil
+}
+
+// WatchSetValidTime is a free log subscription operation binding the contract event 0x8651cd625889c15ab8587456aba8cc25b781c5fa977a1811f04967c2acad02b8.
+//
+// Solidity: event SetValidTime(address indexed who, uint256 _time)
+func (_MerchantManger *MerchantMangerFilterer) WatchSetValidTime(opts *bind.WatchOpts, sink chan<- *MerchantMangerSetValidTime, who []common.Address) (event.Subscription, error) {
+
+	var whoRule []interface{}
+	for _, whoItem := range who {
+		whoRule = append(whoRule, whoItem)
+	}
+
+	logs, sub, err := _MerchantManger.contract.WatchLogs(opts, "SetValidTime", whoRule)
+	if err != nil {
+		return nil, err
+	}
+	return event.NewSubscription(func(quit <-chan struct{}) error {
+		defer sub.Unsubscribe()
+		for {
+			select {
+			case log := <-logs:
+				// New log arrived, parse the event and forward to the user
+				event := new(MerchantMangerSetValidTime)
+				if err := _MerchantManger.contract.UnpackLog(event, "SetValidTime", log); err != nil {
+					return err
+				}
+				event.Raw = log
+
+				select {
+				case sink <- event:
+				case err := <-sub.Err():
+					return err
+				case <-quit:
+					return nil
+				}
+			case err := <-sub.Err():
+				return err
+			case <-quit:
+				return nil
+			}
+		}
+	}), nil
+}
+
+// ParseSetValidTime is a log parse operation binding the contract event 0x8651cd625889c15ab8587456aba8cc25b781c5fa977a1811f04967c2acad02b8.
+//
+// Solidity: event SetValidTime(address indexed who, uint256 _time)
+func (_MerchantManger *MerchantMangerFilterer) ParseSetValidTime(log types.Log) (*MerchantMangerSetValidTime, error) {
+	event := new(MerchantMangerSetValidTime)
+	if err := _MerchantManger.contract.UnpackLog(event, "SetValidTime", log); err != nil {
+		return nil, err
+	}
+	event.Raw = log
+	return event, nil
+}
+
+// MerchantMangerWithdrawUTokenIterator is returned from FilterWithdrawUToken and is used to iterate over the raw logs and unpacked data for WithdrawUToken events raised by the MerchantManger contract.
+type MerchantMangerWithdrawUTokenIterator struct {
+	Event *MerchantMangerWithdrawUToken // Event containing the contract specifics and raw log
+
+	contract *bind.BoundContract // Generic contract to use for unpacking event data
+	event    string              // Event name to use for unpacking event data
+
+	logs chan types.Log        // Log channel receiving the found contract events
+	sub  ethereum.Subscription // Subscription for errors, completion and termination
+	done bool                  // Whether the subscription completed delivering logs
+	fail error                 // Occurred error to stop iteration
+}
+
+// Next advances the iterator to the subsequent event, returning whether there
+// are any more events found. In case of a retrieval or parsing error, false is
+// returned and Error() can be queried for the exact failure.
+func (it *MerchantMangerWithdrawUTokenIterator) Next() bool {
+	// If the iterator failed, stop iterating
+	if it.fail != nil {
+		return false
+	}
+	// If the iterator completed, deliver directly whatever's available
+	if it.done {
+		select {
+		case log := <-it.logs:
+			it.Event = new(MerchantMangerWithdrawUToken)
+			if err := it.contract.UnpackLog(it.Event, it.event, log); err != nil {
+				it.fail = err
+				return false
+			}
+			it.Event.Raw = log
+			return true
+
+		default:
+			return false
+		}
+	}
+	// Iterator still in progress, wait for either a data or an error event
+	select {
+	case log := <-it.logs:
+		it.Event = new(MerchantMangerWithdrawUToken)
+		if err := it.contract.UnpackLog(it.Event, it.event, log); err != nil {
+			it.fail = err
+			return false
+		}
+		it.Event.Raw = log
+		return true
+
+	case err := <-it.sub.Err():
+		it.done = true
+		it.fail = err
+		return it.Next()
+	}
+}
+
+// Error returns any retrieval or parsing error occurred during filtering.
+func (it *MerchantMangerWithdrawUTokenIterator) Error() error {
+	return it.fail
+}
+
+// Close terminates the iteration process, releasing any pending underlying
+// resources.
+func (it *MerchantMangerWithdrawUTokenIterator) Close() error {
+	it.sub.Unsubscribe()
+	return nil
+}
+
+// MerchantMangerWithdrawUToken represents a WithdrawUToken event raised by the MerchantManger contract.
+type MerchantMangerWithdrawUToken struct {
+	Who       common.Address
+	TokenAddr common.Address
+	Account   common.Address
+	Value     *big.Int
+	Raw       types.Log // Blockchain specific contextual infos
+}
+
+// FilterWithdrawUToken is a free log retrieval operation binding the contract event 0xf314360eddb258cb001ab9dd025a30d7be229f08113f1e5617a7f82a00e0e78f.
+//
+// Solidity: event WithdrawUToken(address indexed who, address indexed _tokenAddr, address indexed _account, uint256 _value)
+func (_MerchantManger *MerchantMangerFilterer) FilterWithdrawUToken(opts *bind.FilterOpts, who []common.Address, _tokenAddr []common.Address, _account []common.Address) (*MerchantMangerWithdrawUTokenIterator, error) {
+
+	var whoRule []interface{}
+	for _, whoItem := range who {
+		whoRule = append(whoRule, whoItem)
+	}
+	var _tokenAddrRule []interface{}
+	for _, _tokenAddrItem := range _tokenAddr {
+		_tokenAddrRule = append(_tokenAddrRule, _tokenAddrItem)
+	}
+	var _accountRule []interface{}
+	for _, _accountItem := range _account {
+		_accountRule = append(_accountRule, _accountItem)
+	}
+
+	logs, sub, err := _MerchantManger.contract.FilterLogs(opts, "WithdrawUToken", whoRule, _tokenAddrRule, _accountRule)
+	if err != nil {
+		return nil, err
+	}
+	return &MerchantMangerWithdrawUTokenIterator{contract: _MerchantManger.contract, event: "WithdrawUToken", logs: logs, sub: sub}, nil
+}
+
+// WatchWithdrawUToken is a free log subscription operation binding the contract event 0xf314360eddb258cb001ab9dd025a30d7be229f08113f1e5617a7f82a00e0e78f.
+//
+// Solidity: event WithdrawUToken(address indexed who, address indexed _tokenAddr, address indexed _account, uint256 _value)
+func (_MerchantManger *MerchantMangerFilterer) WatchWithdrawUToken(opts *bind.WatchOpts, sink chan<- *MerchantMangerWithdrawUToken, who []common.Address, _tokenAddr []common.Address, _account []common.Address) (event.Subscription, error) {
+
+	var whoRule []interface{}
+	for _, whoItem := range who {
+		whoRule = append(whoRule, whoItem)
+	}
+	var _tokenAddrRule []interface{}
+	for _, _tokenAddrItem := range _tokenAddr {
+		_tokenAddrRule = append(_tokenAddrRule, _tokenAddrItem)
+	}
+	var _accountRule []interface{}
+	for _, _accountItem := range _account {
+		_accountRule = append(_accountRule, _accountItem)
+	}
+
+	logs, sub, err := _MerchantManger.contract.WatchLogs(opts, "WithdrawUToken", whoRule, _tokenAddrRule, _accountRule)
+	if err != nil {
+		return nil, err
+	}
+	return event.NewSubscription(func(quit <-chan struct{}) error {
+		defer sub.Unsubscribe()
+		for {
+			select {
+			case log := <-logs:
+				// New log arrived, parse the event and forward to the user
+				event := new(MerchantMangerWithdrawUToken)
+				if err := _MerchantManger.contract.UnpackLog(event, "WithdrawUToken", log); err != nil {
+					return err
+				}
+				event.Raw = log
+
+				select {
+				case sink <- event:
+				case err := <-sub.Err():
+					return err
+				case <-quit:
+					return nil
+				}
+			case err := <-sub.Err():
+				return err
+			case <-quit:
+				return nil
+			}
+		}
+	}), nil
+}
+
+// ParseWithdrawUToken is a log parse operation binding the contract event 0xf314360eddb258cb001ab9dd025a30d7be229f08113f1e5617a7f82a00e0e78f.
+//
+// Solidity: event WithdrawUToken(address indexed who, address indexed _tokenAddr, address indexed _account, uint256 _value)
+func (_MerchantManger *MerchantMangerFilterer) ParseWithdrawUToken(log types.Log) (*MerchantMangerWithdrawUToken, error) {
+	event := new(MerchantMangerWithdrawUToken)
+	if err := _MerchantManger.contract.UnpackLog(event, "WithdrawUToken", log); err != nil {
+		return nil, err
+	}
+	event.Raw = log
+	return event, nil
+}
+
+// MerchantMangerWthdrawIterator is returned from FilterWthdraw and is used to iterate over the raw logs and unpacked data for Wthdraw events raised by the MerchantManger contract.
+type MerchantMangerWthdrawIterator struct {
+	Event *MerchantMangerWthdraw // Event containing the contract specifics and raw log
+
+	contract *bind.BoundContract // Generic contract to use for unpacking event data
+	event    string              // Event name to use for unpacking event data
+
+	logs chan types.Log        // Log channel receiving the found contract events
+	sub  ethereum.Subscription // Subscription for errors, completion and termination
+	done bool                  // Whether the subscription completed delivering logs
+	fail error                 // Occurred error to stop iteration
+}
+
+// Next advances the iterator to the subsequent event, returning whether there
+// are any more events found. In case of a retrieval or parsing error, false is
+// returned and Error() can be queried for the exact failure.
+func (it *MerchantMangerWthdrawIterator) Next() bool {
+	// If the iterator failed, stop iterating
+	if it.fail != nil {
+		return false
+	}
+	// If the iterator completed, deliver directly whatever's available
+	if it.done {
+		select {
+		case log := <-it.logs:
+			it.Event = new(MerchantMangerWthdraw)
+			if err := it.contract.UnpackLog(it.Event, it.event, log); err != nil {
+				it.fail = err
+				return false
+			}
+			it.Event.Raw = log
+			return true
+
+		default:
+			return false
+		}
+	}
+	// Iterator still in progress, wait for either a data or an error event
+	select {
+	case log := <-it.logs:
+		it.Event = new(MerchantMangerWthdraw)
+		if err := it.contract.UnpackLog(it.Event, it.event, log); err != nil {
+			it.fail = err
+			return false
+		}
+		it.Event.Raw = log
+		return true
+
+	case err := <-it.sub.Err():
+		it.done = true
+		it.fail = err
+		return it.Next()
+	}
+}
+
+// Error returns any retrieval or parsing error occurred during filtering.
+func (it *MerchantMangerWthdrawIterator) Error() error {
+	return it.fail
+}
+
+// Close terminates the iteration process, releasing any pending underlying
+// resources.
+func (it *MerchantMangerWthdrawIterator) Close() error {
+	it.sub.Unsubscribe()
+	return nil
+}
+
+// MerchantMangerWthdraw represents a Wthdraw event raised by the MerchantManger contract.
+type MerchantMangerWthdraw struct {
+	Who    common.Address
+	Amount *big.Int
+	Raw    types.Log // Blockchain specific contextual infos
+}
+
+// FilterWthdraw is a free log retrieval operation binding the contract event 0x622ece8fe6c9adcdeb3aacfcf426facb5e94734cb9eb4cca7b66595853b87340.
+//
+// Solidity: event Wthdraw(address indexed who, uint256 _amount)
+func (_MerchantManger *MerchantMangerFilterer) FilterWthdraw(opts *bind.FilterOpts, who []common.Address) (*MerchantMangerWthdrawIterator, error) {
+
+	var whoRule []interface{}
+	for _, whoItem := range who {
+		whoRule = append(whoRule, whoItem)
+	}
+
+	logs, sub, err := _MerchantManger.contract.FilterLogs(opts, "Wthdraw", whoRule)
+	if err != nil {
+		return nil, err
+	}
+	return &MerchantMangerWthdrawIterator{contract: _MerchantManger.contract, event: "Wthdraw", logs: logs, sub: sub}, nil
+}
+
+// WatchWthdraw is a free log subscription operation binding the contract event 0x622ece8fe6c9adcdeb3aacfcf426facb5e94734cb9eb4cca7b66595853b87340.
+//
+// Solidity: event Wthdraw(address indexed who, uint256 _amount)
+func (_MerchantManger *MerchantMangerFilterer) WatchWthdraw(opts *bind.WatchOpts, sink chan<- *MerchantMangerWthdraw, who []common.Address) (event.Subscription, error) {
+
+	var whoRule []interface{}
+	for _, whoItem := range who {
+		whoRule = append(whoRule, whoItem)
+	}
+
+	logs, sub, err := _MerchantManger.contract.WatchLogs(opts, "Wthdraw", whoRule)
+	if err != nil {
+		return nil, err
+	}
+	return event.NewSubscription(func(quit <-chan struct{}) error {
+		defer sub.Unsubscribe()
+		for {
+			select {
+			case log := <-logs:
+				// New log arrived, parse the event and forward to the user
+				event := new(MerchantMangerWthdraw)
+				if err := _MerchantManger.contract.UnpackLog(event, "Wthdraw", log); err != nil {
+					return err
+				}
+				event.Raw = log
+
+				select {
+				case sink <- event:
+				case err := <-sub.Err():
+					return err
+				case <-quit:
+					return nil
+				}
+			case err := <-sub.Err():
+				return err
+			case <-quit:
+				return nil
+			}
+		}
+	}), nil
+}
+
+// ParseWthdraw is a log parse operation binding the contract event 0x622ece8fe6c9adcdeb3aacfcf426facb5e94734cb9eb4cca7b66595853b87340.
+//
+// Solidity: event Wthdraw(address indexed who, uint256 _amount)
+func (_MerchantManger *MerchantMangerFilterer) ParseWthdraw(log types.Log) (*MerchantMangerWthdraw, error) {
+	event := new(MerchantMangerWthdraw)
+	if err := _MerchantManger.contract.UnpackLog(event, "Wthdraw", log); err != nil {
 		return nil, err
 	}
 	event.Raw = log

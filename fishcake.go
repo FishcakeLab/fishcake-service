@@ -47,7 +47,7 @@ func NewFishCake(cfg *config.Config, db *database.DB) *FishCake {
 
 func NewIndex(ctx *cli.Context, cfg *config.Config, db *database.DB, shutdown context.CancelCauseFunc) *FishCake {
 	f := &FishCake{}
-	f.newIndex(ctx, cfg, db, shutdown)
+	//f.newIndex(ctx, cfg, db, shutdown)
 	f.newEvent(cfg, db, shutdown)
 	return f
 }
@@ -85,10 +85,10 @@ func (f *FishCake) newApi(cfg *config.Config, db *database.DB) error {
 func (f *FishCake) newIndex(ctx *cli.Context, cfg *config.Config, db *database.DB, shutdown context.CancelCauseFunc) error {
 	chainId, _ := strconv.ParseUint(cfg.PolygonChainId, 10, 64)
 	syncConfig := &synchronizer.Config{
-		LoopIntervalMsec:  2,
+		LoopIntervalMsec:  1,
 		HeaderBufferSize:  500,
 		StartHeight:       new(big.Int).SetUint64(cfg.StartBlock),
-		ConfirmationDepth: big.NewInt(20),
+		ConfirmationDepth: big.NewInt(50),
 		ChainId:           uint(chainId),
 	}
 	client, _ := node.DialEthClient(ctx.Context, cfg.PolygonRpc)

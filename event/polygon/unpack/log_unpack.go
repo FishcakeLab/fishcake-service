@@ -1,7 +1,6 @@
 package unpack
 
 import (
-	"github.com/FishcakeLab/fishcake-service/common/global_const"
 	"github.com/FishcakeLab/fishcake-service/database"
 	"github.com/FishcakeLab/fishcake-service/database/activity"
 	"github.com/FishcakeLab/fishcake-service/database/drop"
@@ -12,7 +11,7 @@ import (
 )
 
 var (
-	NftTokenUnpack, _ = abi.NewNftTokenManagerFilterer(common.Address{}, nil)
+	NftTokenUnpack, _ = abi.NewNFTManagerFilterer(common.Address{}, nil)
 	MerchantUnpack, _ = abi.NewMerchantMangerFilterer(common.Address{}, nil)
 )
 
@@ -53,22 +52,24 @@ func ActivityFinish(event event.ContractEvent, db *database.DB) error {
 
 func MintNft(event event.ContractEvent, db *database.DB) error {
 	rlpLog := event.RLPLog
-	uEvent, unpackErr := NftTokenUnpack.ParseTransfer(*rlpLog)
+	uEvent, unpackErr := NftTokenUnpack.ParseMintNewEvent(*rlpLog)
 	if unpackErr != nil {
 		return unpackErr
 	}
-	if uEvent.From == common.HexToAddress(global_const.ZeroAddress) {
-		token := token_nft.TokenNft{
-			TokenId:         uEvent.TokenId.Int64(),
-			Address:         uEvent.To.String(),
-			ContractAddress: event.ContractAddress.String(),
-			TokenAmount:     1,
-			TokenUrl:        "baseUrl:" + uEvent.TokenId.String(),
-			Timestamp:       event.Timestamp,
-		}
-		return db.TokenNftDB.StoreTokenNft(token)
+	token := token_nft.TokenNft{
+		TokenId:         uEvent.TokenId.Int64(),
+		BusinessName:    uEvent.BusinessName,
+		Description:     uEvent.Description,
+		ImgUrl:          uEvent.ImgUrl,
+		BusinessAddress: uEvent.BusinessAddress,
+		WebSite:         uEvent.WebSite,
+		Social:          uEvent.Social,
+		ContractAddress: event.ContractAddress.String(),
+		CostValue:       uEvent.Value,
+		Deadline:        uEvent.Deadline.Uint64(),
+		NftType:         int8(uEvent.Type),
 	}
-	return nil
+	return db.TokenNftDB.StoreTokenNft(token)
 }
 
 func Drop(event event.ContractEvent, db *database.DB) error {
