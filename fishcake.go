@@ -47,7 +47,7 @@ func NewFishCake(cfg *config.Config, db *database.DB) *FishCake {
 
 func NewIndex(ctx *cli.Context, cfg *config.Config, db *database.DB, shutdown context.CancelCauseFunc) *FishCake {
 	f := &FishCake{}
-	//f.newIndex(ctx, cfg, db, shutdown)
+	f.newIndex(ctx, cfg, db, shutdown)
 	f.newEvent(cfg, db, shutdown)
 	return f
 }
