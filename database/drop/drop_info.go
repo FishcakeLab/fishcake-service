@@ -14,6 +14,7 @@ type DropInfo struct {
 	ActivityId int64    `gorm:"activity_id" json:"activityId"`
 	Address    string   `json:"address" gorm:"address"`
 	DropAmount *big.Int `json:"dropAmount" gorm:"serializer:u256;column:drop_amount"`
+	DropType   int8     `gorm:"drop_type" json:"dropType"`
 	Timestamp  uint64   `json:"timestamp" gorm:"timestamp"`
 }
 
@@ -47,10 +48,10 @@ func (d dropInfoDB) List(pageNum, pageSize int, address string) ([]DropInfo, int
 	if address != "" {
 		this = this.Where("address = ?", address)
 	}
-	this = this.Count(&count)
 	if pageNum > 0 && pageSize > 0 {
 		this = this.Limit(pageSize).Offset((pageNum - 1) * pageSize)
 	}
+	this = this.Count(&count)
 	result := this.Find(&tokenNft)
 	if result.Error == nil {
 		return tokenNft, int(count)

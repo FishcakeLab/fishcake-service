@@ -53,15 +53,20 @@ CREATE TABLE IF NOT EXISTS contract_events
     CONSTRAINT "contract_events_pkey" PRIMARY KEY ("guid")
 );
 
-CREATE TABLE IF NOT EXISTS token_nft
+CREATE TABLE "public"."token_nft"
 (
     "id"               text COLLATE "pg_catalog"."default" NOT NULL DEFAULT replace((uuid_generate_v4())::text, '-'::text, ''::text),
     "token_id"         int8,
-    "address"          varchar COLLATE "pg_catalog"."default",
+    "business_name"    varchar COLLATE "pg_catalog"."default",
+    "description"      varchar COLLATE "pg_catalog"."default",
+    "img_url"          varchar COLLATE "pg_catalog"."default",
+    "business_address" varchar COLLATE "pg_catalog"."default",
+    "web_site"         varchar COLLATE "pg_catalog"."default",
+    "social"           varchar COLLATE "pg_catalog"."default",
     "contract_address" varchar COLLATE "pg_catalog"."default",
-    "token_url"        varchar COLLATE "pg_catalog"."default",
-    "token_amount"     int8,
-    "timestamp"        int8,
+    "cost_value"       "public"."uint256",
+    "deadline"         int4,
+    "nft_type"         int2,
     CONSTRAINT "token_nft_pkey" PRIMARY KEY ("id")
 );
 
@@ -97,12 +102,14 @@ CREATE TABLE IF NOT EXISTS activity_info_ext
     CONSTRAINT "activity_info_ext_pkey" PRIMARY KEY ("id")
 )
 ;
+
 CREATE TABLE IF NOT EXISTS drop_info
 (
     "id"          text COLLATE "pg_catalog"."default" NOT NULL DEFAULT replace((uuid_generate_v4())::text, '-'::text, ''::text),
     "activity_id" int8,
     "address"     varchar COLLATE "pg_catalog"."default",
     "drop_amount" "public"."uint256",
+    "drop_type"   int2,
     "timestamp"   int8,
     CONSTRAINT "drop_info_pkey" PRIMARY KEY ("id")
 )

@@ -3,6 +3,7 @@ package database
 import (
 	"context"
 	"fmt"
+	"github.com/FishcakeLab/fishcake-service/database/account_nft_info"
 	"github.com/FishcakeLab/fishcake-service/database/block_listener"
 	"github.com/FishcakeLab/fishcake-service/database/common"
 	"github.com/FishcakeLab/fishcake-service/database/drop"
@@ -33,6 +34,7 @@ type DB struct {
 	TokenNftDB        token_nft.TokenNftDB
 	DropInfoDB        drop.DropInfoDB
 	BlockListener     block_listener.BlockListenerDB
+	AccountNftInfoDB  account_nft_info.AccountNftInfoDB
 }
 
 func NewDB(dbConfig *config.Config) (*DB, error) {
@@ -79,6 +81,7 @@ func NewDB(dbConfig *config.Config) (*DB, error) {
 		ActivityInfoDB:    activity.NewActivityDB(gorm),
 		ActivityInfoExtDB: activity.NewActivityInfoExtDB(gorm),
 		TokenNftDB:        token_nft.NewTokenNftDB(gorm),
+		AccountNftInfoDB:  account_nft_info.NewAccountNftInfoDB(gorm),
 		DropInfoDB:        drop.NewDropInfoDB(gorm),
 		BlockListener:     block_listener.NewBlockListenerDB(gorm),
 	}
@@ -96,6 +99,7 @@ func (db *DB) Transaction(fn func(db *DB) error) error {
 			TokenNftDB:        token_nft.NewTokenNftDB(tx),
 			DropInfoDB:        drop.NewDropInfoDB(tx),
 			BlockListener:     block_listener.NewBlockListenerDB(tx),
+			AccountNftInfoDB:  account_nft_info.NewAccountNftInfoDB(tx),
 		}
 		return fn(txDB)
 	})

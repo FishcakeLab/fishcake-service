@@ -2,6 +2,7 @@ package unpack
 
 import (
 	"github.com/FishcakeLab/fishcake-service/database"
+	"github.com/FishcakeLab/fishcake-service/database/account_nft_info"
 	"github.com/FishcakeLab/fishcake-service/database/activity"
 	"github.com/FishcakeLab/fishcake-service/database/drop"
 	"github.com/FishcakeLab/fishcake-service/database/event"
@@ -58,6 +59,7 @@ func MintNft(event event.ContractEvent, db *database.DB) error {
 	}
 	token := token_nft.TokenNft{
 		TokenId:         uEvent.TokenId.Int64(),
+		Who:             uEvent.Who.String(),
 		BusinessName:    uEvent.BusinessName,
 		Description:     uEvent.Description,
 		ImgUrl:          uEvent.ImgUrl,
@@ -69,7 +71,26 @@ func MintNft(event event.ContractEvent, db *database.DB) error {
 		Deadline:        uEvent.Deadline.Uint64(),
 		NftType:         int8(uEvent.Type),
 	}
-	return db.TokenNftDB.StoreTokenNft(token)
+	accountNftInfo := account_nft_info.AccountNftInfo{
+		Address: uEvent.Who.String(),
+	}
+	if uEvent.Type == 1 {
+		accountNftInfo.ProDeadline = uEvent.Deadline.Uint64()
+	} else {
+		accountNftInfo.BasicDeadline = uEvent.Deadline.Uint64()
+	}
+	if err := db.Transaction(func(tx *database.DB) error {
+		if err := tx.TokenNftDB.StoreTokenNft(token); err != nil {
+			return err
+		}
+		if err := tx.AccountNftInfoDB.StoreAccountNftInfo(accountNftInfo); err != nil {
+			return err
+		}
+		return nil
+	}); err != nil {
+		return err
+	}
+	return nil
 }
 
 func Drop(event event.ContractEvent, db *database.DB) error {
@@ -82,6 +103,7 @@ func Drop(event event.ContractEvent, db *database.DB) error {
 		Address:    uEvent.Who.String(),
 		DropAmount: uEvent.DropAmt,
 		ActivityId: uEvent.ActivityId.Int64(),
+		DropType:   1,
 		Timestamp:  event.Timestamp,
 	}
 
@@ -90,6 +112,13 @@ func Drop(event event.ContractEvent, db *database.DB) error {
 			return err
 		}
 		if err := tx.ActivityInfoDB.UpdateActivityInfo(uEvent.ActivityId.String()); err != nil {
+			return err
+		}
+		// create merchant drop record
+		activityInfo := tx.ActivityInfoDB.ActivityInfo(int(drop.ActivityId))
+		drop.Address = activityInfo.BusinessAccount
+		drop.DropType = 2
+		if err := tx.DropInfoDB.StoreDropInfo(drop); err != nil {
 			return err
 		}
 		return nil

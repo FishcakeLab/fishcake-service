@@ -25,6 +25,8 @@ type ActivityInfo struct {
 	TokenContractAddr  string   `gorm:"token_contract_addr" json:"tokenContractAddr"`
 	ActivityStatus     int8     `gorm:"activity_status" json:"activityStatus"`
 	AlreadyDropNumber  int64    `gorm:"already_drop_number" json:"alreadyDropNumber"`
+	BasicDeadline      uint64   `gorm:"basic_deadline" json:"basicDeadline" `
+	ProDeadline        uint64   `gorm:"pro_deadline" json:"proDeadline"`
 }
 
 func (ActivityInfo) TableName() string {
@@ -32,7 +34,7 @@ func (ActivityInfo) TableName() string {
 }
 
 type ActivityInfoView interface {
-	ActivityInfoList(pageNum, pageSize int) ([]ActivityInfo, int)
+	ActivityInfoList(businessAccount, activityStatus, businessName, tokenContractAddr string, pageNum, pageSize int) ([]ActivityInfo, int)
 	ActivityInfo(activityId int) ActivityInfo
 }
 
@@ -86,15 +88,28 @@ func (a activityInfoDB) ActivityInfo(activityId int) ActivityInfo {
 	}
 }
 
-func (a activityInfoDB) ActivityInfoList(pageNum, pageSize int) ([]ActivityInfo, int) {
+func (a activityInfoDB) ActivityInfoList(businessAccount, activityStatus, businessName, tokenContractAddr string, pageNum, pageSize int) ([]ActivityInfo, int) {
 	var activityInfo []ActivityInfo
 	var count int64
 	this := a.db.Table(ActivityInfo{}.TableName())
-	this = this.Count(&count)
+	if businessAccount != "" {
+		this = this.Where("business_account = ?", businessAccount)
+	}
+	if activityStatus != "" {
+		this = this.Where("activity_status = ?", activityStatus)
+	}
+	if businessName != "" {
+		this = this.Where("business_name = ?", businessName)
+	}
+	if tokenContractAddr != "" {
+		this = this.Where("token_contract_addr = ?", tokenContractAddr)
+	}
+	this = this.Joins("LEFT JOIN account_nft_info ON activity_info.business_account = account_nft_info.address")
 	if pageNum > 0 && pageSize > 0 {
 		this = this.Limit(pageSize).Offset((pageNum - 1) * pageSize)
 	}
-	this = this.Order("activity_create_time DESC, activity_status ASC")
+	this = this.Count(&count)
+	this = this.Order("activity_create_time DESC, activity_status ASC").Select("activity_info.*,account_nft_info.basic_deadline,account_nft_info.pro_deadline")
 	result := this.Find(&activityInfo)
 	if result.Error == nil {
 		return activityInfo, int(count)

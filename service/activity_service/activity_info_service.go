@@ -6,7 +6,7 @@ import (
 )
 
 type ActivityInfoService interface {
-	ActivityInfoList(pageNum, pageSize int) ([]activity.ActivityInfo, int)
+	ActivityInfoList(businessAccount, activityStatus, businessName, tokenContractAddr string, pageNum, pageSize int) ([]activity.ActivityInfo, int)
 	ActivityInfo(activityId int) activity.ActivityInfo
 }
 
@@ -18,8 +18,8 @@ func NewActivityInfoService(db *database.DB) ActivityInfoService {
 	return &activityInfoService{Db: db}
 }
 
-func (s *activityInfoService) ActivityInfoList(pageNum, pageSize int) ([]activity.ActivityInfo, int) {
-	infos, count := s.Db.ActivityInfoDB.ActivityInfoList(int(uint64(pageNum)), pageSize)
+func (s *activityInfoService) ActivityInfoList(businessAccount, activityStatus, businessName, tokenContractAddr string, pageNum, pageSize int) ([]activity.ActivityInfo, int) {
+	infos, count := s.Db.ActivityInfoDB.ActivityInfoList(businessAccount, activityStatus, businessName, tokenContractAddr, int(uint64(pageNum)), pageSize)
 	return infos, count
 }
 

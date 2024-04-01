@@ -18,7 +18,11 @@ func list(c *gin.Context) {
 	pageNumStr := c.Query("pageNum")
 	pageSize := bigint.StringToInt(pageSizeStr)
 	pageNum := bigint.StringToInt(pageNumStr)
-	infos, count := service.BaseService.ActivityInfoService.ActivityInfoList(pageNum, pageSize)
+	activityStatus := c.Query("activityStatus")
+	businessName := c.Query("businessName")
+	tokenContractAddr := c.Query("tokenContractAddr")
+	businessAccount := c.Query("businessAccount")
+	infos, count := service.BaseService.ActivityInfoService.ActivityInfoList(businessAccount, activityStatus, businessName, tokenContractAddr, pageNum, pageSize)
 	page := api_result.NewPage(infos, count, pageNum, pageSize)
 	api_result.NewApiResult(c).Success(page)
 }

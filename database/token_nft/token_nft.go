@@ -10,6 +10,7 @@ import (
 
 type TokenNft struct {
 	Id              string   `json:"id" gorm:"id"`
+	Who             string   `json:"who" gorm:"who"`
 	TokenId         int64    `json:"tokenId" gorm:"token_id"`
 	BusinessName    string   `json:"businessName" gorm:"business_name"`
 	Description     string   `json:"description" gorm:"description"`
@@ -61,10 +62,10 @@ func (t tokenNftDB) List(pageNum, pageSize int, contractAddress string) ([]Token
 	if contractAddress != "" {
 		this = this.Where("contract_address = ?", contractAddress)
 	}
-	this = this.Count(&count)
 	if pageNum > 0 && pageSize > 0 {
 		this = this.Limit(pageSize).Offset((pageNum - 1) * pageSize)
 	}
+	this = this.Count(&count)
 	result := this.Find(&tokenNft)
 	if result.Error == nil {
 		return tokenNft, int(count)
