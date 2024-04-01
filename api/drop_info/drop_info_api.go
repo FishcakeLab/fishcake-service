@@ -2,6 +2,7 @@ package drop_info
 
 import (
 	"github.com/FishcakeLab/fishcake-service/common/bigint"
+	"github.com/FishcakeLab/fishcake-service/common/enum"
 	"github.com/gin-gonic/gin"
 
 	"github.com/FishcakeLab/fishcake-service/common/api_result"
@@ -16,6 +17,10 @@ func DropInfoApi(rg *gin.Engine) {
 func list(c *gin.Context) {
 	pageSizeStr := c.Query("pageSize")
 	pageNumStr := c.Query("pageNum")
+	if pageSizeStr == "" || pageNumStr == "" {
+		api_result.NewApiResult(c).Error(enum.ParamErr.Code, enum.ParamErr.Msg)
+		return
+	}
 	address := c.Query("address")
 	pageSize := bigint.StringToInt(pageSizeStr)
 	pageNum := bigint.StringToInt(pageNumStr)

@@ -34,7 +34,7 @@ func (ActivityInfo) TableName() string {
 }
 
 type ActivityInfoView interface {
-	ActivityInfoList(businessAccount, activityStatus, businessName, tokenContractAddr string, pageNum, pageSize int) ([]ActivityInfo, int)
+	ActivityInfoList(businessAccount, activityStatus, businessName, tokenContractAddr, latitude, longitude, scope string, pageNum, pageSize int) ([]ActivityInfo, int)
 	ActivityInfo(activityId int) ActivityInfo
 }
 
@@ -67,7 +67,7 @@ func (a activityInfoDB) StoreActivityInfo(activityInfo ActivityInfo) error {
 	err := a.db.Table(activityInfoRecord.TableName()).Where("activity_id = ?", activityInfo.ActivityId).Take(&exist).Error
 	if err != nil {
 		if errors.Is(err, gorm.ErrRecordNotFound) {
-			result := a.db.Table(activityInfoRecord.TableName()).Omit("id").Create(&activityInfo)
+			result := a.db.Table(activityInfoRecord.TableName()).Omit("id, BasicDeadline, ProDeadline").Create(&activityInfo)
 			return result.Error
 		}
 	}
@@ -77,6 +77,8 @@ func (a activityInfoDB) StoreActivityInfo(activityInfo ActivityInfo) error {
 func (a activityInfoDB) ActivityInfo(activityId int) ActivityInfo {
 	var activityInfo ActivityInfo
 	this := a.db.Table(ActivityInfo{}.TableName())
+	this = this.Joins("LEFT JOIN account_nft_info ON activity_info.business_account = account_nft_info.address")
+	this = this.Select("activity_info.*,account_nft_info.basic_deadline,account_nft_info.pro_deadline")
 	result := this.Where("activity_id = ?", activityId).Take(&activityInfo)
 	if result.Error == nil {
 		return activityInfo
@@ -88,7 +90,7 @@ func (a activityInfoDB) ActivityInfo(activityId int) ActivityInfo {
 	}
 }
 
-func (a activityInfoDB) ActivityInfoList(businessAccount, activityStatus, businessName, tokenContractAddr string, pageNum, pageSize int) ([]ActivityInfo, int) {
+func (a activityInfoDB) ActivityInfoList(businessAccount, activityStatus, businessName, tokenContractAddr, latitude, longitude, scope string, pageNum, pageSize int) ([]ActivityInfo, int) {
 	var activityInfo []ActivityInfo
 	var count int64
 	this := a.db.Table(ActivityInfo{}.TableName())
@@ -103,6 +105,11 @@ func (a activityInfoDB) ActivityInfoList(businessAccount, activityStatus, busine
 	}
 	if tokenContractAddr != "" {
 		this = this.Where("token_contract_addr = ?", tokenContractAddr)
+	}
+	if latitude != "" && longitude != "" {
+		this = this.Where("ST_DWithin(ST_SetSRID(ST_MakePoint("+
+			"CAST(SPLIT_PART(latitude_longitude, ',', 1) AS numeric), "+
+			"CAST(SPLIT_PART(latitude_longitude, ',', 2) AS numeric)), 4326),ST_SetSRID(ST_MakePoint(?, ?), 4326),?)", latitude, longitude, scope)
 	}
 	this = this.Joins("LEFT JOIN account_nft_info ON activity_info.business_account = account_nft_info.address")
 	if pageNum > 0 && pageSize > 0 {

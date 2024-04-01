@@ -3,6 +3,7 @@ package activity_info
 import (
 	"github.com/FishcakeLab/fishcake-service/common/api_result"
 	"github.com/FishcakeLab/fishcake-service/common/bigint"
+	"github.com/FishcakeLab/fishcake-service/common/enum"
 	"github.com/FishcakeLab/fishcake-service/service"
 	"github.com/gin-gonic/gin"
 )
@@ -16,13 +17,20 @@ func ActivityInfoApi(rg *gin.Engine) {
 func list(c *gin.Context) {
 	pageSizeStr := c.Query("pageSize")
 	pageNumStr := c.Query("pageNum")
+	if pageSizeStr == "" || pageNumStr == "" {
+		api_result.NewApiResult(c).Error(enum.ParamErr.Code, enum.ParamErr.Msg)
+		return
+	}
 	pageSize := bigint.StringToInt(pageSizeStr)
 	pageNum := bigint.StringToInt(pageNumStr)
 	activityStatus := c.Query("activityStatus")
 	businessName := c.Query("businessName")
 	tokenContractAddr := c.Query("tokenContractAddr")
 	businessAccount := c.Query("businessAccount")
-	infos, count := service.BaseService.ActivityInfoService.ActivityInfoList(businessAccount, activityStatus, businessName, tokenContractAddr, pageNum, pageSize)
+	latitude := c.Query("latitude")
+	longitude := c.Query("longitude")
+	scope := c.Query("scope")
+	infos, count := service.BaseService.ActivityInfoService.ActivityInfoList(businessAccount, activityStatus, businessName, tokenContractAddr, latitude, longitude, scope, pageNum, pageSize)
 	page := api_result.NewPage(infos, count, pageNum, pageSize)
 	api_result.NewApiResult(c).Success(page)
 }
