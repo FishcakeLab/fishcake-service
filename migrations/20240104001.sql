@@ -53,7 +53,7 @@ CREATE TABLE IF NOT EXISTS contract_events
     CONSTRAINT "contract_events_pkey" PRIMARY KEY ("guid")
 );
 
-CREATE TABLE "public"."token_nft"
+CREATE TABLE IF NOT EXISTS token_nft
 (
     "id"               text COLLATE "pg_catalog"."default" NOT NULL DEFAULT replace((uuid_generate_v4())::text, '-'::text, ''::text),
     "token_id"         int8,
@@ -125,7 +125,7 @@ CREATE TABLE IF NOT EXISTS account_nft_info
 )
 ;
 
-CREATE EXTENSION postgis;
+CREATE EXTENSION IF NOT EXISTS postgis;
 
 SELECT PostGIS_Version();
 
