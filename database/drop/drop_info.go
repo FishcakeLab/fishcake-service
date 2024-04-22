@@ -10,12 +10,13 @@ import (
 )
 
 type DropInfo struct {
-	Id         string   `json:"id" gorm:"id"`
-	ActivityId int64    `gorm:"activity_id" json:"activityId"`
-	Address    string   `json:"address" gorm:"address"`
-	DropAmount *big.Int `json:"dropAmount" gorm:"serializer:u256;column:drop_amount"`
-	DropType   int8     `gorm:"drop_type" json:"dropType"`
-	Timestamp  uint64   `json:"timestamp" gorm:"timestamp"`
+	Id                string   `json:"id" gorm:"id"`
+	ActivityId        int64    `gorm:"activity_id" json:"activityId"`
+	Address           string   `json:"address" gorm:"address"`
+	DropAmount        *big.Int `json:"dropAmount" gorm:"serializer:u256;column:drop_amount"`
+	DropType          int8     `gorm:"drop_type" json:"dropType"`
+	Timestamp         uint64   `json:"timestamp" gorm:"timestamp"`
+	TokenContractAddr string   `gorm:"token_contract_addr" json:"tokenContractAddr"`
 }
 
 func (DropInfo) TableName() string {
@@ -48,11 +49,12 @@ func (d dropInfoDB) List(pageNum, pageSize int, address string) ([]DropInfo, int
 	if address != "" {
 		this = this.Where("address = ?", address)
 	}
+	this = this.Joins("LEFT JOIN activity_info ON drop_info.activity_id = activity_info.activity_id")
 	if pageNum > 0 && pageSize > 0 {
 		this = this.Limit(pageSize).Offset((pageNum - 1) * pageSize)
 	}
 	this = this.Count(&count)
-	result := this.Find(&tokenNft)
+	result := this.Select("drop_info.*, activity_info.token_contract_addr").Scan(&tokenNft)
 	if result.Error == nil {
 		return tokenNft, int(count)
 	} else if !errors.Is(result.Error, gorm.ErrRecordNotFound) {
