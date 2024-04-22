@@ -114,3 +114,19 @@ CREATE TABLE IF NOT EXISTS drop_info
     CONSTRAINT "drop_info_pkey" PRIMARY KEY ("id")
 )
 ;
+
+CREATE TABLE IF NOT EXISTS account_nft_info
+(
+    "id"             text COLLATE "pg_catalog"."default" NOT NULL DEFAULT replace((uuid_generate_v4())::text, '-'::text, ''::text),
+    "address"        varchar COLLATE "pg_catalog"."default",
+    "basic_deadline" int8,
+    "pro_deadline"   int8,
+    CONSTRAINT "account_nft_info_pkey" PRIMARY KEY ("id")
+)
+;
+
+CREATE EXTENSION postgis;
+
+SELECT PostGIS_Version();
+
+--docker run --name postgis --restart=always -e POSTGRES_USER=postgres -e POSTGRES_PASSWORD=123456 -e POSTGRES_DBNAME=gis_db -p 5433:5433 -v /docker/postgis/data:/var/lib/postgis/data -v /docker/postgresql/data:/var/lib/postgresql/data -d postgis/postgis:12-3.2
