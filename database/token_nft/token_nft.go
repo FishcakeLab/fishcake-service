@@ -29,7 +29,7 @@ func (TokenNft) TableName() string {
 }
 
 type TokenNftView interface {
-	List(pageNum, pageSize int, contractAddress string) ([]TokenNft, int)
+	List(pageNum, pageSize int, contractAddress, address string) ([]TokenNft, int)
 	NftInfo(tokenId int) TokenNft
 }
 
@@ -55,12 +55,15 @@ func (t tokenNftDB) StoreTokenNft(token TokenNft) error {
 	return err
 }
 
-func (t tokenNftDB) List(pageNum, pageSize int, contractAddress string) ([]TokenNft, int) {
+func (t tokenNftDB) List(pageNum, pageSize int, contractAddress, address string) ([]TokenNft, int) {
 	var tokenNft []TokenNft
 	var count int64
 	this := t.db.Table(TokenNft{}.TableName())
 	if contractAddress != "" {
 		this = this.Where("contract_address = ?", contractAddress)
+	}
+	if address != "" {
+		this = this.Where("who = ?", address)
 	}
 	if pageNum > 0 && pageSize > 0 {
 		this = this.Limit(pageSize).Offset((pageNum - 1) * pageSize)

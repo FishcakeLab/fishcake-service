@@ -67,6 +67,7 @@ CREATE TABLE IF NOT EXISTS token_nft
     "cost_value"       "public"."uint256",
     "deadline"         int4,
     "nft_type"         int2,
+    "who"              varchar COLLATE "pg_catalog"."default",
     CONSTRAINT "token_nft_pkey" PRIMARY KEY ("id")
 );
 

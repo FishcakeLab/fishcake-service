@@ -23,9 +23,10 @@ func list(c *gin.Context) {
 		return
 	}
 	contractAddress := c.Query("contractAddress")
+	address := c.Query("address")
 	pageSize := bigint.StringToInt(pageSizeStr)
 	pageNum := bigint.StringToInt(pageNumStr)
-	infos, count := service.BaseService.NftService.NftInfoList(pageNum, pageSize, contractAddress)
+	infos, count := service.BaseService.NftService.NftInfoList(pageNum, pageSize, contractAddress, address)
 	page := api_result.NewPage(infos, count, pageNum, pageSize)
 	api_result.NewApiResult(c).Success(page)
 }
