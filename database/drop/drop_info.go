@@ -38,7 +38,7 @@ type dropInfoDB struct {
 
 func (d dropInfoDB) StoreDropInfo(drop DropInfo) error {
 	drpoInfo := new(DropInfo)
-	result := d.db.Table(drpoInfo.TableName()).Omit("id").Create(&drop)
+	result := d.db.Table(drpoInfo.TableName()).Omit("id, token_contract_addr").Create(&drop)
 	return result.Error
 }
 
