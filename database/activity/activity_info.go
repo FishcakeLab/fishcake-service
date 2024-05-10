@@ -101,7 +101,7 @@ func (a activityInfoDB) ActivityInfoList(businessAccount, activityStatus, busine
 		this = this.Where("activity_status = ?", activityStatus)
 	}
 	if businessName != "" {
-		this = this.Where("business_name = ?", businessName)
+		this = this.Where("business_name like ?", "%"+businessName+"%")
 	}
 	if tokenContractAddr != "" {
 		this = this.Where("token_contract_addr = ?", tokenContractAddr)
