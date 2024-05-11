@@ -24,7 +24,7 @@ func (DropInfo) TableName() string {
 }
 
 type DropInfoView interface {
-	List(pageNum, pageSize int, Address string) ([]DropInfo, int)
+	List(pageNum, pageSize int, address, dropType string) ([]DropInfo, int)
 }
 
 type DropInfoDB interface {
@@ -42,12 +42,15 @@ func (d dropInfoDB) StoreDropInfo(drop DropInfo) error {
 	return result.Error
 }
 
-func (d dropInfoDB) List(pageNum, pageSize int, address string) ([]DropInfo, int) {
+func (d dropInfoDB) List(pageNum, pageSize int, address, dropType string) ([]DropInfo, int) {
 	var tokenNft []DropInfo
 	var count int64
 	this := d.db.Table(DropInfo{}.TableName())
 	if address != "" {
 		this = this.Where("address = ?", address)
+	}
+	if dropType != "" {
+		this = this.Where("drop_info.drop_type = ?", dropType)
 	}
 	this = this.Joins("LEFT JOIN activity_info ON drop_info.activity_id = activity_info.activity_id")
 	if pageNum > 0 && pageSize > 0 {

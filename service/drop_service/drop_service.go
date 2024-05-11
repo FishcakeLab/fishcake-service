@@ -6,7 +6,7 @@ import (
 )
 
 type DropService interface {
-	DropInfoList(pageNum, pageSize int, address string) ([]drop.DropInfo, int)
+	DropInfoList(pageNum, pageSize int, address, dropType string) ([]drop.DropInfo, int)
 }
 
 type dropService struct {
@@ -17,7 +17,7 @@ func NewDropService(db *database.DB) DropService {
 	return &dropService{Db: db}
 }
 
-func (n *dropService) DropInfoList(pageNum, pageSize int, address string) ([]drop.DropInfo, int) {
-	infos, count := n.Db.DropInfoDB.List(int(uint64(pageNum)), pageSize, address)
+func (n *dropService) DropInfoList(pageNum, pageSize int, address, dropType string) ([]drop.DropInfo, int) {
+	infos, count := n.Db.DropInfoDB.List(int(uint64(pageNum)), pageSize, address, dropType)
 	return infos, count
 }

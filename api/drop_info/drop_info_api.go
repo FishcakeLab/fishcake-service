@@ -22,9 +22,10 @@ func list(c *gin.Context) {
 		return
 	}
 	address := c.Query("address")
+	dropType := c.Query("dropType")
 	pageSize := bigint.StringToInt(pageSizeStr)
 	pageNum := bigint.StringToInt(pageNumStr)
-	infos, count := service.BaseService.DropService.DropInfoList(pageNum, pageSize, address)
+	infos, count := service.BaseService.DropService.DropInfoList(pageNum, pageSize, address, dropType)
 	page := api_result.NewPage(infos, count, pageNum, pageSize)
 	api_result.NewApiResult(c).Success(page)
 }
