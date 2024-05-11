@@ -19,7 +19,7 @@ func NewNftService(db *database.DB) NftService {
 }
 
 func (n *nftService) NftInfoList(pageNum, pageSize int, contractAddress, address string) ([]token_nft.TokenNft, int) {
-	infos, count := n.Db.TokenNftDB.List(int(uint64(pageNum)), pageSize, address, contractAddress)
+	infos, count := n.Db.TokenNftDB.List(int(uint64(pageNum)), pageSize, contractAddress, address)
 	return infos, count
 }
 
