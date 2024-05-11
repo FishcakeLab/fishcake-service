@@ -30,7 +30,8 @@ func list(c *gin.Context) {
 	latitude := c.Query("latitude")
 	longitude := c.Query("longitude")
 	scope := c.Query("scope")
-	infos, count := service.BaseService.ActivityInfoService.ActivityInfoList(businessAccount, activityStatus, businessName, tokenContractAddr, latitude, longitude, scope, pageNum, pageSize)
+	activityFilter := c.Query("activityFilter")
+	infos, count := service.BaseService.ActivityInfoService.ActivityInfoList(activityFilter, businessAccount, activityStatus, businessName, tokenContractAddr, latitude, longitude, scope, pageNum, pageSize)
 	page := api_result.NewPage(infos, count, pageNum, pageSize)
 	api_result.NewApiResult(c).Success(page)
 }

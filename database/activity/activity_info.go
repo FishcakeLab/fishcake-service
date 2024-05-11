@@ -7,6 +7,7 @@ import (
 	_ "github.com/FishcakeLab/fishcake-service/database/utils/serializers"
 	"gorm.io/gorm"
 	"math/big"
+	"time"
 )
 
 type ActivityInfo struct {
@@ -34,7 +35,7 @@ func (ActivityInfo) TableName() string {
 }
 
 type ActivityInfoView interface {
-	ActivityInfoList(businessAccount, activityStatus, businessName, tokenContractAddr, latitude, longitude, scope string, pageNum, pageSize int) ([]ActivityInfo, int)
+	ActivityInfoList(activityFilter, businessAccount, activityStatus, businessName, tokenContractAddr, latitude, longitude, scope string, pageNum, pageSize int) ([]ActivityInfo, int)
 	ActivityInfo(activityId int) ActivityInfo
 }
 
@@ -90,7 +91,7 @@ func (a activityInfoDB) ActivityInfo(activityId int) ActivityInfo {
 	}
 }
 
-func (a activityInfoDB) ActivityInfoList(businessAccount, activityStatus, businessName, tokenContractAddr, latitude, longitude, scope string, pageNum, pageSize int) ([]ActivityInfo, int) {
+func (a activityInfoDB) ActivityInfoList(activityFilter, businessAccount, activityStatus, businessName, tokenContractAddr, latitude, longitude, scope string, pageNum, pageSize int) ([]ActivityInfo, int) {
 	var activityInfo []ActivityInfo
 	var count int64
 	this := a.db.Table(ActivityInfo{}.TableName())
@@ -110,6 +111,12 @@ func (a activityInfoDB) ActivityInfoList(businessAccount, activityStatus, busine
 		this = this.Where("ST_DWithin(ST_SetSRID(ST_MakePoint("+
 			"CAST(SPLIT_PART(latitude_longitude, ',', 1) AS numeric), "+
 			"CAST(SPLIT_PART(latitude_longitude, ',', 2) AS numeric)), 4326),ST_SetSRID(ST_MakePoint(?, ?), 4326),?)", latitude, longitude, scope)
+	}
+	if activityFilter == "1" {
+		this = this.Where("account_nft_info.pro_deadline >= ?", time.Now().Unix())
+	}
+	if activityFilter == "2" {
+		this = this.Where("account_nft_info.basic_deadline >= ?", time.Now().Unix())
 	}
 	this = this.Joins("LEFT JOIN account_nft_info ON activity_info.business_account = account_nft_info.address")
 	if pageNum > 0 && pageSize > 0 {
