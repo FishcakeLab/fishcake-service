@@ -17,6 +17,7 @@ type DropInfo struct {
 	DropType          int8     `gorm:"drop_type" json:"dropType"`
 	Timestamp         uint64   `json:"timestamp" gorm:"timestamp"`
 	TokenContractAddr string   `gorm:"token_contract_addr" json:"tokenContractAddr"`
+	BusinessName      string   `gorm:"business_name" json:"businessName"`
 }
 
 func (DropInfo) TableName() string {
@@ -38,7 +39,7 @@ type dropInfoDB struct {
 
 func (d dropInfoDB) StoreDropInfo(drop DropInfo) error {
 	drpoInfo := new(DropInfo)
-	result := d.db.Table(drpoInfo.TableName()).Omit("id, token_contract_addr").Create(&drop)
+	result := d.db.Table(drpoInfo.TableName()).Omit("id, token_contract_addr, business_name").Create(&drop)
 	return result.Error
 }
 
@@ -57,7 +58,7 @@ func (d dropInfoDB) List(pageNum, pageSize int, address, dropType string) ([]Dro
 		this = this.Limit(pageSize).Offset((pageNum - 1) * pageSize)
 	}
 	this = this.Count(&count)
-	result := this.Select("drop_info.*, activity_info.token_contract_addr").Scan(&tokenNft)
+	result := this.Select("drop_info.*, activity_info.token_contract_addr, activity_info.business_name").Scan(&tokenNft)
 	if result.Error == nil {
 		return tokenNft, int(count)
 	} else if !errors.Is(result.Error, gorm.ErrRecordNotFound) {
