@@ -31,6 +31,7 @@ func (TokenNft) TableName() string {
 type TokenNftView interface {
 	List(pageNum, pageSize int, contractAddress, address string) ([]TokenNft, int)
 	NftInfo(tokenId int) TokenNft
+	NftDetail(businessAccount, deadline string) TokenNft
 }
 
 type TokenNftDB interface {
@@ -84,6 +85,20 @@ func (t tokenNftDB) NftInfo(tokenId int) TokenNft {
 	var tokenNft TokenNft
 	this := t.db.Table(TokenNft{}.TableName())
 	result := this.Where("token_id = ?", tokenId).Take(&tokenNft)
+	if result.Error == nil {
+		return tokenNft
+	} else if !errors.Is(result.Error, gorm.ErrRecordNotFound) {
+		errors_h.NewErrorByEnum(enum.DataErr)
+		return TokenNft{}
+	} else {
+		return TokenNft{}
+	}
+}
+
+func (t tokenNftDB) NftDetail(businessAccount, deadline string) TokenNft {
+	var tokenNft TokenNft
+	this := t.db.Table(TokenNft{}.TableName())
+	result := this.Where("who = ? and deadline = ?", businessAccount, deadline).Take(&tokenNft)
 	if result.Error == nil {
 		return tokenNft
 	} else if !errors.Is(result.Error, gorm.ErrRecordNotFound) {

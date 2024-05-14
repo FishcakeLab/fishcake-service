@@ -13,6 +13,7 @@ func NftInfoApi(rg *gin.Engine) {
 	r := rg.Group("/v1/nft")
 	r.GET("list", list)
 	r.GET("info", info)
+	r.GET("detail", detail)
 }
 
 func list(c *gin.Context) {
@@ -35,5 +36,12 @@ func info(c *gin.Context) {
 	tokenIdStr := c.Query("tokenId")
 	tokenId := bigint.StringToInt(tokenIdStr)
 	info := service.BaseService.NftService.NftInfo(tokenId)
+	api_result.NewApiResult(c).Success(info)
+}
+
+func detail(c *gin.Context) {
+	businessAccount := c.Query("businessAccount")
+	deadline := c.Query("deadline")
+	info := service.BaseService.NftService.NftDetail(businessAccount, deadline)
 	api_result.NewApiResult(c).Success(info)
 }

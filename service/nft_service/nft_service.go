@@ -8,6 +8,7 @@ import (
 type NftService interface {
 	NftInfoList(pageNum, pageSize int, contractAddress, address string) ([]token_nft.TokenNft, int)
 	NftInfo(tokenId int) token_nft.TokenNft
+	NftDetail(businessAccount, deadline string) token_nft.TokenNft
 }
 
 type nftService struct {
@@ -25,5 +26,10 @@ func (n *nftService) NftInfoList(pageNum, pageSize int, contractAddress, address
 
 func (n *nftService) NftInfo(tokenId int) token_nft.TokenNft {
 	infos := n.Db.TokenNftDB.NftInfo(tokenId)
+	return infos
+}
+
+func (n *nftService) NftDetail(businessAccount, deadline string) token_nft.TokenNft {
+	infos := n.Db.TokenNftDB.NftDetail(businessAccount, deadline)
 	return infos
 }
