@@ -96,16 +96,21 @@ func (a activityInfoDB) ActivityInfoList(activityFilter, businessAccount, activi
 	var count int64
 	this := a.db.Table(ActivityInfo{}.TableName())
 	if businessAccount != "" {
-		this = this.Where("business_account = ?", businessAccount)
+		this = this.Where("business_account ILIKE ?", businessAccount)
 	}
 	if activityStatus != "" {
 		this = this.Where("activity_status = ?", activityStatus)
+		if activityStatus == "2" {
+			this = this.Where("activity_deadline < ?", time.Now().Unix())
+		} else {
+			this = this.Where("activity_deadline > ?", time.Now().Unix())
+		}
 	}
 	if businessName != "" {
 		this = this.Where("business_name like ?", "%"+businessName+"%")
 	}
 	if tokenContractAddr != "" {
-		this = this.Where("token_contract_addr = ?", tokenContractAddr)
+		this = this.Where("token_contract_addr ILIKE ?", tokenContractAddr)
 	}
 	if latitude != "" && longitude != "" {
 		this = this.Where("ST_DWithin(ST_SetSRID(ST_MakePoint("+

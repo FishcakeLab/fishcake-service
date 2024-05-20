@@ -48,7 +48,7 @@ func (d dropInfoDB) List(pageNum, pageSize int, address, dropType string) ([]Dro
 	var count int64
 	this := d.db.Table(DropInfo{}.TableName())
 	if address != "" {
-		this = this.Where("address = ?", address)
+		this = this.Where("address ILIKE ?", address)
 	}
 	if dropType != "" {
 		this = this.Where("drop_info.drop_type = ?", dropType)

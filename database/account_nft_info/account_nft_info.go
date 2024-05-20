@@ -31,7 +31,7 @@ type accountNftInfoDB struct {
 func (a accountNftInfoDB) StoreAccountNftInfo(accountNftInfo AccountNftInfo) error {
 	nftInfo := new(AccountNftInfo)
 	var exist AccountNftInfo
-	err := a.db.Table(nftInfo.TableName()).Where("address = ?", accountNftInfo.Address).Take(&exist).Error
+	err := a.db.Table(nftInfo.TableName()).Where("address ILIKE ?", accountNftInfo.Address).Take(&exist).Error
 	if err != nil {
 		if errors.Is(err, gorm.ErrRecordNotFound) {
 			result := a.db.Table(nftInfo.TableName()).Omit("id").Create(&accountNftInfo)

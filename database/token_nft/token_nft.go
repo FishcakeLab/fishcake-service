@@ -61,10 +61,10 @@ func (t tokenNftDB) List(pageNum, pageSize int, contractAddress, address string)
 	var count int64
 	this := t.db.Table(TokenNft{}.TableName())
 	if contractAddress != "" {
-		this = this.Where("contract_address = ?", contractAddress)
+		this = this.Where("contract_address ILIKE ?", contractAddress)
 	}
 	if address != "" {
-		this = this.Where("who = ?", address)
+		this = this.Where("who ILIKE ?", address)
 	}
 	if pageNum > 0 && pageSize > 0 {
 		this = this.Limit(pageSize).Offset((pageNum - 1) * pageSize)
@@ -98,7 +98,7 @@ func (t tokenNftDB) NftInfo(tokenId int) TokenNft {
 func (t tokenNftDB) NftDetail(businessAccount, deadline string) TokenNft {
 	var tokenNft TokenNft
 	this := t.db.Table(TokenNft{}.TableName())
-	result := this.Where("who = ? and deadline = ?", businessAccount, deadline).Take(&tokenNft)
+	result := this.Where("who ILIKE ? and deadline = ?", businessAccount, deadline).Take(&tokenNft)
 	if result.Error == nil {
 		return tokenNft
 	} else if !errors.Is(result.Error, gorm.ErrRecordNotFound) {
