@@ -53,7 +53,7 @@ func ActivityFinish(event event.ContractEvent, db *database.DB) error {
 
 func MintNft(event event.ContractEvent, db *database.DB) error {
 	rlpLog := event.RLPLog
-	uEvent, unpackErr := NftTokenUnpack.ParseMintNewEvent(*rlpLog)
+	uEvent, unpackErr := NftTokenUnpack.ParseCreateNFT(*rlpLog)
 	if unpackErr != nil {
 		return unpackErr
 	}
