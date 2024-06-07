@@ -100,11 +100,13 @@ func Drop(event event.ContractEvent, db *database.DB) error {
 		return unpackErr
 	}
 	drop := drop.DropInfo{
-		Address:    uEvent.Who.String(),
-		DropAmount: uEvent.DropAmt,
-		ActivityId: uEvent.ActivityId.Int64(),
-		DropType:   1,
-		Timestamp:  event.Timestamp,
+		Address:         uEvent.Who.String(),
+		DropAmount:      uEvent.DropAmt,
+		ActivityId:      uEvent.ActivityId.Int64(),
+		DropType:        1,
+		Timestamp:       event.Timestamp,
+		TransactionHash: event.TransactionHash,
+		EventSignature:  event.EventSignature,
 	}
 
 	if err := db.Transaction(func(tx *database.DB) error {

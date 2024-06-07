@@ -5,19 +5,22 @@ import (
 	"github.com/FishcakeLab/fishcake-service/common/enum"
 	"github.com/FishcakeLab/fishcake-service/common/errors_h"
 	_ "github.com/FishcakeLab/fishcake-service/database/utils/serializers"
+	"github.com/ethereum/go-ethereum/common"
 	"gorm.io/gorm"
 	"math/big"
 )
 
 type DropInfo struct {
-	Id                string   `json:"id" gorm:"id"`
-	ActivityId        int64    `gorm:"activity_id" json:"activityId"`
-	Address           string   `json:"address" gorm:"address"`
-	DropAmount        *big.Int `json:"dropAmount" gorm:"serializer:u256;column:drop_amount"`
-	DropType          int8     `gorm:"drop_type" json:"dropType"`
-	Timestamp         uint64   `json:"timestamp" gorm:"timestamp"`
-	TokenContractAddr string   `gorm:"token_contract_addr" json:"tokenContractAddr"`
-	BusinessName      string   `gorm:"business_name" json:"businessName"`
+	Id                string      `json:"id" gorm:"id"`
+	ActivityId        int64       `gorm:"activity_id" json:"activityId"`
+	Address           string      `json:"address" gorm:"address"`
+	DropAmount        *big.Int    `json:"dropAmount" gorm:"serializer:u256;column:drop_amount"`
+	DropType          int8        `gorm:"drop_type" json:"dropType"`
+	Timestamp         uint64      `json:"timestamp" gorm:"timestamp"`
+	TokenContractAddr string      `gorm:"token_contract_addr" json:"tokenContractAddr"`
+	BusinessName      string      `gorm:"business_name" json:"businessName"`
+	TransactionHash   common.Hash `gorm:"serializer:bytes"`
+	EventSignature    common.Hash `gorm:"serializer:bytes"`
 }
 
 func (DropInfo) TableName() string {
@@ -39,8 +42,15 @@ type dropInfoDB struct {
 
 func (d dropInfoDB) StoreDropInfo(drop DropInfo) error {
 	drpoInfo := new(DropInfo)
-	result := d.db.Table(drpoInfo.TableName()).Omit("id, token_contract_addr, business_name").Create(&drop)
-	return result.Error
+	var exist DropInfo
+	err := d.db.Table(drpoInfo.TableName()).Where("transaction_hash = ? and event_signature = ?", drop.TransactionHash, drop.EventSignature).Take(&exist).Error
+	if err != nil {
+		if errors.Is(err, gorm.ErrRecordNotFound) {
+			result := d.db.Table(drpoInfo.TableName()).Omit("id, token_contract_addr, business_name").Create(&drop)
+			return result.Error
+		}
+	}
+	return err
 }
 
 func (d dropInfoDB) List(pageNum, pageSize int, address, dropType string) ([]DropInfo, int) {
