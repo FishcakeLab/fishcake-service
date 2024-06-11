@@ -21,6 +21,8 @@ type DropInfo struct {
 	BusinessName      string      `gorm:"business_name" json:"businessName"`
 	TransactionHash   common.Hash `gorm:"serializer:bytes"`
 	EventSignature    common.Hash `gorm:"serializer:bytes"`
+	ReturnAmount      *big.Int    `gorm:"serializer:u256;column:return_amount" json:"returnAmount"`
+	MinedAmount       *big.Int    `gorm:"serializer:u256;column:mined_amount" json:"minedAmount"`
 }
 
 func (DropInfo) TableName() string {
@@ -46,7 +48,7 @@ func (d dropInfoDB) StoreDropInfo(drop DropInfo) error {
 	err := d.db.Table(drpoInfo.TableName()).Where("transaction_hash = ? and event_signature = ?", drop.TransactionHash, drop.EventSignature).Take(&exist).Error
 	if err != nil {
 		if errors.Is(err, gorm.ErrRecordNotFound) {
-			result := d.db.Table(drpoInfo.TableName()).Omit("id, token_contract_addr, business_name").Create(&drop)
+			result := d.db.Table(drpoInfo.TableName()).Omit("id, token_contract_addr, business_name, return_amount, mined_amount").Create(&drop)
 			return result.Error
 		}
 	}
@@ -68,7 +70,7 @@ func (d dropInfoDB) List(pageNum, pageSize int, address, dropType string) ([]Dro
 		this = this.Limit(pageSize).Offset((pageNum - 1) * pageSize)
 	}
 	this = this.Count(&count)
-	result := this.Select("drop_info.*, activity_info.token_contract_addr, activity_info.business_name").Scan(&tokenNft)
+	result := this.Select("drop_info.*, activity_info.token_contract_addr, activity_info.business_name, activity_info.return_amount, activity_info.mined_amount").Scan(&tokenNft)
 	if result.Error == nil {
 		return tokenNft, int(count)
 	} else if !errors.Is(result.Error, gorm.ErrRecordNotFound) {
