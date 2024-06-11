@@ -19,8 +19,8 @@ type DropInfo struct {
 	Timestamp         uint64      `json:"timestamp" gorm:"timestamp"`
 	TokenContractAddr string      `gorm:"token_contract_addr" json:"tokenContractAddr"`
 	BusinessName      string      `gorm:"business_name" json:"businessName"`
-	TransactionHash   common.Hash `gorm:"serializer:bytes"`
-	EventSignature    common.Hash `gorm:"serializer:bytes"`
+	TransactionHash   common.Hash `gorm:"serializer:bytes" json:"transactionHash"`
+	EventSignature    common.Hash `gorm:"serializer:bytes" json:"eventSignature"`
 	ReturnAmount      *big.Int    `gorm:"serializer:u256;column:return_amount" json:"returnAmount"`
 	MinedAmount       *big.Int    `gorm:"serializer:u256;column:mined_amount" json:"minedAmount"`
 }
