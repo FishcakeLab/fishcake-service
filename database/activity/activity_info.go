@@ -28,6 +28,8 @@ type ActivityInfo struct {
 	AlreadyDropNumber  int64    `gorm:"already_drop_number" json:"alreadyDropNumber"`
 	BasicDeadline      uint64   `gorm:"basic_deadline" json:"basicDeadline" `
 	ProDeadline        uint64   `gorm:"pro_deadline" json:"proDeadline"`
+	ReturnAmount       *big.Int `gorm:"serializer:u256;column:return_amount" json:"returnAmount"`
+	MinedAmount        *big.Int `gorm:"serializer:u256;column:mined_amount" json:"minedAmount"`
 }
 
 func (ActivityInfo) TableName() string {
@@ -42,7 +44,7 @@ type ActivityInfoView interface {
 type ActivityInfoDB interface {
 	ActivityInfoView
 	StoreActivityInfo(activityInfo ActivityInfo) error
-	ActivityFinish(activityId string) error
+	ActivityFinish(activityId string, ReturnAmount, MinedAmount *big.Int) error
 	UpdateActivityInfo(activityId string) error
 }
 
@@ -56,9 +58,9 @@ func (a activityInfoDB) UpdateActivityInfo(activityId string) error {
 	return err
 }
 
-func (a activityInfoDB) ActivityFinish(activityId string) error {
-	finishSql := `update activity_info set activity_status = 2 where activity_id = ?`
-	err := a.db.Exec(finishSql, activityId).Error
+func (a activityInfoDB) ActivityFinish(activityId string, ReturnAmount, MinedAmount *big.Int) error {
+	finishSql := `update activity_info set activity_status = 2, return_amount = ?, mined_amount = ? where activity_id = ?`
+	err := a.db.Exec(finishSql, activityId, ReturnAmount, MinedAmount).Error
 	return err
 }
 
@@ -68,7 +70,7 @@ func (a activityInfoDB) StoreActivityInfo(activityInfo ActivityInfo) error {
 	err := a.db.Table(activityInfoRecord.TableName()).Where("activity_id = ?", activityInfo.ActivityId).Take(&exist).Error
 	if err != nil {
 		if errors.Is(err, gorm.ErrRecordNotFound) {
-			result := a.db.Table(activityInfoRecord.TableName()).Omit("id, BasicDeadline, ProDeadline").Create(&activityInfo)
+			result := a.db.Table(activityInfoRecord.TableName()).Omit("id, basic_deadline, pro_deadline").Create(&activityInfo)
 			return result.Error
 		}
 	}

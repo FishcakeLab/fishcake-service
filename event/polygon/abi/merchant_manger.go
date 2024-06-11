@@ -31,7 +31,7 @@ var (
 
 // MerchantMangerMetaData contains all meta data concerning the MerchantManger contract.
 var MerchantMangerMetaData = &bind.MetaData{
-	ABI: "[{\"type\":\"receive\",\"stateMutability\":\"payable\"},{\"type\":\"function\",\"name\":\"FccTokenAddr\",\"inputs\":[],\"outputs\":[{\"name\":\"\",\"type\":\"address\",\"internalType\":\"contractIERC20\"}],\"stateMutability\":\"view\"},{\"type\":\"function\",\"name\":\"activityAdd\",\"inputs\":[{\"name\":\"_businessName\",\"type\":\"string\",\"internalType\":\"string\"},{\"name\":\"_activityContent\",\"type\":\"string\",\"internalType\":\"string\"},{\"name\":\"_latitudeLongitude\",\"type\":\"string\",\"internalType\":\"string\"},{\"name\":\"_activityDeadLine\",\"type\":\"uint256\",\"internalType\":\"uint256\"},{\"name\":\"_totalDropAmts\",\"type\":\"uint256\",\"internalType\":\"uint256\"},{\"name\":\"_dropType\",\"type\":\"uint8\",\"internalType\":\"uint8\"},{\"name\":\"_dropNumber\",\"type\":\"uint256\",\"internalType\":\"uint256\"},{\"name\":\"_minDropAmt\",\"type\":\"uint256\",\"internalType\":\"uint256\"},{\"name\":\"_maxDropAmt\",\"type\":\"uint256\",\"internalType\":\"uint256\"},{\"name\":\"_tokenContractAddr\",\"type\":\"address\",\"internalType\":\"address\"}],\"outputs\":[{\"name\":\"_ret\",\"type\":\"bool\",\"internalType\":\"bool\"},{\"name\":\"_activityId\",\"type\":\"uint256\",\"internalType\":\"uint256\"}],\"stateMutability\":\"nonpayable\"},{\"type\":\"function\",\"name\":\"activityDropedToAccount\",\"inputs\":[{\"name\":\"\",\"type\":\"uint256\",\"internalType\":\"uint256\"},{\"name\":\"\",\"type\":\"address\",\"internalType\":\"address\"}],\"outputs\":[{\"name\":\"\",\"type\":\"bool\",\"internalType\":\"bool\"}],\"stateMutability\":\"view\"},{\"type\":\"function\",\"name\":\"activityFinish\",\"inputs\":[{\"name\":\"_activityId\",\"type\":\"uint256\",\"internalType\":\"uint256\"}],\"outputs\":[{\"name\":\"_ret\",\"type\":\"bool\",\"internalType\":\"bool\"}],\"stateMutability\":\"nonpayable\"},{\"type\":\"function\",\"name\":\"activityInfoArrs\",\"inputs\":[{\"name\":\"\",\"type\":\"uint256\",\"internalType\":\"uint256\"}],\"outputs\":[{\"name\":\"activityId\",\"type\":\"uint256\",\"internalType\":\"uint256\"},{\"name\":\"businessAccount\",\"type\":\"address\",\"internalType\":\"address\"},{\"name\":\"businessName\",\"type\":\"string\",\"internalType\":\"string\"},{\"name\":\"activityContent\",\"type\":\"string\",\"internalType\":\"string\"},{\"name\":\"latitudeLongitude\",\"type\":\"string\",\"internalType\":\"string\"},{\"name\":\"activityCreateTime\",\"type\":\"uint256\",\"internalType\":\"uint256\"},{\"name\":\"activityDeadLine\",\"type\":\"uint256\",\"internalType\":\"uint256\"},{\"name\":\"dropType\",\"type\":\"uint8\",\"internalType\":\"uint8\"},{\"name\":\"dropNumber\",\"type\":\"uint256\",\"internalType\":\"uint256\"},{\"name\":\"minDropAmt\",\"type\":\"uint256\",\"internalType\":\"uint256\"},{\"name\":\"maxDropAmt\",\"type\":\"uint256\",\"internalType\":\"uint256\"},{\"name\":\"tokenContractAddr\",\"type\":\"address\",\"internalType\":\"address\"}],\"stateMutability\":\"view\"},{\"type\":\"function\",\"name\":\"activityInfoChangedIdx\",\"inputs\":[{\"name\":\"\",\"type\":\"uint256\",\"internalType\":\"uint256\"}],\"outputs\":[{\"name\":\"\",\"type\":\"uint256\",\"internalType\":\"uint256\"}],\"stateMutability\":\"view\"},{\"type\":\"function\",\"name\":\"activityInfoExtArrs\",\"inputs\":[{\"name\":\"\",\"type\":\"uint256\",\"internalType\":\"uint256\"}],\"outputs\":[{\"name\":\"activityId\",\"type\":\"uint256\",\"internalType\":\"uint256\"},{\"name\":\"alreadyDropAmts\",\"type\":\"uint256\",\"internalType\":\"uint256\"},{\"name\":\"alreadyDropNumber\",\"type\":\"uint256\",\"internalType\":\"uint256\"},{\"name\":\"businessMinedAmt\",\"type\":\"uint256\",\"internalType\":\"uint256\"},{\"name\":\"businessMinedWithdrawedAmt\",\"type\":\"uint256\",\"internalType\":\"uint256\"},{\"name\":\"activityStatus\",\"type\":\"uint8\",\"internalType\":\"uint8\"}],\"stateMutability\":\"view\"},{\"type\":\"function\",\"name\":\"addMineAmt\",\"inputs\":[{\"name\":\"_addMineAmt\",\"type\":\"uint256\",\"internalType\":\"uint256\"}],\"outputs\":[{\"name\":\"_ret\",\"type\":\"bool\",\"internalType\":\"bool\"}],\"stateMutability\":\"nonpayable\"},{\"type\":\"function\",\"name\":\"drop\",\"inputs\":[{\"name\":\"_activityId\",\"type\":\"uint256\",\"internalType\":\"uint256\"},{\"name\":\"_userAccount\",\"type\":\"address\",\"internalType\":\"address\"},{\"name\":\"_dropAmt\",\"type\":\"uint256\",\"internalType\":\"uint256\"}],\"outputs\":[{\"name\":\"_ret\",\"type\":\"bool\",\"internalType\":\"bool\"}],\"stateMutability\":\"nonpayable\"},{\"type\":\"function\",\"name\":\"dropInfoArrs\",\"inputs\":[{\"name\":\"\",\"type\":\"uint256\",\"internalType\":\"uint256\"}],\"outputs\":[{\"name\":\"activityId\",\"type\":\"uint256\",\"internalType\":\"uint256\"},{\"name\":\"userAccount\",\"type\":\"address\",\"internalType\":\"address\"},{\"name\":\"dropTime\",\"type\":\"uint256\",\"internalType\":\"uint256\"},{\"name\":\"dropAmt\",\"type\":\"uint256\",\"internalType\":\"uint256\"}],\"stateMutability\":\"view\"},{\"type\":\"function\",\"name\":\"iNFTManager\",\"inputs\":[],\"outputs\":[{\"name\":\"\",\"type\":\"address\",\"internalType\":\"contractINFTManager\"}],\"stateMutability\":\"view\"},{\"type\":\"function\",\"name\":\"initialize\",\"inputs\":[{\"name\":\"initialOwner\",\"type\":\"address\",\"internalType\":\"address\"},{\"name\":\"_fcc\",\"type\":\"address\",\"internalType\":\"address\"},{\"name\":\"_NFTManagerAddr\",\"type\":\"address\",\"internalType\":\"address\"}],\"outputs\":[],\"stateMutability\":\"nonpayable\"},{\"type\":\"function\",\"name\":\"minePercent\",\"inputs\":[],\"outputs\":[{\"name\":\"\",\"type\":\"uint8\",\"internalType\":\"uint8\"}],\"stateMutability\":\"view\"},{\"type\":\"function\",\"name\":\"minedAmt\",\"inputs\":[],\"outputs\":[{\"name\":\"\",\"type\":\"uint256\",\"internalType\":\"uint256\"}],\"stateMutability\":\"view\"},{\"type\":\"function\",\"name\":\"owner\",\"inputs\":[],\"outputs\":[{\"name\":\"\",\"type\":\"address\",\"internalType\":\"address\"}],\"stateMutability\":\"view\"},{\"type\":\"function\",\"name\":\"renounceOwnership\",\"inputs\":[],\"outputs\":[],\"stateMutability\":\"nonpayable\"},{\"type\":\"function\",\"name\":\"setMinePercent\",\"inputs\":[{\"name\":\"_minePercent\",\"type\":\"uint8\",\"internalType\":\"uint8\"}],\"outputs\":[{\"name\":\"_ret\",\"type\":\"bool\",\"internalType\":\"bool\"}],\"stateMutability\":\"nonpayable\"},{\"type\":\"function\",\"name\":\"totalMineAmt\",\"inputs\":[],\"outputs\":[{\"name\":\"\",\"type\":\"uint256\",\"internalType\":\"uint256\"}],\"stateMutability\":\"view\"},{\"type\":\"function\",\"name\":\"transferOwnership\",\"inputs\":[{\"name\":\"newOwner\",\"type\":\"address\",\"internalType\":\"address\"}],\"outputs\":[],\"stateMutability\":\"nonpayable\"},{\"type\":\"function\",\"name\":\"withdraw\",\"inputs\":[{\"name\":\"_recipient\",\"type\":\"address\",\"internalType\":\"addresspayable\"},{\"name\":\"_amount\",\"type\":\"uint256\",\"internalType\":\"uint256\"}],\"outputs\":[{\"name\":\"_ret\",\"type\":\"bool\",\"internalType\":\"bool\"}],\"stateMutability\":\"nonpayable\"},{\"type\":\"function\",\"name\":\"withdrawUToken\",\"inputs\":[{\"name\":\"_tokenAddr\",\"type\":\"address\",\"internalType\":\"address\"},{\"name\":\"_account\",\"type\":\"address\",\"internalType\":\"address\"},{\"name\":\"_value\",\"type\":\"uint256\",\"internalType\":\"uint256\"}],\"outputs\":[{\"name\":\"_ret\",\"type\":\"bool\",\"internalType\":\"bool\"}],\"stateMutability\":\"nonpayable\"},{\"type\":\"event\",\"name\":\"ActivityAdd\",\"inputs\":[{\"name\":\"who\",\"type\":\"address\",\"indexed\":true,\"internalType\":\"address\"},{\"name\":\"_activityId\",\"type\":\"uint256\",\"indexed\":true,\"internalType\":\"uint256\"},{\"name\":\"_totalDropAmts\",\"type\":\"uint256\",\"indexed\":false,\"internalType\":\"uint256\"},{\"name\":\"_businessName\",\"type\":\"string\",\"indexed\":false,\"internalType\":\"string\"},{\"name\":\"_activityContent\",\"type\":\"string\",\"indexed\":false,\"internalType\":\"string\"},{\"name\":\"_latitudeLongitude\",\"type\":\"string\",\"indexed\":false,\"internalType\":\"string\"},{\"name\":\"_activityDeadLine\",\"type\":\"uint256\",\"indexed\":false,\"internalType\":\"uint256\"},{\"name\":\"_dropType\",\"type\":\"uint8\",\"indexed\":false,\"internalType\":\"uint8\"},{\"name\":\"_dropNumber\",\"type\":\"uint256\",\"indexed\":false,\"internalType\":\"uint256\"},{\"name\":\"_minDropAmt\",\"type\":\"uint256\",\"indexed\":false,\"internalType\":\"uint256\"},{\"name\":\"_maxDropAmt\",\"type\":\"uint256\",\"indexed\":false,\"internalType\":\"uint256\"},{\"name\":\"_tokenContractAddr\",\"type\":\"address\",\"indexed\":false,\"internalType\":\"address\"}],\"anonymous\":false},{\"type\":\"event\",\"name\":\"ActivityFinish\",\"inputs\":[{\"name\":\"_activityId\",\"type\":\"uint256\",\"indexed\":true,\"internalType\":\"uint256\"}],\"anonymous\":false},{\"type\":\"event\",\"name\":\"AddMineAmt\",\"inputs\":[{\"name\":\"who\",\"type\":\"address\",\"indexed\":true,\"internalType\":\"address\"},{\"name\":\"_addMineAmt\",\"type\":\"uint256\",\"indexed\":false,\"internalType\":\"uint256\"}],\"anonymous\":false},{\"type\":\"event\",\"name\":\"Drop\",\"inputs\":[{\"name\":\"who\",\"type\":\"address\",\"indexed\":true,\"internalType\":\"address\"},{\"name\":\"_activityId\",\"type\":\"uint256\",\"indexed\":true,\"internalType\":\"uint256\"},{\"name\":\"_dropAmt\",\"type\":\"uint256\",\"indexed\":false,\"internalType\":\"uint256\"}],\"anonymous\":false},{\"type\":\"event\",\"name\":\"Initialized\",\"inputs\":[{\"name\":\"version\",\"type\":\"uint64\",\"indexed\":false,\"internalType\":\"uint64\"}],\"anonymous\":false},{\"type\":\"event\",\"name\":\"OwnershipTransferred\",\"inputs\":[{\"name\":\"previousOwner\",\"type\":\"address\",\"indexed\":true,\"internalType\":\"address\"},{\"name\":\"newOwner\",\"type\":\"address\",\"indexed\":true,\"internalType\":\"address\"}],\"anonymous\":false},{\"type\":\"event\",\"name\":\"Received\",\"inputs\":[{\"name\":\"who\",\"type\":\"address\",\"indexed\":true,\"internalType\":\"address\"},{\"name\":\"_value\",\"type\":\"uint256\",\"indexed\":false,\"internalType\":\"uint256\"}],\"anonymous\":false},{\"type\":\"event\",\"name\":\"SetMinePercent\",\"inputs\":[{\"name\":\"minePercent\",\"type\":\"uint8\",\"indexed\":false,\"internalType\":\"uint8\"}],\"anonymous\":false},{\"type\":\"event\",\"name\":\"SetValidTime\",\"inputs\":[{\"name\":\"who\",\"type\":\"address\",\"indexed\":true,\"internalType\":\"address\"},{\"name\":\"_time\",\"type\":\"uint256\",\"indexed\":false,\"internalType\":\"uint256\"}],\"anonymous\":false},{\"type\":\"event\",\"name\":\"WithdrawUToken\",\"inputs\":[{\"name\":\"who\",\"type\":\"address\",\"indexed\":true,\"internalType\":\"address\"},{\"name\":\"_tokenAddr\",\"type\":\"address\",\"indexed\":true,\"internalType\":\"address\"},{\"name\":\"_account\",\"type\":\"address\",\"indexed\":true,\"internalType\":\"address\"},{\"name\":\"_value\",\"type\":\"uint256\",\"indexed\":false,\"internalType\":\"uint256\"}],\"anonymous\":false},{\"type\":\"event\",\"name\":\"Wthdraw\",\"inputs\":[{\"name\":\"who\",\"type\":\"address\",\"indexed\":true,\"internalType\":\"address\"},{\"name\":\"_amount\",\"type\":\"uint256\",\"indexed\":false,\"internalType\":\"uint256\"}],\"anonymous\":false},{\"type\":\"error\",\"name\":\"AddressEmptyCode\",\"inputs\":[{\"name\":\"target\",\"type\":\"address\",\"internalType\":\"address\"}]},{\"type\":\"error\",\"name\":\"FailedCall\",\"inputs\":[]},{\"type\":\"error\",\"name\":\"InsufficientBalance\",\"inputs\":[{\"name\":\"balance\",\"type\":\"uint256\",\"internalType\":\"uint256\"},{\"name\":\"needed\",\"type\":\"uint256\",\"internalType\":\"uint256\"}]},{\"type\":\"error\",\"name\":\"InvalidInitialization\",\"inputs\":[]},{\"type\":\"error\",\"name\":\"NotInitializing\",\"inputs\":[]},{\"type\":\"error\",\"name\":\"OwnableInvalidOwner\",\"inputs\":[{\"name\":\"owner\",\"type\":\"address\",\"internalType\":\"address\"}]},{\"type\":\"error\",\"name\":\"OwnableUnauthorizedAccount\",\"inputs\":[{\"name\":\"account\",\"type\":\"address\",\"internalType\":\"address\"}]},{\"type\":\"error\",\"name\":\"ReentrancyGuardReentrantCall\",\"inputs\":[]},{\"type\":\"error\",\"name\":\"SafeERC20FailedOperation\",\"inputs\":[{\"name\":\"token\",\"type\":\"address\",\"internalType\":\"address\"}]}]",
+	ABI: "[{\"type\":\"constructor\",\"inputs\":[{\"name\":\"initialOwner\",\"type\":\"address\",\"internalType\":\"address\"},{\"name\":\"_fccAddress\",\"type\":\"address\",\"internalType\":\"address\"},{\"name\":\"_usdtTokenAddr\",\"type\":\"address\",\"internalType\":\"address\"},{\"name\":\"_NFTManagerAddr\",\"type\":\"address\",\"internalType\":\"address\"}],\"stateMutability\":\"nonpayable\"},{\"type\":\"receive\",\"stateMutability\":\"payable\"},{\"type\":\"function\",\"name\":\"FccTokenAddr\",\"inputs\":[],\"outputs\":[{\"name\":\"\",\"type\":\"address\",\"internalType\":\"contractIERC20\"}],\"stateMutability\":\"view\"},{\"type\":\"function\",\"name\":\"UsdtTokenAddr\",\"inputs\":[],\"outputs\":[{\"name\":\"\",\"type\":\"address\",\"internalType\":\"contractIERC20\"}],\"stateMutability\":\"view\"},{\"type\":\"function\",\"name\":\"activityAdd\",\"inputs\":[{\"name\":\"_businessName\",\"type\":\"string\",\"internalType\":\"string\"},{\"name\":\"_activityContent\",\"type\":\"string\",\"internalType\":\"string\"},{\"name\":\"_latitudeLongitude\",\"type\":\"string\",\"internalType\":\"string\"},{\"name\":\"_activityDeadLine\",\"type\":\"uint256\",\"internalType\":\"uint256\"},{\"name\":\"_totalDropAmts\",\"type\":\"uint256\",\"internalType\":\"uint256\"},{\"name\":\"_dropType\",\"type\":\"uint8\",\"internalType\":\"uint8\"},{\"name\":\"_dropNumber\",\"type\":\"uint256\",\"internalType\":\"uint256\"},{\"name\":\"_minDropAmt\",\"type\":\"uint256\",\"internalType\":\"uint256\"},{\"name\":\"_maxDropAmt\",\"type\":\"uint256\",\"internalType\":\"uint256\"},{\"name\":\"_tokenContractAddr\",\"type\":\"address\",\"internalType\":\"address\"}],\"outputs\":[{\"name\":\"_ret\",\"type\":\"bool\",\"internalType\":\"bool\"},{\"name\":\"_activityId\",\"type\":\"uint256\",\"internalType\":\"uint256\"}],\"stateMutability\":\"nonpayable\"},{\"type\":\"function\",\"name\":\"activityDropedToAccount\",\"inputs\":[{\"name\":\"\",\"type\":\"uint256\",\"internalType\":\"uint256\"},{\"name\":\"\",\"type\":\"address\",\"internalType\":\"address\"}],\"outputs\":[{\"name\":\"\",\"type\":\"bool\",\"internalType\":\"bool\"}],\"stateMutability\":\"view\"},{\"type\":\"function\",\"name\":\"activityFinish\",\"inputs\":[{\"name\":\"_activityId\",\"type\":\"uint256\",\"internalType\":\"uint256\"}],\"outputs\":[{\"name\":\"_ret\",\"type\":\"bool\",\"internalType\":\"bool\"}],\"stateMutability\":\"nonpayable\"},{\"type\":\"function\",\"name\":\"activityInfoArrs\",\"inputs\":[{\"name\":\"\",\"type\":\"uint256\",\"internalType\":\"uint256\"}],\"outputs\":[{\"name\":\"activityId\",\"type\":\"uint256\",\"internalType\":\"uint256\"},{\"name\":\"businessAccount\",\"type\":\"address\",\"internalType\":\"address\"},{\"name\":\"businessName\",\"type\":\"string\",\"internalType\":\"string\"},{\"name\":\"activityContent\",\"type\":\"string\",\"internalType\":\"string\"},{\"name\":\"latitudeLongitude\",\"type\":\"string\",\"internalType\":\"string\"},{\"name\":\"activityCreateTime\",\"type\":\"uint256\",\"internalType\":\"uint256\"},{\"name\":\"activityDeadLine\",\"type\":\"uint256\",\"internalType\":\"uint256\"},{\"name\":\"dropType\",\"type\":\"uint8\",\"internalType\":\"uint8\"},{\"name\":\"dropNumber\",\"type\":\"uint256\",\"internalType\":\"uint256\"},{\"name\":\"minDropAmt\",\"type\":\"uint256\",\"internalType\":\"uint256\"},{\"name\":\"maxDropAmt\",\"type\":\"uint256\",\"internalType\":\"uint256\"},{\"name\":\"tokenContractAddr\",\"type\":\"address\",\"internalType\":\"address\"}],\"stateMutability\":\"view\"},{\"type\":\"function\",\"name\":\"activityInfoChangedIdx\",\"inputs\":[{\"name\":\"\",\"type\":\"uint256\",\"internalType\":\"uint256\"}],\"outputs\":[{\"name\":\"\",\"type\":\"uint256\",\"internalType\":\"uint256\"}],\"stateMutability\":\"view\"},{\"type\":\"function\",\"name\":\"activityInfoExtArrs\",\"inputs\":[{\"name\":\"\",\"type\":\"uint256\",\"internalType\":\"uint256\"}],\"outputs\":[{\"name\":\"activityId\",\"type\":\"uint256\",\"internalType\":\"uint256\"},{\"name\":\"alreadyDropAmts\",\"type\":\"uint256\",\"internalType\":\"uint256\"},{\"name\":\"alreadyDropNumber\",\"type\":\"uint256\",\"internalType\":\"uint256\"},{\"name\":\"businessMinedAmt\",\"type\":\"uint256\",\"internalType\":\"uint256\"},{\"name\":\"businessMinedWithdrawedAmt\",\"type\":\"uint256\",\"internalType\":\"uint256\"},{\"name\":\"activityStatus\",\"type\":\"uint8\",\"internalType\":\"uint8\"}],\"stateMutability\":\"view\"},{\"type\":\"function\",\"name\":\"drop\",\"inputs\":[{\"name\":\"_activityId\",\"type\":\"uint256\",\"internalType\":\"uint256\"},{\"name\":\"_userAccount\",\"type\":\"address\",\"internalType\":\"address\"},{\"name\":\"_dropAmt\",\"type\":\"uint256\",\"internalType\":\"uint256\"}],\"outputs\":[{\"name\":\"_ret\",\"type\":\"bool\",\"internalType\":\"bool\"}],\"stateMutability\":\"nonpayable\"},{\"type\":\"function\",\"name\":\"dropInfoArrs\",\"inputs\":[{\"name\":\"\",\"type\":\"uint256\",\"internalType\":\"uint256\"}],\"outputs\":[{\"name\":\"activityId\",\"type\":\"uint256\",\"internalType\":\"uint256\"},{\"name\":\"userAccount\",\"type\":\"address\",\"internalType\":\"address\"},{\"name\":\"dropTime\",\"type\":\"uint256\",\"internalType\":\"uint256\"},{\"name\":\"dropAmt\",\"type\":\"uint256\",\"internalType\":\"uint256\"}],\"stateMutability\":\"view\"},{\"type\":\"function\",\"name\":\"getCurrentMinePercent\",\"inputs\":[],\"outputs\":[{\"name\":\"currentMinePercent\",\"type\":\"uint8\",\"internalType\":\"uint8\"}],\"stateMutability\":\"view\"},{\"type\":\"function\",\"name\":\"iNFTManager\",\"inputs\":[],\"outputs\":[{\"name\":\"\",\"type\":\"address\",\"internalType\":\"contractINFTManager\"}],\"stateMutability\":\"view\"},{\"type\":\"function\",\"name\":\"minePercent\",\"inputs\":[],\"outputs\":[{\"name\":\"\",\"type\":\"uint8\",\"internalType\":\"uint8\"}],\"stateMutability\":\"view\"},{\"type\":\"function\",\"name\":\"minedAmt\",\"inputs\":[],\"outputs\":[{\"name\":\"\",\"type\":\"uint256\",\"internalType\":\"uint256\"}],\"stateMutability\":\"view\"},{\"type\":\"function\",\"name\":\"owner\",\"inputs\":[],\"outputs\":[{\"name\":\"\",\"type\":\"address\",\"internalType\":\"address\"}],\"stateMutability\":\"view\"},{\"type\":\"function\",\"name\":\"renounceOwnership\",\"inputs\":[],\"outputs\":[],\"stateMutability\":\"nonpayable\"},{\"type\":\"function\",\"name\":\"totalMineAmt\",\"inputs\":[],\"outputs\":[{\"name\":\"\",\"type\":\"uint256\",\"internalType\":\"uint256\"}],\"stateMutability\":\"view\"},{\"type\":\"function\",\"name\":\"transferOwnership\",\"inputs\":[{\"name\":\"newOwner\",\"type\":\"address\",\"internalType\":\"address\"}],\"outputs\":[],\"stateMutability\":\"nonpayable\"},{\"type\":\"function\",\"name\":\"withdraw\",\"inputs\":[{\"name\":\"_recipient\",\"type\":\"address\",\"internalType\":\"addresspayable\"},{\"name\":\"_amount\",\"type\":\"uint256\",\"internalType\":\"uint256\"}],\"outputs\":[{\"name\":\"_ret\",\"type\":\"bool\",\"internalType\":\"bool\"}],\"stateMutability\":\"nonpayable\"},{\"type\":\"function\",\"name\":\"withdrawUToken\",\"inputs\":[{\"name\":\"_tokenAddr\",\"type\":\"address\",\"internalType\":\"address\"},{\"name\":\"_account\",\"type\":\"address\",\"internalType\":\"address\"},{\"name\":\"_value\",\"type\":\"uint256\",\"internalType\":\"uint256\"}],\"outputs\":[{\"name\":\"_ret\",\"type\":\"bool\",\"internalType\":\"bool\"}],\"stateMutability\":\"nonpayable\"},{\"type\":\"event\",\"name\":\"ActivityAdd\",\"inputs\":[{\"name\":\"who\",\"type\":\"address\",\"indexed\":true,\"internalType\":\"address\"},{\"name\":\"_activityId\",\"type\":\"uint256\",\"indexed\":true,\"internalType\":\"uint256\"},{\"name\":\"_totalDropAmts\",\"type\":\"uint256\",\"indexed\":false,\"internalType\":\"uint256\"},{\"name\":\"_businessName\",\"type\":\"string\",\"indexed\":false,\"internalType\":\"string\"},{\"name\":\"_activityContent\",\"type\":\"string\",\"indexed\":false,\"internalType\":\"string\"},{\"name\":\"_latitudeLongitude\",\"type\":\"string\",\"indexed\":false,\"internalType\":\"string\"},{\"name\":\"_activityDeadLine\",\"type\":\"uint256\",\"indexed\":false,\"internalType\":\"uint256\"},{\"name\":\"_dropType\",\"type\":\"uint8\",\"indexed\":false,\"internalType\":\"uint8\"},{\"name\":\"_dropNumber\",\"type\":\"uint256\",\"indexed\":false,\"internalType\":\"uint256\"},{\"name\":\"_minDropAmt\",\"type\":\"uint256\",\"indexed\":false,\"internalType\":\"uint256\"},{\"name\":\"_maxDropAmt\",\"type\":\"uint256\",\"indexed\":false,\"internalType\":\"uint256\"},{\"name\":\"_tokenContractAddr\",\"type\":\"address\",\"indexed\":false,\"internalType\":\"address\"}],\"anonymous\":false},{\"type\":\"event\",\"name\":\"ActivityFinish\",\"inputs\":[{\"name\":\"_activityId\",\"type\":\"uint256\",\"indexed\":true,\"internalType\":\"uint256\"},{\"name\":\"_tokenContractAddr\",\"type\":\"address\",\"indexed\":false,\"internalType\":\"address\"},{\"name\":\"_returnAmount\",\"type\":\"uint256\",\"indexed\":false,\"internalType\":\"uint256\"},{\"name\":\"_minedAmount\",\"type\":\"uint256\",\"indexed\":false,\"internalType\":\"uint256\"}],\"anonymous\":false},{\"type\":\"event\",\"name\":\"AddMineAmt\",\"inputs\":[{\"name\":\"who\",\"type\":\"address\",\"indexed\":true,\"internalType\":\"address\"},{\"name\":\"_addMineAmt\",\"type\":\"uint256\",\"indexed\":false,\"internalType\":\"uint256\"}],\"anonymous\":false},{\"type\":\"event\",\"name\":\"Drop\",\"inputs\":[{\"name\":\"who\",\"type\":\"address\",\"indexed\":true,\"internalType\":\"address\"},{\"name\":\"_activityId\",\"type\":\"uint256\",\"indexed\":true,\"internalType\":\"uint256\"},{\"name\":\"_dropAmt\",\"type\":\"uint256\",\"indexed\":false,\"internalType\":\"uint256\"}],\"anonymous\":false},{\"type\":\"event\",\"name\":\"OwnershipTransferred\",\"inputs\":[{\"name\":\"previousOwner\",\"type\":\"address\",\"indexed\":true,\"internalType\":\"address\"},{\"name\":\"newOwner\",\"type\":\"address\",\"indexed\":true,\"internalType\":\"address\"}],\"anonymous\":false},{\"type\":\"event\",\"name\":\"Received\",\"inputs\":[{\"name\":\"who\",\"type\":\"address\",\"indexed\":true,\"internalType\":\"address\"},{\"name\":\"_value\",\"type\":\"uint256\",\"indexed\":false,\"internalType\":\"uint256\"}],\"anonymous\":false},{\"type\":\"event\",\"name\":\"SetMinePercent\",\"inputs\":[{\"name\":\"minePercent\",\"type\":\"uint8\",\"indexed\":false,\"internalType\":\"uint8\"}],\"anonymous\":false},{\"type\":\"event\",\"name\":\"SetValidTime\",\"inputs\":[{\"name\":\"who\",\"type\":\"address\",\"indexed\":true,\"internalType\":\"address\"},{\"name\":\"_time\",\"type\":\"uint256\",\"indexed\":false,\"internalType\":\"uint256\"}],\"anonymous\":false},{\"type\":\"event\",\"name\":\"WithdrawUToken\",\"inputs\":[{\"name\":\"who\",\"type\":\"address\",\"indexed\":true,\"internalType\":\"address\"},{\"name\":\"_tokenAddr\",\"type\":\"address\",\"indexed\":true,\"internalType\":\"address\"},{\"name\":\"_account\",\"type\":\"address\",\"indexed\":true,\"internalType\":\"address\"},{\"name\":\"_value\",\"type\":\"uint256\",\"indexed\":false,\"internalType\":\"uint256\"}],\"anonymous\":false},{\"type\":\"event\",\"name\":\"Wthdraw\",\"inputs\":[{\"name\":\"who\",\"type\":\"address\",\"indexed\":true,\"internalType\":\"address\"},{\"name\":\"_amount\",\"type\":\"uint256\",\"indexed\":false,\"internalType\":\"uint256\"}],\"anonymous\":false},{\"type\":\"error\",\"name\":\"AddressEmptyCode\",\"inputs\":[{\"name\":\"target\",\"type\":\"address\",\"internalType\":\"address\"}]},{\"type\":\"error\",\"name\":\"FailedCall\",\"inputs\":[]},{\"type\":\"error\",\"name\":\"InsufficientBalance\",\"inputs\":[{\"name\":\"balance\",\"type\":\"uint256\",\"internalType\":\"uint256\"},{\"name\":\"needed\",\"type\":\"uint256\",\"internalType\":\"uint256\"}]},{\"type\":\"error\",\"name\":\"OwnableInvalidOwner\",\"inputs\":[{\"name\":\"owner\",\"type\":\"address\",\"internalType\":\"address\"}]},{\"type\":\"error\",\"name\":\"OwnableUnauthorizedAccount\",\"inputs\":[{\"name\":\"account\",\"type\":\"address\",\"internalType\":\"address\"}]},{\"type\":\"error\",\"name\":\"ReentrancyGuardReentrantCall\",\"inputs\":[]},{\"type\":\"error\",\"name\":\"SafeERC20FailedOperation\",\"inputs\":[{\"name\":\"token\",\"type\":\"address\",\"internalType\":\"address\"}]}]",
 }
 
 // MerchantMangerABI is the input ABI used to generate the binding from.
@@ -209,6 +209,37 @@ func (_MerchantManger *MerchantMangerSession) FccTokenAddr() (common.Address, er
 // Solidity: function FccTokenAddr() view returns(address)
 func (_MerchantManger *MerchantMangerCallerSession) FccTokenAddr() (common.Address, error) {
 	return _MerchantManger.Contract.FccTokenAddr(&_MerchantManger.CallOpts)
+}
+
+// UsdtTokenAddr is a free data retrieval call binding the contract method 0xb6d18c8c.
+//
+// Solidity: function UsdtTokenAddr() view returns(address)
+func (_MerchantManger *MerchantMangerCaller) UsdtTokenAddr(opts *bind.CallOpts) (common.Address, error) {
+	var out []interface{}
+	err := _MerchantManger.contract.Call(opts, &out, "UsdtTokenAddr")
+
+	if err != nil {
+		return *new(common.Address), err
+	}
+
+	out0 := *abi.ConvertType(out[0], new(common.Address)).(*common.Address)
+
+	return out0, err
+
+}
+
+// UsdtTokenAddr is a free data retrieval call binding the contract method 0xb6d18c8c.
+//
+// Solidity: function UsdtTokenAddr() view returns(address)
+func (_MerchantManger *MerchantMangerSession) UsdtTokenAddr() (common.Address, error) {
+	return _MerchantManger.Contract.UsdtTokenAddr(&_MerchantManger.CallOpts)
+}
+
+// UsdtTokenAddr is a free data retrieval call binding the contract method 0xb6d18c8c.
+//
+// Solidity: function UsdtTokenAddr() view returns(address)
+func (_MerchantManger *MerchantMangerCallerSession) UsdtTokenAddr() (common.Address, error) {
+	return _MerchantManger.Contract.UsdtTokenAddr(&_MerchantManger.CallOpts)
 }
 
 // ActivityDropedToAccount is a free data retrieval call binding the contract method 0x85a455f5.
@@ -488,6 +519,37 @@ func (_MerchantManger *MerchantMangerCallerSession) DropInfoArrs(arg0 *big.Int) 
 	return _MerchantManger.Contract.DropInfoArrs(&_MerchantManger.CallOpts, arg0)
 }
 
+// GetCurrentMinePercent is a free data retrieval call binding the contract method 0x86b89a40.
+//
+// Solidity: function getCurrentMinePercent() view returns(uint8 currentMinePercent)
+func (_MerchantManger *MerchantMangerCaller) GetCurrentMinePercent(opts *bind.CallOpts) (uint8, error) {
+	var out []interface{}
+	err := _MerchantManger.contract.Call(opts, &out, "getCurrentMinePercent")
+
+	if err != nil {
+		return *new(uint8), err
+	}
+
+	out0 := *abi.ConvertType(out[0], new(uint8)).(*uint8)
+
+	return out0, err
+
+}
+
+// GetCurrentMinePercent is a free data retrieval call binding the contract method 0x86b89a40.
+//
+// Solidity: function getCurrentMinePercent() view returns(uint8 currentMinePercent)
+func (_MerchantManger *MerchantMangerSession) GetCurrentMinePercent() (uint8, error) {
+	return _MerchantManger.Contract.GetCurrentMinePercent(&_MerchantManger.CallOpts)
+}
+
+// GetCurrentMinePercent is a free data retrieval call binding the contract method 0x86b89a40.
+//
+// Solidity: function getCurrentMinePercent() view returns(uint8 currentMinePercent)
+func (_MerchantManger *MerchantMangerCallerSession) GetCurrentMinePercent() (uint8, error) {
+	return _MerchantManger.Contract.GetCurrentMinePercent(&_MerchantManger.CallOpts)
+}
+
 // INFTManager is a free data retrieval call binding the contract method 0xbbe68511.
 //
 // Solidity: function iNFTManager() view returns(address)
@@ -685,27 +747,6 @@ func (_MerchantManger *MerchantMangerTransactorSession) ActivityFinish(_activity
 	return _MerchantManger.Contract.ActivityFinish(&_MerchantManger.TransactOpts, _activityId)
 }
 
-// AddMineAmt is a paid mutator transaction binding the contract method 0x3c915255.
-//
-// Solidity: function addMineAmt(uint256 _addMineAmt) returns(bool _ret)
-func (_MerchantManger *MerchantMangerTransactor) AddMineAmt(opts *bind.TransactOpts, _addMineAmt *big.Int) (*types.Transaction, error) {
-	return _MerchantManger.contract.Transact(opts, "addMineAmt", _addMineAmt)
-}
-
-// AddMineAmt is a paid mutator transaction binding the contract method 0x3c915255.
-//
-// Solidity: function addMineAmt(uint256 _addMineAmt) returns(bool _ret)
-func (_MerchantManger *MerchantMangerSession) AddMineAmt(_addMineAmt *big.Int) (*types.Transaction, error) {
-	return _MerchantManger.Contract.AddMineAmt(&_MerchantManger.TransactOpts, _addMineAmt)
-}
-
-// AddMineAmt is a paid mutator transaction binding the contract method 0x3c915255.
-//
-// Solidity: function addMineAmt(uint256 _addMineAmt) returns(bool _ret)
-func (_MerchantManger *MerchantMangerTransactorSession) AddMineAmt(_addMineAmt *big.Int) (*types.Transaction, error) {
-	return _MerchantManger.Contract.AddMineAmt(&_MerchantManger.TransactOpts, _addMineAmt)
-}
-
 // Drop is a paid mutator transaction binding the contract method 0xc8c1d78d.
 //
 // Solidity: function drop(uint256 _activityId, address _userAccount, uint256 _dropAmt) returns(bool _ret)
@@ -727,27 +768,6 @@ func (_MerchantManger *MerchantMangerTransactorSession) Drop(_activityId *big.In
 	return _MerchantManger.Contract.Drop(&_MerchantManger.TransactOpts, _activityId, _userAccount, _dropAmt)
 }
 
-// Initialize is a paid mutator transaction binding the contract method 0xc0c53b8b.
-//
-// Solidity: function initialize(address initialOwner, address _fcc, address _NFTManagerAddr) returns()
-func (_MerchantManger *MerchantMangerTransactor) Initialize(opts *bind.TransactOpts, initialOwner common.Address, _fcc common.Address, _NFTManagerAddr common.Address) (*types.Transaction, error) {
-	return _MerchantManger.contract.Transact(opts, "initialize", initialOwner, _fcc, _NFTManagerAddr)
-}
-
-// Initialize is a paid mutator transaction binding the contract method 0xc0c53b8b.
-//
-// Solidity: function initialize(address initialOwner, address _fcc, address _NFTManagerAddr) returns()
-func (_MerchantManger *MerchantMangerSession) Initialize(initialOwner common.Address, _fcc common.Address, _NFTManagerAddr common.Address) (*types.Transaction, error) {
-	return _MerchantManger.Contract.Initialize(&_MerchantManger.TransactOpts, initialOwner, _fcc, _NFTManagerAddr)
-}
-
-// Initialize is a paid mutator transaction binding the contract method 0xc0c53b8b.
-//
-// Solidity: function initialize(address initialOwner, address _fcc, address _NFTManagerAddr) returns()
-func (_MerchantManger *MerchantMangerTransactorSession) Initialize(initialOwner common.Address, _fcc common.Address, _NFTManagerAddr common.Address) (*types.Transaction, error) {
-	return _MerchantManger.Contract.Initialize(&_MerchantManger.TransactOpts, initialOwner, _fcc, _NFTManagerAddr)
-}
-
 // RenounceOwnership is a paid mutator transaction binding the contract method 0x715018a6.
 //
 // Solidity: function renounceOwnership() returns()
@@ -767,27 +787,6 @@ func (_MerchantManger *MerchantMangerSession) RenounceOwnership() (*types.Transa
 // Solidity: function renounceOwnership() returns()
 func (_MerchantManger *MerchantMangerTransactorSession) RenounceOwnership() (*types.Transaction, error) {
 	return _MerchantManger.Contract.RenounceOwnership(&_MerchantManger.TransactOpts)
-}
-
-// SetMinePercent is a paid mutator transaction binding the contract method 0xac67fbb6.
-//
-// Solidity: function setMinePercent(uint8 _minePercent) returns(bool _ret)
-func (_MerchantManger *MerchantMangerTransactor) SetMinePercent(opts *bind.TransactOpts, _minePercent uint8) (*types.Transaction, error) {
-	return _MerchantManger.contract.Transact(opts, "setMinePercent", _minePercent)
-}
-
-// SetMinePercent is a paid mutator transaction binding the contract method 0xac67fbb6.
-//
-// Solidity: function setMinePercent(uint8 _minePercent) returns(bool _ret)
-func (_MerchantManger *MerchantMangerSession) SetMinePercent(_minePercent uint8) (*types.Transaction, error) {
-	return _MerchantManger.Contract.SetMinePercent(&_MerchantManger.TransactOpts, _minePercent)
-}
-
-// SetMinePercent is a paid mutator transaction binding the contract method 0xac67fbb6.
-//
-// Solidity: function setMinePercent(uint8 _minePercent) returns(bool _ret)
-func (_MerchantManger *MerchantMangerTransactorSession) SetMinePercent(_minePercent uint8) (*types.Transaction, error) {
-	return _MerchantManger.Contract.SetMinePercent(&_MerchantManger.TransactOpts, _minePercent)
 }
 
 // TransferOwnership is a paid mutator transaction binding the contract method 0xf2fde38b.
@@ -1106,13 +1105,16 @@ func (it *MerchantMangerActivityFinishIterator) Close() error {
 
 // MerchantMangerActivityFinish represents a ActivityFinish event raised by the MerchantManger contract.
 type MerchantMangerActivityFinish struct {
-	ActivityId *big.Int
-	Raw        types.Log // Blockchain specific contextual infos
+	ActivityId        *big.Int
+	TokenContractAddr common.Address
+	ReturnAmount      *big.Int
+	MinedAmount       *big.Int
+	Raw               types.Log // Blockchain specific contextual infos
 }
 
-// FilterActivityFinish is a free log retrieval operation binding the contract event 0x38f456a137dd5646304c56c89456946ca67dce6874da9aa268339cb049f81771.
+// FilterActivityFinish is a free log retrieval operation binding the contract event 0x32b4fb78ab9b6fcf0181a2a3906e5473b095a3e71595ccc87bd039bbacc6acaf.
 //
-// Solidity: event ActivityFinish(uint256 indexed _activityId)
+// Solidity: event ActivityFinish(uint256 indexed _activityId, address _tokenContractAddr, uint256 _returnAmount, uint256 _minedAmount)
 func (_MerchantManger *MerchantMangerFilterer) FilterActivityFinish(opts *bind.FilterOpts, _activityId []*big.Int) (*MerchantMangerActivityFinishIterator, error) {
 
 	var _activityIdRule []interface{}
@@ -1127,9 +1129,9 @@ func (_MerchantManger *MerchantMangerFilterer) FilterActivityFinish(opts *bind.F
 	return &MerchantMangerActivityFinishIterator{contract: _MerchantManger.contract, event: "ActivityFinish", logs: logs, sub: sub}, nil
 }
 
-// WatchActivityFinish is a free log subscription operation binding the contract event 0x38f456a137dd5646304c56c89456946ca67dce6874da9aa268339cb049f81771.
+// WatchActivityFinish is a free log subscription operation binding the contract event 0x32b4fb78ab9b6fcf0181a2a3906e5473b095a3e71595ccc87bd039bbacc6acaf.
 //
-// Solidity: event ActivityFinish(uint256 indexed _activityId)
+// Solidity: event ActivityFinish(uint256 indexed _activityId, address _tokenContractAddr, uint256 _returnAmount, uint256 _minedAmount)
 func (_MerchantManger *MerchantMangerFilterer) WatchActivityFinish(opts *bind.WatchOpts, sink chan<- *MerchantMangerActivityFinish, _activityId []*big.Int) (event.Subscription, error) {
 
 	var _activityIdRule []interface{}
@@ -1169,9 +1171,9 @@ func (_MerchantManger *MerchantMangerFilterer) WatchActivityFinish(opts *bind.Wa
 	}), nil
 }
 
-// ParseActivityFinish is a log parse operation binding the contract event 0x38f456a137dd5646304c56c89456946ca67dce6874da9aa268339cb049f81771.
+// ParseActivityFinish is a log parse operation binding the contract event 0x32b4fb78ab9b6fcf0181a2a3906e5473b095a3e71595ccc87bd039bbacc6acaf.
 //
-// Solidity: event ActivityFinish(uint256 indexed _activityId)
+// Solidity: event ActivityFinish(uint256 indexed _activityId, address _tokenContractAddr, uint256 _returnAmount, uint256 _minedAmount)
 func (_MerchantManger *MerchantMangerFilterer) ParseActivityFinish(log types.Log) (*MerchantMangerActivityFinish, error) {
 	event := new(MerchantMangerActivityFinish)
 	if err := _MerchantManger.contract.UnpackLog(event, "ActivityFinish", log); err != nil {
@@ -1474,140 +1476,6 @@ func (_MerchantManger *MerchantMangerFilterer) WatchDrop(opts *bind.WatchOpts, s
 func (_MerchantManger *MerchantMangerFilterer) ParseDrop(log types.Log) (*MerchantMangerDrop, error) {
 	event := new(MerchantMangerDrop)
 	if err := _MerchantManger.contract.UnpackLog(event, "Drop", log); err != nil {
-		return nil, err
-	}
-	event.Raw = log
-	return event, nil
-}
-
-// MerchantMangerInitializedIterator is returned from FilterInitialized and is used to iterate over the raw logs and unpacked data for Initialized events raised by the MerchantManger contract.
-type MerchantMangerInitializedIterator struct {
-	Event *MerchantMangerInitialized // Event containing the contract specifics and raw log
-
-	contract *bind.BoundContract // Generic contract to use for unpacking event data
-	event    string              // Event name to use for unpacking event data
-
-	logs chan types.Log        // Log channel receiving the found contract events
-	sub  ethereum.Subscription // Subscription for errors, completion and termination
-	done bool                  // Whether the subscription completed delivering logs
-	fail error                 // Occurred error to stop iteration
-}
-
-// Next advances the iterator to the subsequent event, returning whether there
-// are any more events found. In case of a retrieval or parsing error, false is
-// returned and Error() can be queried for the exact failure.
-func (it *MerchantMangerInitializedIterator) Next() bool {
-	// If the iterator failed, stop iterating
-	if it.fail != nil {
-		return false
-	}
-	// If the iterator completed, deliver directly whatever's available
-	if it.done {
-		select {
-		case log := <-it.logs:
-			it.Event = new(MerchantMangerInitialized)
-			if err := it.contract.UnpackLog(it.Event, it.event, log); err != nil {
-				it.fail = err
-				return false
-			}
-			it.Event.Raw = log
-			return true
-
-		default:
-			return false
-		}
-	}
-	// Iterator still in progress, wait for either a data or an error event
-	select {
-	case log := <-it.logs:
-		it.Event = new(MerchantMangerInitialized)
-		if err := it.contract.UnpackLog(it.Event, it.event, log); err != nil {
-			it.fail = err
-			return false
-		}
-		it.Event.Raw = log
-		return true
-
-	case err := <-it.sub.Err():
-		it.done = true
-		it.fail = err
-		return it.Next()
-	}
-}
-
-// Error returns any retrieval or parsing error occurred during filtering.
-func (it *MerchantMangerInitializedIterator) Error() error {
-	return it.fail
-}
-
-// Close terminates the iteration process, releasing any pending underlying
-// resources.
-func (it *MerchantMangerInitializedIterator) Close() error {
-	it.sub.Unsubscribe()
-	return nil
-}
-
-// MerchantMangerInitialized represents a Initialized event raised by the MerchantManger contract.
-type MerchantMangerInitialized struct {
-	Version uint64
-	Raw     types.Log // Blockchain specific contextual infos
-}
-
-// FilterInitialized is a free log retrieval operation binding the contract event 0xc7f505b2f371ae2175ee4913f4499e1f2633a7b5936321eed1cdaeb6115181d2.
-//
-// Solidity: event Initialized(uint64 version)
-func (_MerchantManger *MerchantMangerFilterer) FilterInitialized(opts *bind.FilterOpts) (*MerchantMangerInitializedIterator, error) {
-
-	logs, sub, err := _MerchantManger.contract.FilterLogs(opts, "Initialized")
-	if err != nil {
-		return nil, err
-	}
-	return &MerchantMangerInitializedIterator{contract: _MerchantManger.contract, event: "Initialized", logs: logs, sub: sub}, nil
-}
-
-// WatchInitialized is a free log subscription operation binding the contract event 0xc7f505b2f371ae2175ee4913f4499e1f2633a7b5936321eed1cdaeb6115181d2.
-//
-// Solidity: event Initialized(uint64 version)
-func (_MerchantManger *MerchantMangerFilterer) WatchInitialized(opts *bind.WatchOpts, sink chan<- *MerchantMangerInitialized) (event.Subscription, error) {
-
-	logs, sub, err := _MerchantManger.contract.WatchLogs(opts, "Initialized")
-	if err != nil {
-		return nil, err
-	}
-	return event.NewSubscription(func(quit <-chan struct{}) error {
-		defer sub.Unsubscribe()
-		for {
-			select {
-			case log := <-logs:
-				// New log arrived, parse the event and forward to the user
-				event := new(MerchantMangerInitialized)
-				if err := _MerchantManger.contract.UnpackLog(event, "Initialized", log); err != nil {
-					return err
-				}
-				event.Raw = log
-
-				select {
-				case sink <- event:
-				case err := <-sub.Err():
-					return err
-				case <-quit:
-					return nil
-				}
-			case err := <-sub.Err():
-				return err
-			case <-quit:
-				return nil
-			}
-		}
-	}), nil
-}
-
-// ParseInitialized is a log parse operation binding the contract event 0xc7f505b2f371ae2175ee4913f4499e1f2633a7b5936321eed1cdaeb6115181d2.
-//
-// Solidity: event Initialized(uint64 version)
-func (_MerchantManger *MerchantMangerFilterer) ParseInitialized(log types.Log) (*MerchantMangerInitialized, error) {
-	event := new(MerchantMangerInitialized)
-	if err := _MerchantManger.contract.UnpackLog(event, "Initialized", log); err != nil {
 		return nil, err
 	}
 	event.Raw = log

@@ -88,6 +88,8 @@ CREATE TABLE IF NOT EXISTS activity_info
     "token_contract_addr"  text COLLATE "pg_catalog"."default",
     "activity_status"      int2,
     "already_drop_number"  int8,
+    "return_amount"        "public"."uint256",
+    "mined_amount"         "public"."uint256",
     CONSTRAINT "activity_info_pkey" PRIMARY KEY ("id")
 );
 
@@ -106,12 +108,14 @@ CREATE TABLE IF NOT EXISTS activity_info_ext
 
 CREATE TABLE IF NOT EXISTS drop_info
 (
-    "id"          text COLLATE "pg_catalog"."default" NOT NULL DEFAULT replace((uuid_generate_v4())::text, '-'::text, ''::text),
-    "activity_id" int8,
-    "address"     varchar COLLATE "pg_catalog"."default",
-    "drop_amount" "public"."uint256",
-    "drop_type"   int2,
-    "timestamp"   int8,
+    "id"               text COLLATE "pg_catalog"."default"    NOT NULL DEFAULT replace((uuid_generate_v4())::text, '-'::text, ''::text),
+    "activity_id"      int8,
+    "address"          varchar COLLATE "pg_catalog"."default",
+    "drop_amount"      "public"."uint256",
+    "drop_type"        int2,
+    "timestamp"        int8,
+    "transaction_hash" varchar COLLATE "pg_catalog"."default" NOT NULL,
+    "event_signature"  varchar COLLATE "pg_catalog"."default" NOT NULL,
     CONSTRAINT "drop_info_pkey" PRIMARY KEY ("id")
 )
 ;

@@ -9,6 +9,7 @@ import (
 	"github.com/FishcakeLab/fishcake-service/database/token_nft"
 	"github.com/FishcakeLab/fishcake-service/event/polygon/abi"
 	"github.com/ethereum/go-ethereum/common"
+	"math/big"
 )
 
 var (
@@ -37,6 +38,8 @@ func ActivityAdd(event event.ContractEvent, db *database.DB) error {
 		TokenContractAddr:  uEvent.TokenContractAddr.String(),
 		ActivityStatus:     1,
 		AlreadyDropNumber:  0,
+		ReturnAmount:       big.NewInt(0),
+		MinedAmount:        big.NewInt(0),
 	}
 	return db.ActivityInfoDB.StoreActivityInfo(activityInfo)
 }
@@ -48,7 +51,9 @@ func ActivityFinish(event event.ContractEvent, db *database.DB) error {
 		return unpackErr
 	}
 	ActivityId := uEvent.ActivityId.String()
-	return db.ActivityInfoDB.ActivityFinish(ActivityId)
+	ReturnAmount := uEvent.ReturnAmount
+	MinedAmount := uEvent.MinedAmount
+	return db.ActivityInfoDB.ActivityFinish(ActivityId, ReturnAmount, MinedAmount)
 }
 
 func MintNft(event event.ContractEvent, db *database.DB) error {
