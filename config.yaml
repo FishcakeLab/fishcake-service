@@ -12,8 +12,8 @@ db_user: "postgres"
 db_password: "galamini"
 metrics_host:
 metrics_port:
-start_block: 54731333
-eventStartBlock: 54731333
+start_block: 58013559
+eventStartBlock: 58013559
 contracts:
     - "0xE967Df5072C00051a7Df26D8E736b8769fB991b5"
     - "0x4907e1fA441673CC004415784430179B8B4938Cf"

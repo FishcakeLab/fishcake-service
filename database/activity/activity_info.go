@@ -60,7 +60,7 @@ func (a activityInfoDB) UpdateActivityInfo(activityId string) error {
 
 func (a activityInfoDB) ActivityFinish(activityId string, ReturnAmount, MinedAmount *big.Int) error {
 	finishSql := `update activity_info set activity_status = 2, return_amount = ?, mined_amount = ? where activity_id = ?`
-	err := a.db.Exec(finishSql, activityId, ReturnAmount, MinedAmount).Error
+	err := a.db.Exec(finishSql, ReturnAmount, MinedAmount, activityId).Error
 	return err
 }
 

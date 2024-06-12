@@ -5,24 +5,23 @@ import (
 	"github.com/FishcakeLab/fishcake-service/common/enum"
 	"github.com/FishcakeLab/fishcake-service/common/errors_h"
 	_ "github.com/FishcakeLab/fishcake-service/database/utils/serializers"
-	"github.com/ethereum/go-ethereum/common"
 	"gorm.io/gorm"
 	"math/big"
 )
 
 type DropInfo struct {
-	Id                string      `json:"id" gorm:"id"`
-	ActivityId        int64       `gorm:"activity_id" json:"activityId"`
-	Address           string      `json:"address" gorm:"address"`
-	DropAmount        *big.Int    `json:"dropAmount" gorm:"serializer:u256;column:drop_amount"`
-	DropType          int8        `gorm:"drop_type" json:"dropType"`
-	Timestamp         uint64      `json:"timestamp" gorm:"timestamp"`
-	TokenContractAddr string      `gorm:"token_contract_addr" json:"tokenContractAddr"`
-	BusinessName      string      `gorm:"business_name" json:"businessName"`
-	TransactionHash   common.Hash `gorm:"serializer:bytes" json:"transactionHash"`
-	EventSignature    common.Hash `gorm:"serializer:bytes" json:"eventSignature"`
-	ReturnAmount      *big.Int    `gorm:"serializer:u256;column:return_amount" json:"returnAmount"`
-	MinedAmount       *big.Int    `gorm:"serializer:u256;column:mined_amount" json:"minedAmount"`
+	Id                string   `json:"id" gorm:"id"`
+	ActivityId        int64    `gorm:"activity_id" json:"activityId"`
+	Address           string   `json:"address" gorm:"address"`
+	DropAmount        *big.Int `json:"dropAmount" gorm:"serializer:u256;column:drop_amount"`
+	DropType          int8     `gorm:"drop_type" json:"dropType"`
+	Timestamp         uint64   `json:"timestamp" gorm:"timestamp"`
+	TokenContractAddr string   `gorm:"token_contract_addr" json:"tokenContractAddr"`
+	BusinessName      string   `gorm:"business_name" json:"businessName"`
+	TransactionHash   string   `gorm:"transaction_hash" json:"transactionHash"`
+	EventSignature    string   `gorm:"event_signature" json:"eventSignature"`
+	ReturnAmount      *big.Int `gorm:"serializer:u256;column:return_amount" json:"returnAmount"`
+	MinedAmount       *big.Int `gorm:"serializer:u256;column:mined_amount" json:"minedAmount"`
 }
 
 func (DropInfo) TableName() string {
@@ -45,7 +44,7 @@ type dropInfoDB struct {
 func (d dropInfoDB) StoreDropInfo(drop DropInfo) error {
 	drpoInfo := new(DropInfo)
 	var exist DropInfo
-	err := d.db.Table(drpoInfo.TableName()).Where("transaction_hash = ? and event_signature = ?", drop.TransactionHash, drop.EventSignature).Take(&exist).Error
+	err := d.db.Table(drpoInfo.TableName()).Where("transaction_hash = ? and event_signature = ? and drop_type = ?", drop.TransactionHash, drop.EventSignature, drop.DropType).Take(&exist).Error
 	if err != nil {
 		if errors.Is(err, gorm.ErrRecordNotFound) {
 			result := d.db.Table(drpoInfo.TableName()).Omit("id, token_contract_addr, business_name, return_amount, mined_amount").Create(&drop)

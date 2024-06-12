@@ -110,8 +110,8 @@ func Drop(event event.ContractEvent, db *database.DB) error {
 		ActivityId:      uEvent.ActivityId.Int64(),
 		DropType:        1,
 		Timestamp:       event.Timestamp,
-		TransactionHash: event.TransactionHash,
-		EventSignature:  event.EventSignature,
+		TransactionHash: event.TransactionHash.String(),
+		EventSignature:  event.EventSignature.String(),
 	}
 
 	if err := db.Transaction(func(tx *database.DB) error {
