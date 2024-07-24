@@ -3,6 +3,12 @@ package polygon
 import (
 	"context"
 	"fmt"
+	"log"
+	"math/big"
+	"time"
+
+	"github.com/ethereum/go-ethereum/common"
+
 	"github.com/FishcakeLab/fishcake-service/common/bigint"
 	"github.com/FishcakeLab/fishcake-service/common/tasks"
 	"github.com/FishcakeLab/fishcake-service/database"
@@ -10,10 +16,6 @@ import (
 	"github.com/FishcakeLab/fishcake-service/database/event"
 	"github.com/FishcakeLab/fishcake-service/event/polygon/abi"
 	"github.com/FishcakeLab/fishcake-service/event/polygon/unpack"
-	"github.com/ethereum/go-ethereum/common"
-	"log"
-	"math/big"
-	"time"
 )
 
 type PolygonEventProcessor struct {

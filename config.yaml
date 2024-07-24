@@ -1,5 +1,4 @@
 migrations: "./migrations"
-#polygon_rpc: "https://polygon-mumbai.infura.io/v3/f22a689113714ae8a41d02b18e1b1f7d"
 polygon_rpc: "https://polygon-mainnet.g.alchemy.com/v2/CIZMD_P-HQWswRx6-n8uar5ONYLN02sb"
 rpc_url: "193.203.215.185:8189"
 polygon_chain_id: "80001"
@@ -8,8 +7,8 @@ http_port: 8087
 db_host: "127.0.0.1"
 db_port: 5432
 db_name: "fishcake"
-db_user: "postgres"
-db_password: "galamini"
+db_user: "guoshijiang"
+db_password: ""
 metrics_host:
 metrics_port:
 start_block: 58013559

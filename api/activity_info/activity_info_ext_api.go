@@ -1,10 +1,10 @@
 package activity_info
 
 import (
-	"github.com/FishcakeLab/fishcake-service/common/bigint"
 	"github.com/gin-gonic/gin"
 
 	"github.com/FishcakeLab/fishcake-service/common/api_result"
+	"github.com/FishcakeLab/fishcake-service/common/bigint"
 	"github.com/FishcakeLab/fishcake-service/service"
 )
 

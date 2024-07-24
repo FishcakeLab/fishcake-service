@@ -1,11 +1,12 @@
 package activity_info
 
 import (
+	"github.com/gin-gonic/gin"
+
 	"github.com/FishcakeLab/fishcake-service/common/api_result"
 	"github.com/FishcakeLab/fishcake-service/common/bigint"
 	"github.com/FishcakeLab/fishcake-service/common/enum"
 	"github.com/FishcakeLab/fishcake-service/service"
-	"github.com/gin-gonic/gin"
 )
 
 func ActivityInfoApi(rg *gin.Engine) {
