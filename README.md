@@ -33,6 +33,7 @@ This is a contract event listen service for fishcake which can sync polygon bloc
 
 ## Architecture
 
+[![FishCake](https://github.com/FishcakeLab/fishcake-service/blob/main/assets/fishcake.png)](https://github.com/FishcakeLab)
 
 
 ## Installation
