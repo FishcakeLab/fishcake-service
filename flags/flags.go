@@ -54,7 +54,7 @@ var (
 		Name:    "migrations-user",
 		Usage:   "The user of the database",
 		EnvVars: prefixEnvVars("DB_USER"),
-		Value:   "graphnode",
+		Value:   "guoshijiang",
 		//Required: true,
 	}
 	DbPasswordFlag = &cli.StringFlag{

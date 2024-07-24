@@ -3,10 +3,6 @@ package synchronizer
 import (
 	"context"
 	"fmt"
-	"github.com/FishcakeLab/fishcake-service/config"
-	common2 "github.com/FishcakeLab/fishcake-service/database/common"
-	"github.com/FishcakeLab/fishcake-service/database/event"
-	"github.com/FishcakeLab/fishcake-service/database/utils"
 	"log"
 	"math/big"
 	"strconv"
@@ -17,7 +13,11 @@ import (
 	"github.com/ethereum/go-ethereum/core/types"
 
 	"github.com/FishcakeLab/fishcake-service/common/tasks"
+	"github.com/FishcakeLab/fishcake-service/config"
 	"github.com/FishcakeLab/fishcake-service/database"
+	common2 "github.com/FishcakeLab/fishcake-service/database/common"
+	"github.com/FishcakeLab/fishcake-service/database/event"
+	"github.com/FishcakeLab/fishcake-service/database/utils"
 	"github.com/FishcakeLab/fishcake-service/synchronizer/node"
 	"github.com/FishcakeLab/fishcake-service/synchronizer/retry"
 )
