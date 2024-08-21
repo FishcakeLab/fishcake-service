@@ -7,7 +7,7 @@ import (
 )
 
 func ContractInfoApi(rg *gin.Engine) {
-	r := rg.Group("/v1/info")
+	r := rg.Group("/v1/contract")
 	r.GET("info", info)
 }
 
