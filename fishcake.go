@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"github.com/FishcakeLab/fishcake-service/api/activity_info"
 	"github.com/FishcakeLab/fishcake-service/api/chain_info"
+	"github.com/FishcakeLab/fishcake-service/api/contract_info"
 	"github.com/FishcakeLab/fishcake-service/api/drop_info"
 	"github.com/FishcakeLab/fishcake-service/api/nft_info"
 	"github.com/FishcakeLab/fishcake-service/common/errors_h"
@@ -76,6 +77,7 @@ func (f *FishCake) newApi(cfg *config.Config, db *database.DB) error {
 	chain_info.ChainInfoApi(r)
 	nft_info.NftInfoApi(r)
 	drop_info.DropInfoApi(r)
+	contract_info.ContractInfoApi(r)
 
 	port := fmt.Sprintf(":%d", cfg.HttpPort)
 	r.Run(port)
@@ -104,7 +106,8 @@ func (f *FishCake) newIndex(ctx *cli.Context, cfg *config.Config, db *database.D
 func (f *FishCake) newEvent(cfg *config.Config, db *database.DB, shutdown context.CancelCauseFunc) error {
 	var epoch uint64 = 10_000
 	var loopInterval time.Duration = time.Second * 2
-	eventProcessor, _ := polygon.NewEventProcessor(db, loopInterval, cfg.Contracts, cfg.StartBlock, cfg.EventStartBlock, epoch, shutdown)
+	eventProcessor, _ := polygon.NewEventProcessor(db, loopInterval, cfg.Contracts,
+		cfg.StartBlock, cfg.EventStartBlock, epoch, shutdown, cfg.AliConfig)
 	err := eventProcessor.Start()
 	if err != nil {
 		log.Println("failed to start eventProcessor:", err)

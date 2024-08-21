@@ -3,6 +3,8 @@ package polygon
 import (
 	"context"
 	"fmt"
+	"github.com/FishcakeLab/fishcake-service/config"
+	"github.com/aliyun/alibaba-cloud-sdk-go/services/green"
 	"log"
 	"math/big"
 	"time"
@@ -19,19 +21,31 @@ import (
 )
 
 type PolygonEventProcessor struct {
-	loopInterval    time.Duration
-	resourceCtx     context.Context
-	resourceCancel  context.CancelFunc
-	tasks           tasks.Group
-	db              *database.DB
-	epoch           uint64
-	eventStartBlock uint64
-	startHeight     *big.Int
-	contracts       []string
+	loopInterval     time.Duration
+	resourceCtx      context.Context
+	resourceCancel   context.CancelFunc
+	tasks            tasks.Group
+	db               *database.DB
+	epoch            uint64
+	eventStartBlock  uint64
+	startHeight      *big.Int
+	contracts        []string
+	aliContentClient *green.Client
 }
 
-func NewEventProcessor(db *database.DB, loopInterval time.Duration, contracts []string, startHeight uint64, eventStartBlock uint64, epoch uint64, shutdown context.CancelCauseFunc) (*PolygonEventProcessor, error) {
+func NewEventProcessor(db *database.DB, loopInterval time.Duration, contracts []string,
+	startHeight uint64, eventStartBlock uint64, epoch uint64, shutdown context.CancelCauseFunc,
+	aliConfig config.AliConfig) (*PolygonEventProcessor, error) {
 	resCtx, resCancel := context.WithCancel(context.Background())
+	//aliContentClient, createGreenClientErr := green.NewClientWithAccessKey(
+	//	aliConfig.RegionId,
+	//	aliConfig.AccessKeyId,
+	//	aliConfig.AccessKeySecret)
+	//if createGreenClientErr != nil {
+	//	log.Println("failed to create green client", "err", createGreenClientErr)
+	//	// handle exceptions
+	//	panic(createGreenClientErr)
+	//}
 	return &PolygonEventProcessor{
 		db:             db,
 		resourceCtx:    resCtx,
@@ -39,11 +53,12 @@ func NewEventProcessor(db *database.DB, loopInterval time.Duration, contracts []
 		tasks: tasks.Group{HandleCrit: func(err error) {
 			shutdown(fmt.Errorf("critical error processor: %w", err))
 		}},
-		startHeight:     new(big.Int).SetUint64(startHeight),
-		eventStartBlock: eventStartBlock,
-		contracts:       contracts,
-		loopInterval:    loopInterval,
-		epoch:           epoch,
+		startHeight:      new(big.Int).SetUint64(startHeight),
+		eventStartBlock:  eventStartBlock,
+		contracts:        contracts,
+		loopInterval:     loopInterval,
+		epoch:            epoch,
+		aliContentClient: nil,
 	}, nil
 }
 
