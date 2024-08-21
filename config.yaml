@@ -14,5 +14,18 @@ metrics_port:
 start_block: 58013559
 eventStartBlock: 58013559
 contracts:
-    - "0xE967Df5072C00051a7Df26D8E736b8769fB991b5"
-    - "0x4907e1fA441673CC004415784430179B8B4938Cf"
+    - "0x6298f654b2862B0ED25336f21CA507d8fB8a0b08"
+    - "0x32F3D7ff30F140D692e782b90f4fa7114dB048a8"
+ali_config:
+    region_id: "cn-hang"
+    access_key: "LTAI5tQ5"
+    access_secret: "Q5"
+
+contract_info:
+    fcc_token: "0x9482bbA1De30f2715E9293964dcb692437BCDce4"
+    usdt_token: "0xc2132D05D31c914a87C6611C10748AEb04B58e8F"
+    redemption_pool: "0x953E6DB14753552050B04a6393a827661bB4913a"
+    direct_sale_pool: "0xff99312c30466740bDA94b3Ff9E8FC1071BF18cE"
+    investor_sale_pool: "0xBBFa44467E12e6141B2961EE13705B9b6e3Ebe8B"
+    nft_manager: "0x6298f654b2862B0ED25336f21CA507d8fB8a0b08"
+    fishcake_event_manager: "0x32F3D7ff30F140D692e782b90f4fa7114dB048a8"
