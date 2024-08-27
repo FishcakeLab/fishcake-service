@@ -160,8 +160,8 @@ func (pp *PolygonEventProcessor) eventsFetch(fromHeight, toHeight *big.Int) erro
 }
 
 func (pp *PolygonEventProcessor) eventUnpack(event event.ContractEvent) error {
-	merchantAbi, _ := abi.MerchantMangerMetaData.GetAbi()
-	nftTokenAbi, _ := abi.NFTManagerMetaData.GetAbi()
+	merchantAbi, _ := abi.FishcakeEventManagerMetaData.GetAbi()
+	nftTokenAbi, _ := abi.NftManagerMetaData.GetAbi()
 	switch event.EventSignature.String() {
 	case merchantAbi.Events["ActivityAdd"].ID.String():
 		err := unpack.ActivityAdd(event, pp.db)

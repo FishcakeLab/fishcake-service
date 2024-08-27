@@ -5,6 +5,10 @@ LDFLAGSSTRING +=-X main.GitCommit=$(GITCOMMIT)
 LDFLAGSSTRING +=-X main.GitDate=$(GITDATE)
 LDFLAGS := -ldflags "$(LDFLAGSSTRING)"
 
+
+EVENT_ABI_ARTIFACT := ./abis/FishcakeEventManager.sol/FishcakeEventManager.json
+NFT_ABI_ARTIFACT := ./abis/NftManager.sol/NftManager.json
+
 fishcake:
 	env GO111MODULE=on go build -v $(LDFLAGS) ./cmd/fishcake
 
@@ -17,10 +21,30 @@ test:
 lint:
 	golangci-lint run ./...
 
+bindings: binding-event binding-nft
+
+binding-event:
+	 $(eval temp := $(shell mktemp))
+	 cat $(EVENT_ABI_ARTIFACT) | jq .abi \
+	 | abigen --pkg abi \
+	 --abi - \
+	 --out event/polygon/abi/fish_cake_event_manager.go \
+	 --type FishcakeEventManager \
+	 rm $(temp)
+
+binding-nft:
+	 $(eval temp := $(shell mktemp))
+	 cat $(NFT_ABI_ARTIFACT) | jq .abi \
+	 | abigen --pkg abi \
+	 --abi - \
+	 --out event/polygon/abi/nft_manager.go \
+	 --type NftManager \
+	 rm $(temp)
+
+
 .PHONY: \
 	fishcake \
 	bindings \
-	bindings-scc \
 	clean \
 	test \
 	lint

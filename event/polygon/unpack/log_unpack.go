@@ -15,8 +15,8 @@ import (
 )
 
 var (
-	NftTokenUnpack, _ = abi.NewNFTManagerFilterer(common.Address{}, nil)
-	MerchantUnpack, _ = abi.NewMerchantMangerFilterer(common.Address{}, nil)
+	NftTokenUnpack, _ = abi.NewNftManagerFilterer(common.Address{}, nil)
+	MerchantUnpack, _ = abi.NewFishcakeEventManagerFilterer(common.Address{}, nil)
 )
 
 func ActivityAdd(event event.ContractEvent, db *database.DB) error {
@@ -66,7 +66,7 @@ func MintNft(event event.ContractEvent, db *database.DB) error {
 	}
 	token := token_nft.TokenNft{
 		TokenId:         uEvent.TokenId.Int64(),
-		Who:             uEvent.Who.String(),
+		Who:             uEvent.Creator.String(),
 		BusinessName:    uEvent.BusinessName,
 		Description:     uEvent.Description,
 		ImgUrl:          uEvent.ImgUrl,
@@ -79,7 +79,7 @@ func MintNft(event event.ContractEvent, db *database.DB) error {
 		NftType:         int8(uEvent.Type),
 	}
 	accountNftInfo := account_nft_info.AccountNftInfo{
-		Address: uEvent.Who.String(),
+		Address: uEvent.Creator.String(),
 	}
 	if uEvent.Type == 1 {
 		accountNftInfo.ProDeadline = uEvent.Deadline.Uint64()

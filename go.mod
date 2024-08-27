@@ -3,6 +3,7 @@ module github.com/FishcakeLab/fishcake-service
 go 1.21.0
 
 require (
+	github.com/aliyun/alibaba-cloud-sdk-go v1.62.808
 	github.com/ethereum/go-ethereum v1.13.8
 	github.com/gin-contrib/cors v1.5.0
 	github.com/gin-gonic/gin v1.9.1
@@ -22,7 +23,6 @@ require (
 require (
 	github.com/Microsoft/go-winio v0.6.1 // indirect
 	github.com/StackExchange/wmi v1.2.1 // indirect
-	github.com/aliyun/alibaba-cloud-sdk-go v1.62.808 // indirect
 	github.com/bits-and-blooms/bitset v1.10.0 // indirect
 	github.com/btcsuite/btcd/btcec/v2 v2.2.0 // indirect
 	github.com/bytedance/sonic v1.10.1 // indirect
