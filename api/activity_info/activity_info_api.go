@@ -24,6 +24,8 @@ func list(c *gin.Context) {
 	}
 	pageSize := bigint.StringToInt(pageSizeStr)
 	pageNum := bigint.StringToInt(pageNumStr)
+	activityIdStr := c.Query("activityId")
+	activityId := bigint.StringToInt(activityIdStr)
 	activityStatus := c.Query("activityStatus")
 	businessName := c.Query("businessName")
 	tokenContractAddr := c.Query("tokenContractAddr")
@@ -32,7 +34,7 @@ func list(c *gin.Context) {
 	longitude := c.Query("longitude")
 	scope := c.Query("scope")
 	activityFilter := c.Query("activityFilter")
-	infos, count := service.BaseService.ActivityInfoService.ActivityInfoList(activityFilter, businessAccount, activityStatus, businessName, tokenContractAddr, latitude, longitude, scope, pageNum, pageSize)
+	infos, count := service.BaseService.ActivityInfoService.ActivityInfoList(activityFilter, businessAccount, activityStatus, businessName, tokenContractAddr, latitude, longitude, scope, activityId, pageNum, pageSize)
 	page := api_result.NewPage(infos, count, pageNum, pageSize)
 	api_result.NewApiResult(c).Success(page)
 }

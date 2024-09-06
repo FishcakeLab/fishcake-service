@@ -37,7 +37,9 @@ func (ActivityInfo) TableName() string {
 }
 
 type ActivityInfoView interface {
-	ActivityInfoList(activityFilter, businessAccount, activityStatus, businessName, tokenContractAddr, latitude, longitude, scope string, pageNum, pageSize int) ([]ActivityInfo, int)
+	ActivityInfoList(activityFilter, businessAccount, activityStatus, businessName, tokenContractAddr, latitude, longitude, scope string,
+		activityId,
+		pageNum, pageSize int) ([]ActivityInfo, int)
 	ActivityInfo(activityId int) ActivityInfo
 }
 
@@ -93,12 +95,12 @@ func (a activityInfoDB) ActivityInfo(activityId int) ActivityInfo {
 	}
 }
 
-func (a activityInfoDB) ActivityInfoList(activityFilter, businessAccount, activityStatus, businessName, tokenContractAddr, latitude, longitude, scope string, pageNum, pageSize int) ([]ActivityInfo, int) {
+func (a activityInfoDB) ActivityInfoList(activityFilter, businessAccount, activityStatus, businessName, tokenContractAddr, latitude, longitude, scope string, activityId, pageNum, pageSize int) ([]ActivityInfo, int) {
 	var activityInfo []ActivityInfo
 	var count int64
 	this := a.db.Table(ActivityInfo{}.TableName())
 	if businessAccount != "" {
-		this = this.Where("business_account ILIKE ?", businessAccount)
+		this = this.Where("business_account ILIKE ?", "%"+businessAccount+"%")
 	}
 	if activityStatus != "" {
 		this = this.Where("activity_status = ?", activityStatus)
@@ -112,7 +114,10 @@ func (a activityInfoDB) ActivityInfoList(activityFilter, businessAccount, activi
 		this = this.Where("business_name like ?", "%"+businessName+"%")
 	}
 	if tokenContractAddr != "" {
-		this = this.Where("token_contract_addr ILIKE ?", tokenContractAddr)
+		this = this.Where("token_contract_addr ILIKE ?", "%"+tokenContractAddr+"%")
+	}
+	if activityId > 0 {
+		this = this.Where("activity_id = ?", activityId)
 	}
 	if latitude != "" && longitude != "" {
 		this = this.Where("ST_DWithin(ST_SetSRID(ST_MakePoint("+
