@@ -30,6 +30,7 @@ func (DropInfo) TableName() string {
 
 type DropInfoView interface {
 	List(pageNum, pageSize int, address, dropType string) ([]DropInfo, int)
+	IsExist(transactionHash, eventSignature string, dropType int8) (error, bool)
 }
 
 type DropInfoDB interface {
@@ -39,6 +40,18 @@ type DropInfoDB interface {
 
 type dropInfoDB struct {
 	db *gorm.DB
+}
+
+func (d dropInfoDB) IsExist(transactionHash, eventSignature string, dropType int8) (error, bool) {
+	var drop DropInfo
+	err := d.db.Table(drop.TableName()).Where("transaction_hash = ? and event_signature = ? and drop_type = ?", transactionHash, eventSignature, dropType).Take(&drop).Error
+	if err != nil {
+		if errors.Is(err, gorm.ErrRecordNotFound) {
+			return nil, false
+		}
+		return err, false
+	}
+	return nil, true
 }
 
 func (d dropInfoDB) StoreDropInfo(drop DropInfo) error {

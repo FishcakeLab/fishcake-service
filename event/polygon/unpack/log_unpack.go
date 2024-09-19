@@ -117,11 +117,16 @@ func Drop(event event.ContractEvent, db *database.DB) error {
 	}
 
 	if err := db.Transaction(func(tx *database.DB) error {
-		if err := tx.DropInfoDB.StoreDropInfo(drop); err != nil {
-			return err
-		}
-		if err := tx.ActivityInfoDB.UpdateActivityInfo(drop); err != nil {
-			return err
+		resultErr, exist := tx.DropInfoDB.IsExist(drop.TransactionHash, drop.EventSignature, drop.DropType)
+		if !exist && resultErr == nil {
+			if err := tx.DropInfoDB.StoreDropInfo(drop); err != nil {
+				return err
+			}
+			if err := tx.ActivityInfoDB.UpdateActivityInfo(uEvent.ActivityId.String()); err != nil {
+				return err
+			}
+		} else {
+			return resultErr
 		}
 		// create merchant drop record
 		activityInfo := tx.ActivityInfoDB.ActivityInfo(int(drop.ActivityId))
