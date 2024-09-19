@@ -120,7 +120,7 @@ func Drop(event event.ContractEvent, db *database.DB) error {
 		if err := tx.DropInfoDB.StoreDropInfo(drop); err != nil {
 			return err
 		}
-		if err := tx.ActivityInfoDB.UpdateActivityInfo(uEvent.ActivityId.String()); err != nil {
+		if err := tx.ActivityInfoDB.UpdateActivityInfo(drop); err != nil {
 			return err
 		}
 		// create merchant drop record

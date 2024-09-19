@@ -4,6 +4,7 @@ import (
 	"errors"
 	"github.com/FishcakeLab/fishcake-service/common/enum"
 	"github.com/FishcakeLab/fishcake-service/common/errors_h"
+	"github.com/FishcakeLab/fishcake-service/database/drop"
 	_ "github.com/FishcakeLab/fishcake-service/database/utils/serializers"
 	"gorm.io/gorm"
 	"math/big"
@@ -47,16 +48,23 @@ type ActivityInfoDB interface {
 	ActivityInfoView
 	StoreActivityInfo(activityInfo ActivityInfo) error
 	ActivityFinish(activityId string, ReturnAmount, MinedAmount *big.Int) error
-	UpdateActivityInfo(activityId string) error
+	UpdateActivityInfo(drop drop.DropInfo) error
 }
 
 type activityInfoDB struct {
 	db *gorm.DB
 }
 
-func (a activityInfoDB) UpdateActivityInfo(activityId string) error {
-	sql := `update activity_info set already_drop_number = already_drop_number + 1 where activity_id = ?`
-	err := a.db.Exec(sql, activityId).Error
+func (a activityInfoDB) UpdateActivityInfo(dropInfo drop.DropInfo) error {
+	var theExist drop.DropInfo
+	err := a.db.Table(dropInfo.TableName()).Where("transaction_hash = ? and event_signature = ? and drop_type = ?", dropInfo.TransactionHash, dropInfo.EventSignature, dropInfo.DropType).Take(&theExist).Error
+	if err != nil {
+		if errors.Is(err, gorm.ErrRecordNotFound) {
+			sql := `update activity_info set already_drop_number = already_drop_number + 1 where activity_id = ?`
+			err := a.db.Exec(sql, dropInfo.ActivityId).Error
+			return err
+		}
+	}
 	return err
 }
 
