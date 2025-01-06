@@ -3,6 +3,14 @@ package fishcake_service
 import (
 	"context"
 	"fmt"
+	"log"
+	"math/big"
+	"strconv"
+	"time"
+
+	"github.com/gin-gonic/gin"
+	"github.com/urfave/cli/v2"
+
 	"github.com/FishcakeLab/fishcake-service/api/activity_info"
 	"github.com/FishcakeLab/fishcake-service/api/chain_info"
 	"github.com/FishcakeLab/fishcake-service/api/contract_info"
@@ -17,12 +25,6 @@ import (
 	"github.com/FishcakeLab/fishcake-service/service"
 	"github.com/FishcakeLab/fishcake-service/synchronizer"
 	"github.com/FishcakeLab/fishcake-service/synchronizer/node"
-	"github.com/gin-gonic/gin"
-	"github.com/urfave/cli/v2"
-	"log"
-	"math/big"
-	"strconv"
-	"time"
 )
 
 type FishCake struct {
