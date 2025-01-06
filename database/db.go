@@ -3,12 +3,6 @@ package database
 import (
 	"context"
 	"fmt"
-	"github.com/FishcakeLab/fishcake-service/database/account_nft_info"
-	"github.com/FishcakeLab/fishcake-service/database/block_listener"
-	"github.com/FishcakeLab/fishcake-service/database/common"
-	"github.com/FishcakeLab/fishcake-service/database/drop"
-	"github.com/FishcakeLab/fishcake-service/database/event"
-	"github.com/FishcakeLab/fishcake-service/database/token_nft"
 	"log"
 	"os"
 	"path/filepath"
@@ -21,7 +15,13 @@ import (
 
 	"github.com/FishcakeLab/fishcake-service/common/logs"
 	"github.com/FishcakeLab/fishcake-service/config"
+	"github.com/FishcakeLab/fishcake-service/database/account_nft_info"
 	"github.com/FishcakeLab/fishcake-service/database/activity"
+	"github.com/FishcakeLab/fishcake-service/database/block_listener"
+	"github.com/FishcakeLab/fishcake-service/database/common"
+	"github.com/FishcakeLab/fishcake-service/database/drop"
+	"github.com/FishcakeLab/fishcake-service/database/event"
+	"github.com/FishcakeLab/fishcake-service/database/token_nft"
 	"github.com/FishcakeLab/fishcake-service/synchronizer/retry"
 )
 
