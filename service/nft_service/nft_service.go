@@ -2,7 +2,9 @@ package nft_service
 
 import (
 	"github.com/FishcakeLab/fishcake-service/database"
+	"github.com/FishcakeLab/fishcake-service/database/event"
 	"github.com/FishcakeLab/fishcake-service/database/token_nft"
+	"github.com/ethereum/go-ethereum/common"
 )
 
 type NftService interface {
@@ -10,10 +12,20 @@ type NftService interface {
 	NftInfo(tokenId int) token_nft.TokenNft
 	NftDetail(businessAccount, deadline string) token_nft.TokenNft
 	NftCount(contractAddress string) int64
+	TransactionCount(address string) int64
 }
 
 type nftService struct {
 	Db *database.DB
+}
+
+func (n *nftService) TransactionCount(address string) int64 {
+	contractEventFilter := event.ContractEvent{ContractAddress: common.HexToAddress(address)}
+	count, err := n.Db.ContractEvent.ContractEventCount(contractEventFilter)
+	if err != nil {
+		return count
+	}
+	return 0
 }
 
 func NewNftService(db *database.DB) NftService {

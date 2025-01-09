@@ -2,6 +2,7 @@ package common
 
 import (
 	"errors"
+	"fmt"
 	"github.com/google/uuid"
 	"gorm.io/gorm"
 	"math/big"
@@ -29,6 +30,7 @@ type BlocksView interface {
 	BlockHeaderWithFilter(BlockHeader) (*BlockHeader, error)
 	BlockHeaderWithScope(func(db *gorm.DB) *gorm.DB) (*BlockHeader, error)
 	LatestBlockHeader() (*BlockHeader, error)
+	CleanBlockHerders() error
 }
 
 type BlocksDB interface {
@@ -75,6 +77,24 @@ func (b blocksDB) LatestBlockHeader() (*BlockHeader, error) {
 func (b blocksDB) StoreBlockHeaders(headers []BlockHeader) error {
 	result := b.gorm.Table("block_headers").Omit("guid").Create(&headers)
 	return result.Error
+}
+
+func (db *blocksDB) CleanBlockHerders() error {
+
+	tableName := "block_headers"
+	updateSql := `
+				DELETE FROM %s
+				WHERE guid IN (
+				  SELECT guid
+				  FROM %s
+				  WHERE number < (SELECT MAX(number) FROM %s) - 200000
+				  LIMIT 10000
+				);
+				`
+	updateSql = fmt.Sprintf(updateSql, tableName, tableName, tableName)
+
+	err := db.gorm.Exec(updateSql).Error
+	return err
 }
 
 func NewBlocksDB(db *gorm.DB) BlocksDB {

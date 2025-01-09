@@ -14,7 +14,15 @@ func NftInfoApi(rg *gin.Engine) {
 	r.GET("list", list)
 	r.GET("info", info)
 	r.GET("detail", detail)
-	r.GET("nft_count", nftInfo)
+	r.GET("nft_count", NftCount)
+	r.GET("transaction_count", transactionCount)
+
+}
+
+func transactionCount(c *gin.Context) {
+	contractAddress := c.Query("contractAddress")
+	count := service.BaseService.NftService.TransactionCount(contractAddress)
+	api_result.NewApiResult(c).Success(count)
 }
 
 func list(c *gin.Context) {
@@ -33,7 +41,7 @@ func list(c *gin.Context) {
 	api_result.NewApiResult(c).Success(page)
 }
 
-func nftInfo(c *gin.Context) {
+func NftCount(c *gin.Context) {
 	contractAddress := c.Query("contractAddress")
 	count := service.BaseService.NftService.NftCount(contractAddress)
 	api_result.NewApiResult(c).Success(count)

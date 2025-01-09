@@ -53,6 +53,7 @@ func (c *ContractEvent) AfterFind(tx *gorm.DB) error {
 
 type ContractEventsView interface {
 	ContractEvent(uuid.UUID) (*ContractEvent, error)
+	ContractEventCount(ContractEvent) (int64, error)
 	ContractEventWithFilter(ContractEvent) (*ContractEvent, error)
 	ContractEventsWithFilter(ContractEvent, *big.Int, *big.Int) ([]ContractEvent, error)
 	LatestContractEventWithFilter(ContractEvent) (*ContractEvent, error)
@@ -65,6 +66,18 @@ type ContractEventDB interface {
 
 type contractEventDB struct {
 	gorm *gorm.DB
+}
+
+func (db *contractEventDB) ContractEventCount(filter ContractEvent) (int64, error) {
+	var count int64
+	result := db.gorm.Where(&filter).Count(&count)
+	if result.Error != nil {
+		if errors.Is(result.Error, gorm.ErrRecordNotFound) {
+			return 0, nil
+		}
+		return 0, result.Error
+	}
+	return count, nil
 }
 
 func NewContractEventsDB(db *gorm.DB) ContractEventDB {

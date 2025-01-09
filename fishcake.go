@@ -3,6 +3,7 @@ package fishcake_service
 import (
 	"context"
 	"fmt"
+	"github.com/FishcakeLab/fishcake-service/worker/clean_data_worker"
 	"log"
 	"math/big"
 	"strconv"
@@ -97,9 +98,15 @@ func (f *FishCake) newIndex(ctx *cli.Context, cfg *config.Config, db *database.D
 	}
 	client, _ := node.DialEthClient(ctx.Context, cfg.PolygonRpc)
 	syncer, _ := synchronizer.NewSynchronizer(cfg, syncConfig, db, client, shutdown)
+	worker, _ := clean_data_worker.NewWorkerProcessor(db, shutdown)
 	err := syncer.Start()
 	if err != nil {
 		log.Println("failed to start synchronizer:", err)
+		return err
+	}
+	err = worker.WorkerStart()
+	if err != nil {
+		log.Println("failed to start worker:", err)
 		return err
 	}
 	return nil

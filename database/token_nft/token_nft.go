@@ -47,7 +47,7 @@ type tokenNftDB struct {
 func (t tokenNftDB) NftCount(contractAddress string) int64 {
 	var count int64
 	this := t.db.Table(TokenNft{}.TableName())
-	result := this.Where("contract_address = ?", contractAddress).Count(&count)
+	result := this.Where("LOWER(contract_address) = LOWER(?)", contractAddress).Count(&count)
 	if result.Error == nil {
 		return count
 	} else if !errors.Is(result.Error, gorm.ErrRecordNotFound) {
