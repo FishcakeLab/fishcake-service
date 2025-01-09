@@ -37,10 +37,25 @@ type TokenNftView interface {
 type TokenNftDB interface {
 	TokenNftView
 	StoreTokenNft(token TokenNft) error
+	NftCount(contractAddress string) int64
 }
 
 type tokenNftDB struct {
 	db *gorm.DB
+}
+
+func (t tokenNftDB) NftCount(contractAddress string) int64 {
+	var count int64
+	this := t.db.Table(TokenNft{}.TableName())
+	result := this.Where("contract_address = ?", contractAddress).Count(&count)
+	if result.Error == nil {
+		return count
+	} else if !errors.Is(result.Error, gorm.ErrRecordNotFound) {
+		errors_h.NewErrorByEnum(enum.DataErr)
+		return count
+	} else {
+		return count
+	}
 }
 
 func (t tokenNftDB) StoreTokenNft(token TokenNft) error {

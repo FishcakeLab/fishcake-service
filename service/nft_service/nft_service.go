@@ -9,6 +9,7 @@ type NftService interface {
 	NftInfoList(pageNum, pageSize int, contractAddress, address string) ([]token_nft.TokenNft, int)
 	NftInfo(tokenId int) token_nft.TokenNft
 	NftDetail(businessAccount, deadline string) token_nft.TokenNft
+	NftCount(contractAddress string) int64
 }
 
 type nftService struct {
@@ -17,6 +18,11 @@ type nftService struct {
 
 func NewNftService(db *database.DB) NftService {
 	return &nftService{Db: db}
+}
+
+func (n *nftService) NftCount(contractAddress string) int64 {
+	count := n.Db.TokenNftDB.NftCount(contractAddress)
+	return count
 }
 
 func (n *nftService) NftInfoList(pageNum, pageSize int, contractAddress, address string) ([]token_nft.TokenNft, int) {
