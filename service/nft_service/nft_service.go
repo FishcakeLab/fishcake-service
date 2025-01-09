@@ -23,9 +23,9 @@ func (n *nftService) TransactionCount(address string) int64 {
 	contractEventFilter := event.ContractEvent{ContractAddress: common.HexToAddress(address)}
 	count, err := n.Db.ContractEvent.ContractEventCount(contractEventFilter)
 	if err != nil {
-		return count
+		return 0
 	}
-	return 0
+	return count
 }
 
 func NewNftService(db *database.DB) NftService {
