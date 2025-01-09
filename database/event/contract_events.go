@@ -70,7 +70,7 @@ type contractEventDB struct {
 
 func (db *contractEventDB) ContractEventCount(filter ContractEvent) (int64, error) {
 	var count int64
-	result := db.gorm.Where(&filter).Count(&count)
+	result := db.gorm.Table("contract_events").Where(&filter).Count(&count)
 	if result.Error != nil {
 		if errors.Is(result.Error, gorm.ErrRecordNotFound) {
 			return 0, nil
