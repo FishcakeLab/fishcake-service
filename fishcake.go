@@ -3,6 +3,7 @@ package fishcake_service
 import (
 	"context"
 	"fmt"
+	"github.com/FishcakeLab/fishcake-service/api/wallet_info"
 	"github.com/FishcakeLab/fishcake-service/worker/clean_data_worker"
 	"log"
 	"math/big"
@@ -81,7 +82,7 @@ func (f *FishCake) newApi(cfg *config.Config, db *database.DB) error {
 	nft_info.NftInfoApi(r)
 	drop_info.DropInfoApi(r)
 	contract_info.ContractInfoApi(r)
-
+	wallet_info.WalletInfoApi(r)
 	port := fmt.Sprintf(":%d", cfg.HttpPort)
 	r.Run(port)
 	return nil

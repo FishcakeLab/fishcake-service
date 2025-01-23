@@ -8,6 +8,14 @@ import (
 	"path/filepath"
 	"time"
 
+	"github.com/FishcakeLab/fishcake-service/database/account_nft_info"
+	"github.com/FishcakeLab/fishcake-service/database/block_listener"
+	"github.com/FishcakeLab/fishcake-service/database/common"
+	"github.com/FishcakeLab/fishcake-service/database/drop"
+	"github.com/FishcakeLab/fishcake-service/database/event"
+	"github.com/FishcakeLab/fishcake-service/database/token_nft"
+	"github.com/FishcakeLab/fishcake-service/database/wallet"
+
 	"github.com/pkg/errors"
 	"gorm.io/driver/postgres"
 	"gorm.io/gorm"
@@ -15,13 +23,7 @@ import (
 
 	"github.com/FishcakeLab/fishcake-service/common/logs"
 	"github.com/FishcakeLab/fishcake-service/config"
-	"github.com/FishcakeLab/fishcake-service/database/account_nft_info"
 	"github.com/FishcakeLab/fishcake-service/database/activity"
-	"github.com/FishcakeLab/fishcake-service/database/block_listener"
-	"github.com/FishcakeLab/fishcake-service/database/common"
-	"github.com/FishcakeLab/fishcake-service/database/drop"
-	"github.com/FishcakeLab/fishcake-service/database/event"
-	"github.com/FishcakeLab/fishcake-service/database/token_nft"
 	"github.com/FishcakeLab/fishcake-service/synchronizer/retry"
 )
 
@@ -35,9 +37,13 @@ type DB struct {
 	DropInfoDB        drop.DropInfoDB
 	BlockListener     block_listener.BlockListenerDB
 	AccountNftInfoDB  account_nft_info.AccountNftInfoDB
+	WalletInfoDB      wallet.WalletInfoDB
 }
 
-func NewDB(dbConfig *config.Config) (*DB, error) {
+func NewDB(cfg *config.Config) (*DB, error) {
+	if cfg == nil {
+		return nil, fmt.Errorf("config is nil")
+	}
 	writer := logs.MyLogWriter()
 	DbLogger := logger.New(
 		log.New(writer, "\r\n", log.Ldate|log.Ltime|log.LstdFlags), // io writer
@@ -48,15 +54,15 @@ func NewDB(dbConfig *config.Config) (*DB, error) {
 			Colorful:                  false,       // Disable color
 		},
 	)
-	dsn := fmt.Sprintf("host=%s dbname=%s sslmode=disable", dbConfig.DbHost, dbConfig.DbName)
-	if dbConfig.DbPort != 0 {
-		dsn += fmt.Sprintf(" port=%d", dbConfig.DbPort)
+	dsn := fmt.Sprintf("host=%s dbname=%s sslmode=disable", cfg.DbHost, cfg.DbName)
+	if cfg.DbPort != 0 {
+		dsn += fmt.Sprintf(" port=%d", cfg.DbPort)
 	}
-	if dbConfig.DbUser != "" {
-		dsn += fmt.Sprintf(" user=%s", dbConfig.DbUser)
+	if cfg.DbUser != "" {
+		dsn += fmt.Sprintf(" user=%s", cfg.DbUser)
 	}
-	if dbConfig.DbPassword != "" {
-		dsn += fmt.Sprintf(" password=%s", dbConfig.DbPassword)
+	if cfg.DbPassword != "" {
+		dsn += fmt.Sprintf(" password=%s", cfg.DbPassword)
 	}
 	gormConfig := gorm.Config{
 		Logger:                 DbLogger,
@@ -83,6 +89,7 @@ func NewDB(dbConfig *config.Config) (*DB, error) {
 		TokenNftDB:        token_nft.NewTokenNftDB(gorm),
 		AccountNftInfoDB:  account_nft_info.NewAccountNftInfoDB(gorm),
 		DropInfoDB:        drop.NewDropInfoDB(gorm),
+		WalletInfoDB:      wallet.NewWalletInfoDB(gorm),
 		BlockListener:     block_listener.NewBlockListenerDB(gorm),
 	}
 	return db, nil
@@ -100,6 +107,7 @@ func (db *DB) Transaction(fn func(db *DB) error) error {
 			DropInfoDB:        drop.NewDropInfoDB(tx),
 			BlockListener:     block_listener.NewBlockListenerDB(tx),
 			AccountNftInfoDB:  account_nft_info.NewAccountNftInfoDB(tx),
+			WalletInfoDB:      wallet.NewWalletInfoDB(tx),
 		}
 		return fn(txDB)
 	})

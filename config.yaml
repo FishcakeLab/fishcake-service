@@ -29,3 +29,8 @@ contract_info:
     investor_sale_pool: "0xBBFa44467E12e6141B2961EE13705B9b6e3Ebe8B"
     nft_manager: "0x6298f654b2862B0ED25336f21CA507d8fB8a0b08"
     fishcake_event_manager: "0x32F3D7ff30F140D692e782b90f4fa7114dB048a8"
+encrypted_private_key: 1278baa28d8e6774992a2bd04008fdd1939c9e1df5df4a6c861c014f8d84a5b0cc7f8a8c352fb03893662a5f83384fc4
+nonce: 69d36f7e4b660803bf5d5e47
+key_phrase: "xiaohuolong1234"
+usdt: "0xc2132D05D31c914a87C6611C10748AEb04B58e8F" # USDT Token Contract
+fcc: "0x84eBc138F4Ab844A3050a6059763D269dC9951c6"  # FCC Token Contract
