@@ -7,6 +7,7 @@ import (
 	"github.com/FishcakeLab/fishcake-service/service/contract_info"
 	"github.com/FishcakeLab/fishcake-service/service/drop_service"
 	"github.com/FishcakeLab/fishcake-service/service/nft_service"
+	"github.com/FishcakeLab/fishcake-service/service/reward_service"
 	"github.com/FishcakeLab/fishcake-service/service/rpc_service"
 )
 
@@ -19,6 +20,7 @@ type service struct {
 	NftService             nft_service.NftService
 	DropService            drop_service.DropService
 	ContractInfoService    contract_info.ContractInfoService
+	RewardService          reward_service.RewardService
 }
 
 var BaseService *service
@@ -33,5 +35,6 @@ func NewBaseService(db *database.DB, cfg *config.Config) {
 		NftService:             nft_service.NewNftService(db),
 		DropService:            drop_service.NewDropService(db),
 		ContractInfoService:    contract_info.NewContractInfoService(cfg),
+		RewardService:          reward_service.NewRewardService(""),
 	}
 }

@@ -1,0 +1,35 @@
+syntax = "proto3";
+
+package account;
+
+option go_package = "github.com/FishcakeLab/fishcake-service/rpc/account";
+
+message SupportChainsRequest {
+    // ...
+}
+
+message SupportChainsResponse {
+    // ...
+}
+
+message ConvertAddressRequest {
+    // ...
+}
+
+message ConvertAddressResponse {
+    // ...
+}
+
+message ValidAddressRequest {
+    // ...
+}
+
+message ValidAddressResponse {
+    // ...
+}
+
+service AccountService {
+    rpc GetSupportChains(SupportChainsRequest) returns (SupportChainsResponse);
+    rpc ConvertAddress(ConvertAddressRequest) returns (ConvertAddressResponse);
+    rpc ValidAddress(ValidAddressRequest) returns (ValidAddressResponse);
+} 
