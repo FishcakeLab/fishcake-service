@@ -134,7 +134,7 @@ func TestGeneratePolygonWallet(t *testing.T) {
 // Test Case 2: Encrypt private key and save to YAML
 func TestEncryptPrivateKey(t *testing.T) {
 	// 1. Read config file for key phrase
-	yamlFile, err := ioutil.ReadFile("../../config.yaml")
+	yamlFile, err := ioutil.ReadFile("../config.yaml")
 	assert.NoError(t, err)
 
 	var configRead WalletConfig
