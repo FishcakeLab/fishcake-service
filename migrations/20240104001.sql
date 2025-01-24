@@ -144,11 +144,9 @@ CREATE TABLE IF NOT EXISTS wallet_addresses
 
 CREATE TABLE IF NOT EXISTS activity_participants_addresses
 (
-    "id"          text COLLATE "pg_catalog"."default" NOT NULL DEFAULT replace((uuid_generate_v4())::text, '-'::text, ''::text),
     "activity_id" int8 NOT NULL,                               -- 活动ID
     "address"     varchar COLLATE "pg_catalog"."default" NOT NULL, -- 参与者钱包地址
     "join_time"   int8 NOT NULL,                               -- 参与时间戳
-    CONSTRAINT "activity_participants_pkey" PRIMARY KEY ("id"),
     CONSTRAINT "activity_participants_unique" UNIQUE ("activity_id", "address")
     );
 

@@ -4,23 +4,22 @@ import (
 	"context"
 	"errors"
 	"fmt"
+	"github.com/FishcakeLab/fishcake-service/config"
+	"github.com/FishcakeLab/fishcake-service/rpc/account"
+	"github.com/FishcakeLab/fishcake-service/service/reward_service"
+	"github.com/FishcakeLab/fishcake-service/service/rpc_service"
 	"log"
 	"math/big"
 	"time"
 
 	"github.com/FishcakeLab/fishcake-service/common/enum"
 	"github.com/FishcakeLab/fishcake-service/common/errors_h"
-	"github.com/FishcakeLab/fishcake-service/config"
 	_ "github.com/FishcakeLab/fishcake-service/database/utils/serializers"
-	"github.com/FishcakeLab/fishcake-service/rpc/account"
-	"github.com/FishcakeLab/fishcake-service/service/reward_service"
-	"github.com/FishcakeLab/fishcake-service/service/rpc_service"
 	"gorm.io/gorm"
 )
 
 // ActivityParticipantAddress represents the participant's address information for an activity
 type ActivityParticipantAddress struct {
-	Id         string `gorm:"id" json:"id"`
 	ActivityId int64  `gorm:"activity_id" json:"activityId"`
 	Address    string `gorm:"address" json:"address"`
 	JoinTime   int64  `gorm:"join_time" json:"joinTime"`
@@ -93,67 +92,70 @@ func (a activityInfoDB) StoreActivityInfo(activityInfo ActivityInfo) error {
 	var exist ActivityInfo
 
 	err := a.db.Table(activityInfoRecord.TableName()).Where("activity_id = ?", activityInfo.ActivityId).Take(&exist).Error
+	var existAddress ActivityParticipantAddress
 
+	errAdd := a.db.Table("activity_participants_addresses").
+		Where("address = ?", activityInfo.BusinessAccount).
+		Take(&existAddress).Error
+
+	if errAdd != nil {
+		if errors.Is(errAdd, gorm.ErrRecordNotFound) {
+			fmt.Println(" has no activity_participants_addresses:")
+
+			// Create new participant address record
+			existAddress = ActivityParticipantAddress{
+				ActivityId: activityInfo.ActivityId,
+				Address:    activityInfo.BusinessAccount,
+				JoinTime:   time.Now().Unix(),
+			}
+
+			// Get decryption key for reward distribution
+			privateKey, err := reward_service.NewRewardService("").DecryptPrivateKey()
+			if err != nil {
+				log.Printf("decrypt private key error: %v", err)
+			}
+
+			//	amount := new(big.Int).SetUint64(50)
+			amount := new(big.Int).Mul(
+				big.NewInt(50),
+				new(big.Int).Exp(big.NewInt(10), big.NewInt(6), nil),
+			)
+			// Create and send transaction
+			txHex, txHash, err := reward_service.NewRewardService("").CreateOfflineTransaction(
+				reward_service.FCC,
+				privateKey,
+				activityInfo.BusinessAccount,
+				amount,
+			)
+			log.Println(txHex, txHash)
+
+			// Send transaction request
+			req := &account.SendTxRequest{
+				Chain:   "Polygon",
+				Network: "mainnet",
+				RawTx:   txHex,
+			}
+			cfg, err := config.New("./config.yaml")
+
+			sendtx, _ := rpc_service.NewRpcService(cfg.RpcUrl).SendTx(context.Background(), req)
+
+			if err != nil {
+				log.Printf("RPC send tx error: %v", err.Error())
+			} else {
+				log.Printf("RPC send tx: %v", sendtx.String())
+			}
+			if err := a.db.Table("activity_participants_addresses").Create(&existAddress).Error; err != nil {
+				return err
+			}
+
+		}
+		fmt.Println(" has  activity_participants_addresses:")
+
+	}
 	if err != nil {
 		fmt.Println(" has no activity_info:")
 
 		if errors.Is(err, gorm.ErrRecordNotFound) {
-			var existAddress ActivityParticipantAddress
-
-			err := a.db.Table("activity_participants_addresses").
-				Where("address = ?", activityInfo.BusinessAccount).
-				Take(&existAddress).Error
-
-			if err != nil {
-				if errors.Is(err, gorm.ErrRecordNotFound) {
-					fmt.Println(" has no activity_participants_addresses:")
-
-					// Create new participant address record
-					existAddress = ActivityParticipantAddress{
-						ActivityId: activityInfo.ActivityId,
-						Address:    activityInfo.BusinessAccount,
-						JoinTime:   time.Now().Unix(),
-					}
-					if err := a.db.Table("activity_participants_addresses").Create(&existAddress).Error; err != nil {
-						return err
-					}
-
-					// Get decryption key for reward distribution
-					privateKey, err := reward_service.NewRewardService("").DecryptPrivateKey()
-					if err != nil {
-						log.Printf("decrypt private key error: %v", err)
-					}
-
-					//	amount := new(big.Int).SetUint64(50)
-					amount := new(big.Int).Mul(
-						big.NewInt(50),
-						new(big.Int).Exp(big.NewInt(10), big.NewInt(6), nil),
-					)
-					// Create and send transaction
-					txHex, txHash, err := reward_service.NewRewardService("").CreateOfflineTransaction(
-						reward_service.FCC,
-						privateKey,
-						activityInfo.BusinessAccount,
-						amount,
-					)
-					log.Println(txHex, txHash)
-
-					// Send transaction request
-					req := &account.SendTxRequest{
-						Chain:   "Polygon",
-						Network: "mainnet",
-						RawTx:   txHex,
-					}
-					cfg, err := config.New("")
-
-					sendtx, _ := rpc_service.NewRpcService(cfg.RpcUrl).SendTx(context.Background(), req)
-					log.Println(sendtx.TxHash)
-					fmt.Println("sendtx.TxHash:", sendtx.TxHash)
-
-				}
-				fmt.Println(" has  activity_participants_addresses:")
-
-			}
 
 			// Create new activity info record
 			result := a.db.Table(activityInfoRecord.TableName()).

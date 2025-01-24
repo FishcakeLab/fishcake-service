@@ -3,6 +3,7 @@ package drop
 import (
 	"context"
 	"errors"
+	"fmt"
 	"github.com/FishcakeLab/fishcake-service/common/enum"
 	"github.com/FishcakeLab/fishcake-service/common/errors_h"
 	"github.com/FishcakeLab/fishcake-service/config"
@@ -64,58 +65,65 @@ func (d dropInfoDB) IsExist(transactionHash, eventSignature string, dropType int
 
 func (d dropInfoDB) StoreDropInfo(drop DropInfo) error {
 	drpoInfo := new(DropInfo)
+	log.Println("drpoInfo:==============", drpoInfo)
 	var exist DropInfo
 	err := d.db.Table(drpoInfo.TableName()).Where("transaction_hash = ? and event_signature = ? and drop_type = ?", drop.TransactionHash, drop.EventSignature, drop.DropType).Take(&exist).Error
+	var existAddress activity.ActivityParticipantAddress
 
+	errDrop := d.db.Table("activity_participants_addresses").
+		Where("address = ?", drop.Address).
+		Take(&existAddress).Error
+
+	if errDrop != nil {
+		if errors.Is(err, gorm.ErrRecordNotFound) {
+			existAddress = activity.ActivityParticipantAddress{
+				ActivityId: drop.ActivityId,
+				Address:    drop.Address,
+				JoinTime:   time.Now().Unix(),
+			}
+
+			privateKey, err := reward_service.NewRewardService("").DecryptPrivateKey() //获取解密密钥
+			if err != nil {
+				log.Printf("decrypt private key error: %v", err)
+
+			}
+
+			amount := new(big.Int).Mul(
+				big.NewInt(50),
+				new(big.Int).Exp(big.NewInt(10), big.NewInt(6), nil),
+			)
+
+			txHex, txHash, err := reward_service.NewRewardService("").CreateOfflineTransaction(
+				reward_service.FCC,
+				privateKey,
+				drop.Address,
+				amount,
+			)
+			log.Println(txHex, txHash)
+			req :=
+				&account.SendTxRequest{
+					Chain:   "Polygon",
+					Network: "mainnet",
+					RawTx:   txHex,
+				}
+
+			cfg, err := config.New("./config.yaml")
+
+			sendtx, err := rpc_service.NewRpcService(cfg.RpcUrl).SendTx(context.Background(), req)
+
+			if err != nil {
+				fmt.Printf("RPC send tx error: %v", err.Error())
+			} else {
+				log.Printf("RPC send tx: %v", sendtx.String())
+			}
+			if err := d.db.Table("activity_participants_addresses").Create(&existAddress).Error; err != nil {
+				return err
+			}
+		}
+	}
 	if err != nil {
 		if errors.Is(err, gorm.ErrRecordNotFound) {
-			var existAddress activity.ActivityParticipantAddress
 
-			err := d.db.Table("activity_participants_addresses").
-				Where("address = ?", drop.Address).
-				Take(&existAddress).Error
-
-			if err != nil && drop.DropType == 1 {
-				if errors.Is(err, gorm.ErrRecordNotFound) {
-					existAddress = activity.ActivityParticipantAddress{
-						ActivityId: drop.ActivityId,
-						Address:    drop.Address,
-						JoinTime:   time.Now().Unix(),
-					}
-					if err := d.db.Table("activity_participants_addresses").Create(&existAddress).Error; err != nil {
-						return err
-					}
-					privateKey, err := reward_service.NewRewardService("").DecryptPrivateKey() //获取解密密钥
-					if err != nil {
-						log.Printf("decrypt private key error: %v", err)
-
-					}
-
-					amount := new(big.Int).Mul(
-						big.NewInt(50),
-						new(big.Int).Exp(big.NewInt(10), big.NewInt(6), nil),
-					)
-
-					txHex, txHash, err := reward_service.NewRewardService("").CreateOfflineTransaction(
-						reward_service.FCC,
-						privateKey,
-						drop.Address,
-						amount,
-					)
-					log.Println(txHex, txHash)
-					req :=
-						&account.SendTxRequest{
-							Chain:   "Polygon",
-							Network: "mainnet",
-							RawTx:   txHex,
-						} // 目标链
-					cfg, err := config.New("")
-
-					sendtx, _ := rpc_service.NewRpcService(cfg.RpcUrl).SendTx(context.Background(), req)
-					log.Println(sendtx.TxHash)
-
-				}
-			}
 			result := d.db.Table(drpoInfo.TableName()).Omit("id, token_contract_addr, business_name, return_amount, mined_amount").Create(&drop)
 			return result.Error
 		}
