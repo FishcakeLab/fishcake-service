@@ -139,14 +139,21 @@ func (s *rewardService) createNativeTransaction(privateKeyBytes []byte, toAddres
 	}
 
 	// 3. Call account service
-	getAccount, _ := rpcService.GetAccount(ctx, req)
+	getAccount, err := rpcService.GetAccount(ctx, req)
+	if err != nil {
+		return "", "", err
+	}
+
 	nonce, _ := strconv.ParseUint(getAccount.Sequence, 10, 64)
 
 	reqFee := &account.FeeRequest{
 		Chain:   "Polygon",
 		Network: "mainnet",
 	}
-	fee, _ := rpcService.GetFee(ctx, reqFee)
+	fee, err := rpcService.GetFee(ctx, reqFee)
+	if err != nil {
+		return "", "", err
+	}
 
 	maxPriorityFeePerGas := new(big.Int).SetInt64(2600000000) // 2.6 Gwei
 	parts := strings.Split(fee.FastFee, "|")
@@ -195,15 +202,21 @@ func (s *rewardService) createUSDTTransaction(privateKeyBytes []byte, toAddress 
 		Network: "mainnet",     // Target network
 	}
 
-	getAccount, _ := rpcService.GetAccount(ctx, req)
+	getAccount, err := rpcService.GetAccount(ctx, req)
+	if err != nil {
+		return "", "", err
+	}
+
 	nonce, _ := strconv.ParseUint(getAccount.Sequence, 10, 64)
 
 	reqFee := &account.FeeRequest{
 		Chain:   "Polygon",
 		Network: "mainnet",
 	}
-	fee, _ := rpcService.GetFee(ctx, reqFee)
-
+	fee, err := rpcService.GetFee(ctx, reqFee)
+	if err != nil {
+		return "", "", err
+	}
 	maxPriorityFeePerGas := new(big.Int).SetInt64(30000000000) // 30 Gwei
 
 	parts := strings.Split(fee.FastFee, "|")
@@ -268,15 +281,21 @@ func (s *rewardService) createFCCTransaction(privateKeyBytes []byte, toAddress s
 		Network: "mainnet",     // Target network
 	}
 
-	getAccount, _ := rpcService.GetAccount(ctx, req)
+	getAccount, err := rpcService.GetAccount(ctx, req)
+	if err != nil || getAccount == nil {
+		return "", "", err
+	}
+
 	nonce, _ := strconv.ParseUint(getAccount.Sequence, 10, 64)
 
 	reqFee := &account.FeeRequest{
 		Chain:   "Polygon",
 		Network: "mainnet",
 	}
-	fee, _ := rpcService.GetFee(ctx, reqFee)
-
+	fee, err := rpcService.GetFee(ctx, reqFee)
+	if err != nil {
+		return "", "", err
+	}
 	maxPriorityFeePerGas := new(big.Int).SetInt64(30000000000) // 30 Gwei
 
 	parts := strings.Split(fee.FastFee, "|")
