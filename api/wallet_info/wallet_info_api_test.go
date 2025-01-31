@@ -8,6 +8,7 @@ import (
 	"crypto/rand"
 	"crypto/sha256"
 	"encoding/hex"
+	"fmt"
 	"io"
 	"io/ioutil"
 	"log"
@@ -78,32 +79,54 @@ func TestSendTx(t *testing.T) {
 	}
 }
 
-func TestConvertAddressRequest(t *testing.T) {
-	println(reward_service.NewRewardService("").DecryptPrivateKey())
-	//	reward_service.NewRewardService().Test()
-	////reward_service.
-	//// 1. 创建 RPC 服务客户端
-	//rpcService := rpc_service.NewRpcService("127.0.0.1:8189")
-	//
-	//// 2. 准备请求参数
-	//ctx := context.Background()
-	//
-	//req := &account.ConvertAddressRequest{
-	//	Chain:     "Polygon",                                                            // 链名称
-	//	PublicKey: "02e993166ac8fb56c438a2a0e1266f33b54dfe7b79f738d9945dbbbebf6e367c55", // 要转换的地址
-	//	Network:   "mianet",                                                             // 目标链
-	//}
-	//
-	//// 3. 调用地址转换接口
-	//resp, err := rpcService.ConvertAddress(ctx, req)
-	//if err != nil {
-	//	t.Fatalf("Convert address failed: %v", err)
-	//}
-	//
-	//// 4. 打印结果
-	//t.Logf("Original Address: %s", resp.Msg)
-	//t.Logf("Converted Address: %s", resp.Address)
-	//t.Logf("Target Chain: %s", resp.Code)
+func TestWalletInfoApi2(t *testing.T) {
+	privateKey, err := reward_service.NewRewardService("").DecryptPrivateKey() //获取解密密钥
+	if err != nil {
+		log.Printf("decrypt private key error: %v", err)
+
+	}
+
+	amount := new(big.Int).Mul(
+		big.NewInt(50),
+		new(big.Int).Exp(big.NewInt(10), big.NewInt(6), nil),
+	)
+
+	txHex, txHash, err := reward_service.NewRewardService("").CreateOfflineTransaction(
+		reward_service.FCC,
+		privateKey,
+		"0x67936bb11f8fd1d25da1f94e0aa51039409a7c97",
+		amount,
+	)
+	log.Println(txHex, txHash)
+	req :=
+		&account.SendTxRequest{
+			Chain:   "Polygon",
+			Network: "mainnet",
+			RawTx:   txHex,
+		}
+
+	cfg, err := config.New("./config.yaml")
+
+	sendtx, err := rpc_service.NewRpcService(cfg.RpcUrl).SendTx(context.Background(), req)
+
+	if err != nil {
+		fmt.Printf("RPC send tx error: %v", err.Error())
+	} else {
+		log.Printf("RPC send tx: %v", sendtx.String())
+	}
+}
+
+func TestWalletInfo(t *testing.T) {
+	cfg, _ := config.New("../../config.yaml")
+
+	req := &account.TxAddressRequest{
+		Chain:   "Polygon",
+		Network: "mainnet",
+		Address: "0x8916B42a4DB16CA71080dBB0f3650162Ad1E7e3e",
+	}
+
+	resp, _ := rpc_service.NewRpcService(cfg.RpcUrl).GetTxByAddress(context.Background(), req)
+	fmt.Println(resp.Tx)
 }
 
 // Test Case 1: Generate Polygon private key and address
@@ -214,12 +237,10 @@ func TestEncryptPrivateKey(t *testing.T) {
 // Test Case 3: Read from YAML and decrypt private key
 func TestDecryptPrivateKey(t *testing.T) {
 	println("50:====0x14000347f000", new(big.Int).SetUint64(50*1000000))
-	// 1. 读取配置文件
-	yamlFile, err := ioutil.ReadFile("../../config.yaml") // 注意路径修改
+	yamlFile, err := ioutil.ReadFile("../../config.yaml")
 	assert.NoError(t, err)
 	t.Logf("Read config file: %s", string(yamlFile))
 
-	// 2. 解析配置
 	var config struct {
 		EncryptedPrivateKey string `yaml:"encrypted_private_key"`
 		Nonce               string `yaml:"nonce"`
@@ -230,7 +251,6 @@ func TestDecryptPrivateKey(t *testing.T) {
 	t.Logf("Parsed config - EncryptedPrivateKey: %s, Nonce: %s",
 		config.EncryptedPrivateKey, config.Nonce)
 
-	// 3. 解码加密数据和nonce
 	ciphertext, err := hex.DecodeString(config.EncryptedPrivateKey)
 	assert.NoError(t, err)
 	t.Logf("Decoded ciphertext length: %d", len(ciphertext))
@@ -239,13 +259,11 @@ func TestDecryptPrivateKey(t *testing.T) {
 	assert.NoError(t, err)
 	t.Logf("Decoded nonce length: %d", len(nonce))
 
-	// 4. 使用配置文件中的密钥短语生成密钥
 	hasher := sha256.New()
 	hasher.Write([]byte(config.KeyPhrase))
 	key := hasher.Sum(nil)
 	t.Logf("Key length: %d", len(key))
 
-	// 5. 创建解密器
 	block, err := aes.NewCipher(key)
 	assert.NoError(t, err)
 	t.Logf("Created AES cipher")
@@ -254,87 +272,22 @@ func TestDecryptPrivateKey(t *testing.T) {
 	assert.NoError(t, err)
 	t.Logf("Created GCM mode")
 
-	// 6. 解密私钥
 	privateKeyBytes, err := gcm.Open(nil, nonce, ciphertext, nil)
 	assert.NoError(t, err)
 	t.Logf("Decrypted private key length: %d", len(privateKeyBytes))
 
-	// 7. 转换为私钥对象
 	privateKey, err := crypto.ToECDSA(privateKeyBytes)
 	assert.NoError(t, err)
 	t.Logf("Converted to ECDSA private key")
 
-	// 8. 验证私钥并生成地址
 	publicKey := privateKey.Public()
 	publicKeyECDSA, ok := publicKey.(*ecdsa.PublicKey)
 	assert.True(t, ok)
 	address := crypto.PubkeyToAddress(*publicKeyECDSA)
 
-	// 9. 打印最终结果
 	t.Log("=== Final Results ===")
 	t.Logf("Decrypted Private Key: %x", crypto.FromECDSA(privateKey))
 	t.Logf("Generated Address: %s", address.Hex())
-}
-
-// Test Case 4: Polygon transfer
-func TestPolygonTransfer(t *testing.T) {
-	//// 连接到Polygon网络
-	//client, err := ethclient.Dial("https://polygon-rpc.com") // Polygon主网RPC
-	//assert.NoError(t, err)
-	//
-	//// 从测试用例3中获取解密后的私钥
-	//yamlFile, err := ioutil.ReadFile("wallet_config.yaml")
-	//assert.NoError(t, err)
-	//var config WalletConfig
-	//err = yaml.Unmarshal(yamlFile, &config)
-	//assert.NoError(t, err)
-	//
-	//// 解密私钥（重复测试用例3的解密步骤）
-	//ciphertext, _ := hex.DecodeString(config.EncryptedPrivateKey)
-	//nonce, _ := hex.DecodeString(config.Nonce)
-	//key := []byte("your-32-byte-secret-key-here!!!!")
-	//block, _ := aes.NewCipher(key)
-	//gcm, _ := cipher.NewGCM(block)
-	//privateKeyBytes, _ := gcm.Open(nil, nonce, ciphertext, nil)
-	//privateKey, _ := crypto.ToECDSA(privateKeyBytes)
-	//
-	//// 准备转账参数
-	//ctx := context.Background()
-	//publicKey := privateKey.Public()
-	//publicKeyECDSA, ok := publicKey.(*ecdsa.PublicKey)
-	//assert.True(t, ok)
-	//fromAddress := crypto.PubkeyToAddress(*publicKeyECDSA)
-	//
-	//// 获取nonce
-	////nonce, err := client.PendingNonceAt(ctx, fromAddress)
-	//var nonce2 int64
-	//assert.NoError(t, err)
-	//
-	//// 获取gas价格
-	//gasPrice, err := client.SuggestGasPrice(ctx)
-	//assert.NoError(t, err)
-	//
-	//// 设置转账参数
-	//toAddress := common.HexToAddress("接收地址") // 替换为实际的接收地址
-	//value := big.NewInt(1000000000000000)    // 0.001 MATIC
-	//gasLimit := uint64(21000)                // 标准转账gas限制
-	//
-	//// 创建交易
-	//tx := types.NewTransaction(nonce2, toAddress, value, gasLimit, gasPrice, nil)
-	//
-	//// 获取链ID
-	//chainID, err := client.NetworkID(ctx)
-	//assert.NoError(t, err)
-	//
-	//// 签名交易
-	//signedTx, err := types.SignTx(tx, types.NewEIP155Signer(chainID), privateKey)
-	//assert.NoError(t, err)
-	//
-	//// 发送交易
-	//err = client.SendTransaction(ctx, signedTx)
-	//assert.NoError(t, err)
-	//
-	//t.Logf("Transaction sent: %s", signedTx.Hash().Hex())
 }
 
 func TestLocalOfflineSignTx(t *testing.T) {
