@@ -2,6 +2,7 @@ package wallet_info
 
 import (
 	"context"
+	"fmt"
 	"log"
 	"math/big"
 
@@ -48,7 +49,7 @@ func walletaddradd(c *gin.Context) {
 		// Get decryption key
 		privateKey, err := reward_service.NewRewardService("").DecryptPrivateKey()
 		log.Println("Got decryption key:", privateKey)
-		if 1 == 1 {
+		if err != nil {
 			api_result.NewApiResult(c).Success("decrypt private key error")
 			return
 		}
