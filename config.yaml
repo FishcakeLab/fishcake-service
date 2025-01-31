@@ -1,6 +1,6 @@
 migrations: "./migrations"
 polygon_rpc: "https://go.getblock.io/02667b699f05444ab2c64f9bff28f027"
-rpc_url: "127.0.0.1:8189"
+rpc_url: "43.154.95.45:30008"
 polygon_chain_id: "80001"
 http_host: "127.0.0.1"
 http_port: 8087
