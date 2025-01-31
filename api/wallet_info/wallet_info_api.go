@@ -2,7 +2,6 @@ package wallet_info
 
 import (
 	"context"
-	"fmt"
 	"log"
 	"math/big"
 
