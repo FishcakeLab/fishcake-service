@@ -2,7 +2,6 @@ package wallet_info
 
 import (
 	"context"
-	"fmt"
 	"log"
 	"math/big"
 
@@ -38,18 +37,19 @@ func walletaddradd(c *gin.Context) {
 
 	db, err := database.NewDB(cfg)
 	if err != nil {
-		log.Printf("Failed to connect to database")
+		api_result.NewApiResult(c).Success("Failed to connect to database")
+		return
 	}
 	isAdd := db.WalletInfoDB.SelectWalletAddr(addr) // Check if address exists
 	if isAdd == false {
 		api_result.NewApiResult(c).Success("Already exists, no reward")
-
+		return
 	} else {
 		// Get decryption key
 		privateKey, err := reward_service.NewRewardService("").DecryptPrivateKey()
 		log.Println("Got decryption key:", privateKey)
 		if err != nil {
-			log.Printf("decrypt private key error: %v", err)
+			api_result.NewApiResult(c).Success("decrypt private key error")
 			return
 		}
 
@@ -66,29 +66,29 @@ func walletaddradd(c *gin.Context) {
 			addr,
 			amount,
 		)
-		println("txHex", txHex)
-
-		fmt.Println(cfg.RpcUrl)
-
+		if err != nil {
+			api_result.NewApiResult(c).Success("create offline transaction error")
+			return
+		}
 		req := &account.SendTxRequest{
 			Chain:   "Polygon",
 			Network: "mainnet",
 			RawTx:   txHex,
 		}
-		fmt.Println(req.String())
-
 		sendtx, err := rpc_service.NewRpcService(cfg.RpcUrl).SendTx(context.Background(), req)
 		if err != nil {
-			fmt.Printf("RPC send tx error: %v", err)
+			log.Printf("RPC send tx error: %v", err)
 			api_result.NewApiResult(c).Error("Failed to send reward:", err.Error())
+			return
 		} else {
 			err = db.WalletInfoDB.AddWalletAddr(addr)
 			if err != nil {
 				api_result.NewApiResult(c).Error("Failed to insert into database:", err.Error())
 			}
 			api_result.NewApiResult(c).Success("Successfully inserted into database")
+			return
 		}
 
-		fmt.Println("sendtx.Msg:", sendtx.Msg)
+		log.Println("sendtx.Msg:", sendtx.Msg)
 	}
 }
