@@ -41,7 +41,6 @@ func RefreshLogFile() {
 		return
 	}
 	targetFile = f
-	fmt.Println("日志文件切割成功~")
 }
 
 func MyLogWriter() io.Writer {
