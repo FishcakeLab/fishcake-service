@@ -64,20 +64,13 @@ func (b blocksDB) BlockHeaderWithScope(f func(db *gorm.DB) *gorm.DB) (*BlockHead
 
 func (b blocksDB) LatestBlockHeader() (*BlockHeader, error) {
 	var header BlockHeader
-	print("LatestBlockHeader----")
 	result := b.gorm.Table("block_headers").Order("number DESC").Take(&header)
 	if result.Error != nil {
-		print("return nil,nil", result.Error)
-
 		if errors.Is(result.Error, gorm.ErrRecordNotFound) {
 			return nil, nil
 		}
-		print("return nil, result.Error")
-
 		return nil, result.Error
 	}
-	print("\treturn &header, nil\n")
-
 	return &header, nil
 }
 
@@ -87,7 +80,6 @@ func (b blocksDB) StoreBlockHeaders(headers []BlockHeader) error {
 }
 
 func (db *blocksDB) CleanBlockHerders() error {
-
 	tableName := "block_headers"
 	updateSql := `
 				DELETE FROM %s
@@ -99,7 +91,6 @@ func (db *blocksDB) CleanBlockHerders() error {
 				);
 				`
 	updateSql = fmt.Sprintf(updateSql, tableName, tableName, tableName)
-
 	err := db.gorm.Exec(updateSql).Error
 	return err
 }

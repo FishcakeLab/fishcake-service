@@ -91,7 +91,6 @@ func (pp *PolygonEventProcessor) onData() error {
 			}
 		}
 		pp.startHeight = lastListenBlock.BlockNumber
-		log.Println("last listen block number:", lastListenBlock.BlockNumber)
 		if pp.startHeight.Cmp(big.NewInt(int64(pp.eventStartBlock))) == -1 {
 			pp.startHeight = big.NewInt(int64(pp.eventStartBlock))
 		}
@@ -102,7 +101,6 @@ func (pp *PolygonEventProcessor) onData() error {
 	toHeight := new(big.Int).Add(fromHeight, big.NewInt(int64(pp.epoch)))
 
 	latestBlockHeader, err := pp.db.Blocks.LatestBlockHeader()
-	log.Println("latest block header", latestBlockHeader)
 	if err != nil {
 		pp.startHeight = new(big.Int).Sub(pp.startHeight, bigint.One)
 		return err
