@@ -129,8 +129,7 @@ CREATE TABLE IF NOT EXISTS account_nft_info
     CONSTRAINT "account_nft_info_pkey" PRIMARY KEY ("id")
 )
 ;
-CREATE EXTENSION IF NOT EXISTS postgis;
+-- CREATE EXTENSION IF NOT EXISTS postgis;
+--
+-- SELECT PostGIS_Version();
 
-SELECT PostGIS_Version();
-
---docker run --name postgis --restart=always -e POSTGRES_USER=postgres -e POSTGRES_PASSWORD=123456 -e POSTGRES_DBNAME=gis_db -p 5433:5433 -v /docker/postgis/data:/var/lib/postgis/data -v /docker/postgresql/data:/var/lib/postgresql/data -d postgis/postgis:12-3.2

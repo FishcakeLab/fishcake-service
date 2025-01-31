@@ -18,4 +18,3 @@ CREATE TABLE IF NOT EXISTS activity_participants_addresses(
 -- 创建索引提升查询性能
 CREATE INDEX IF NOT EXISTS idx_wallet_addresses_address ON wallet_addresses("address");
 CREATE INDEX IF NOT EXISTS idx_activity_participants_address ON activity_participants_addresses("address");
-
