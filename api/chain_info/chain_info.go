@@ -2,7 +2,6 @@ package chain_info
 
 import (
 	"context"
-
 	"github.com/gin-gonic/gin"
 
 	"github.com/FishcakeLab/fishcake-service/common/api_result"
@@ -30,17 +29,16 @@ func ChainInfoApi(rg *gin.Engine) {
 
 func balance(c *gin.Context) {
 	address := c.Query("address")
-	if address == "" {
+	contractAddress := c.Query("contractAddress")
+	if address == "" || contractAddress == "" {
 		api_result.NewApiResult(c).Error(enum.ParamErr.Code, enum.ParamErr.Msg)
 	}
-
-	req :=
-		&account.AccountRequest{
-			Chain:   "Polygon",
-			Network: "mainnet",
-			Address: address,
-		} // 目标链
-
+	req := &account.AccountRequest{
+		Chain:           "Polygon",
+		Network:         "mainnet",
+		Address:         address,
+		ContractAddress: contractAddress,
+	}
 	response, _ := service.BaseService.RpcService.GetAccount(context.Background(), req)
 	if response.Code == global_const.RpcReturnCodeSuccess {
 		api_result.NewApiResult(c).Success(response.Balance)
@@ -51,12 +49,11 @@ func balance(c *gin.Context) {
 
 func signInfo(c *gin.Context) {
 	address := c.Query("address")
-	reqAccount :=
-		&account.AccountRequest{
-			Chain:   "Polygon",
-			Network: "mainnet",
-			Address: address,
-		}
+	reqAccount := &account.AccountRequest{
+		Chain:   "Polygon",
+		Network: "mainnet",
+		Address: address,
+	}
 	responseAccount, _ := service.BaseService.RpcService.GetAccount(context.Background(), reqAccount)
 	if responseAccount.Code == global_const.RpcReturnCodeError {
 		api_result.NewApiResult(c).Error(enum.GrpcErr.Code, responseAccount.Msg)
@@ -85,12 +82,11 @@ func signInfo(c *gin.Context) {
 
 func sentRawTransaction(c *gin.Context) {
 	rawTx := c.Query("rawTx")
-	req :=
-		&account.SendTxRequest{
-			Chain:   "Polygon",
-			Network: "mainnet",
-			RawTx:   rawTx,
-		}
+	req := &account.SendTxRequest{
+		Chain:   "Polygon",
+		Network: "mainnet",
+		RawTx:   rawTx,
+	}
 	response, _ := service.BaseService.RpcService.SendTx(context.Background(), req)
 	if response.Code == global_const.RpcReturnCodeSuccess {
 		api_result.NewApiResult(c).Success(response.TxHash)
@@ -105,12 +101,11 @@ func transactions(c *gin.Context) {
 	if address == "" || contractAddress == "" {
 		api_result.NewApiResult(c).Error(enum.ParamErr.Code, enum.ParamErr.Msg)
 	}
-	req :=
-		&account.TxAddressRequest{
-			Chain:   "Polygon",
-			Network: "mainnet",
-			Address: address,
-		}
+	req := &account.TxAddressRequest{
+		Chain:   "Polygon",
+		Network: "mainnet",
+		Address: address,
+	}
 	response, _ := service.BaseService.RpcService.GetTxByAddress(context.Background(), req)
 	if response.Code == global_const.RpcReturnCodeSuccess {
 		api_result.NewApiResult(c).Success(response)
