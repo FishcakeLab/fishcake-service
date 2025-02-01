@@ -83,7 +83,7 @@ func (f *HeaderTraversal) NextHeaders(maxSize uint64) ([]types.Header, error) {
 		return nil, nil
 	} else if f.lastTraversedHeader != nil && headers[0].ParentHash != f.lastTraversedHeader.Hash() {
 		log.Error("block hash is not match", "lastTraversedHeader", f.lastTraversedHeader.Number, "headers[0]", headers[0].Number)
-		return nil, ErrHeaderTraversalAndProviderMismatchedState
+		// return nil, ErrHeaderTraversalAndProviderMismatchedState
 	}
 
 	f.lastTraversedHeader = &headers[numHeaders-1]

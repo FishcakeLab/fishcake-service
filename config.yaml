@@ -1,5 +1,5 @@
 migrations: "./migrations"
-polygon_rpc: "https://go.getblock.io/02667b699f05444ab2c64f9bff28f027"
+polygon_rpc: "https://polygon-mainnet.g.alchemy.com/v2/QySv9gLuQUaXy0BJnpNwW1d1N8ve0as4"
 rpc_url: "43.154.95.45:30008"
 polygon_chain_id: "80001"
 http_host: "127.0.0.1"
@@ -11,8 +11,8 @@ db_user: "guoshijiang"
 db_password: ""
 metrics_host:
 metrics_port:
-start_block: 67062207
-eventStartBlock: 67062207
+start_block: 67252625
+eventStartBlock: 67252625
 contracts:
     - "0x6298f654b2862B0ED25336f21CA507d8fB8a0b08"
     - "0x2CAf752814f244b3778e30c27051cc6B45CB1fc9"
