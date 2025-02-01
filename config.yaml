@@ -11,8 +11,8 @@ db_user: "guoshijiang"
 db_password: ""
 metrics_host:
 metrics_port:
-start_block: 67245800
-eventStartBlock: 67245800
+start_block: 67062207
+eventStartBlock: 67062207
 contracts:
     - "0x6298f654b2862B0ED25336f21CA507d8fB8a0b08"
     - "0x2CAf752814f244b3778e30c27051cc6B45CB1fc9"

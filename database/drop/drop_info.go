@@ -67,7 +67,7 @@ func (d dropInfoDB) IsExist(transactionHash, eventSignature string, dropType int
 
 func (d dropInfoDB) StoreDropInfo(drop DropInfo) error {
 	drpoInfo := new(DropInfo)
-	log.Info("drpoInfo:==============", drpoInfo)
+	log.Info("Store drop Information", "drpoInfo", drpoInfo)
 	var exist DropInfo
 	err := d.db.Table(drpoInfo.TableName()).Where("transaction_hash = ? and event_signature = ? and drop_type = ?", drop.TransactionHash, drop.EventSignature, drop.DropType).Take(&exist).Error
 	var existAddress activity.ActivityParticipantAddress

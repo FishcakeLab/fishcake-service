@@ -46,14 +46,23 @@ func (f *FishCake) Stopped() bool {
 
 func NewFishCake(cfg *config.Config, db *database.DB) *FishCake {
 	f := &FishCake{}
-	f.newApi(cfg, db)
+	err := f.newApi(cfg, db)
+	if err != nil {
+		return nil
+	}
 	return f
 }
 
 func NewIndex(ctx *cli.Context, cfg *config.Config, db *database.DB, shutdown context.CancelCauseFunc) *FishCake {
 	f := &FishCake{}
-	f.newIndex(ctx, cfg, db, shutdown)
-	f.newEvent(cfg, db, shutdown)
+	err := f.newIndex(ctx, cfg, db, shutdown)
+	if err != nil {
+		return nil
+	}
+	err = f.newEvent(cfg, db, shutdown)
+	if err != nil {
+		return nil
+	}
 	return f
 }
 
@@ -93,7 +102,7 @@ func (f *FishCake) newIndex(ctx *cli.Context, cfg *config.Config, db *database.D
 	chainId, _ := strconv.ParseUint(cfg.PolygonChainId, 10, 64)
 	syncConfig := &synchronizer.Config{
 		LoopIntervalMsec:  1,
-		HeaderBufferSize:  200,
+		HeaderBufferSize:  100,
 		StartHeight:       new(big.Int).SetUint64(cfg.StartBlock),
 		ConfirmationDepth: big.NewInt(50),
 		ChainId:           uint(chainId),
