@@ -1,5 +1,5 @@
 migrations: "./migrations"
-polygon_rpc: "https://polygon-mainnet.g.alchemy.com/v2/QySv9gLuQUaXy0BJnpNwW1d1N8ve0as4"
+polygon_rpc: ""
 rpc_url: "43.154.95.45:30008"
 polygon_chain_id: "80001"
 http_host: "127.0.0.1"

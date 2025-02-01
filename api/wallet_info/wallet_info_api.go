@@ -3,93 +3,114 @@ package wallet_info
 import (
 	"context"
 	"math/big"
+	"strconv"
+	"strings"
 
-	"github.com/ethereum/go-ethereum/log"
 	"github.com/gin-gonic/gin"
 
+	"github.com/ethereum/go-ethereum/log"
+
 	"github.com/FishcakeLab/fishcake-service/common/api_result"
-	"github.com/FishcakeLab/fishcake-service/config"
-	"github.com/FishcakeLab/fishcake-service/database"
+	"github.com/FishcakeLab/fishcake-service/common/enum"
 	"github.com/FishcakeLab/fishcake-service/rpc/account"
+	"github.com/FishcakeLab/fishcake-service/service"
 	"github.com/FishcakeLab/fishcake-service/service/reward_service"
-	"github.com/FishcakeLab/fishcake-service/service/rpc_service"
 )
 
 func WalletInfoApi(rg *gin.Engine) {
 	r := rg.Group("/v1/wallet")
-	r.GET("walletaddradd", walletaddradd)
+	r.GET("createWallet", CreateWallet)
 }
 
-func walletaddradd(c *gin.Context) {
-	defer func() {
-		if err := recover(); err != nil {
-			log.Info("walletaddradd panic: %v", err)
-			panic(err) // Re-throw to be caught by Recover middleware
-		}
-	}()
-
-	// Add logging for key steps
-	log.Info("Processing wallet address add request")
-
-	addr := c.Query("addr")
-
-	log.Info("Starting indexer")
-	cfg, err := config.New("./config.yaml")
-
-	db, err := database.NewDB(cfg)
-	if err != nil {
-		api_result.NewApiResult(c).Success("Failed to connect to database")
+func CreateWallet(c *gin.Context) {
+	addr := c.Query("address")
+	device := c.Query("device")
+	if addr == "" || device == "" {
+		api_result.NewApiResult(c).Error(enum.ParamErr.Code, enum.ParamErr.Msg)
 		return
 	}
-	isAdd := db.WalletInfoDB.SelectWalletAddr(addr) // Check if address exists
-	if isAdd == false {
-		api_result.NewApiResult(c).Success("Already exists, no reward")
+
+	isExist := service.BaseService.WalletService.WalletExist(addr, device)
+	if isExist == false {
+		api_result.NewApiResult(c).Success("This address and device has already exist, don't submit again")
+		return
+	}
+
+	privateKey, address, err := service.BaseService.RewardService.DecryptPrivateKey()
+	log.Info("Got decryption key:", privateKey)
+	if err != nil {
+		api_result.NewApiResult(c).Success("decrypt private key error")
+		return
+	}
+
+	amount := new(big.Int).Mul(
+		big.NewInt(50),
+		new(big.Int).Exp(big.NewInt(10), big.NewInt(6), nil),
+	)
+
+	fccAddress := service.BaseService.RewardService.FccAddress()
+
+	reqAccount := &account.AccountRequest{
+		Chain:           "Polygon",
+		Network:         "mainnet",
+		Address:         address.String(),
+		ContractAddress: fccAddress,
+	}
+
+	accountInfo, err := service.BaseService.RpcService.GetAccount(context.Background(), reqAccount)
+	if err != nil {
+		log.Error("get address nonce fail", "err", err)
+		return
+	}
+
+	nonce, _ := strconv.ParseUint(accountInfo.Sequence, 10, 64)
+
+	reqFee := &account.FeeRequest{
+		Chain:   "Polygon",
+		Network: "mainnet",
+	}
+	fee, err := service.BaseService.RpcService.GetFee(context.Background(), reqFee)
+	if err != nil {
+		log.Error("get fee fail", "err", err)
+		return
+	}
+
+	parts := strings.Split(fee.FastFee, "|")
+	firstNumberStr := parts[0]
+	bigIntValue := new(big.Int)
+	_, _ = bigIntValue.SetString(firstNumberStr, 10)
+
+	rawTx, _, err := service.BaseService.RewardService.CreateOfflineTransaction(
+		big.NewInt(137),
+		reward_service.ERC20,
+		privateKey,
+		addr,
+		nonce,
+		bigIntValue,
+		amount,
+	)
+	if err != nil {
+		api_result.NewApiResult(c).Success("create offline transaction error")
+		return
+	}
+
+	reqTx := &account.SendTxRequest{
+		Chain:   "Polygon",
+		Network: "mainnet",
+		RawTx:   rawTx,
+	}
+
+	sendTx, err := service.BaseService.RpcService.SendTx(context.Background(), reqTx)
+	if err != nil {
+		log.Error("RPC send tx error: %v", err)
+		api_result.NewApiResult(c).Error("4000", "Failed to send reward, Please resubmit again")
 		return
 	} else {
-		// Get decryption key
-		privateKey, err := reward_service.NewRewardService("").DecryptPrivateKey()
-		log.Info("Got decryption key:", privateKey)
+		err = service.BaseService.WalletService.StoreWallet(addr, device)
 		if err != nil {
-			api_result.NewApiResult(c).Success("decrypt private key error")
-			return
+			api_result.NewApiResult(c).Error("4000", "store wallet address fail")
 		}
-
-		// Calculate reward amount (50 * 10^6)
-		amount := new(big.Int).Mul(
-			big.NewInt(50),
-			new(big.Int).Exp(big.NewInt(10), big.NewInt(6), nil),
-		)
-
-		// Create and send transaction
-		txHex, _, err := reward_service.NewRewardService("").CreateOfflineTransaction(
-			reward_service.FCC,
-			privateKey,
-			addr,
-			amount,
-		)
-		if err != nil {
-			api_result.NewApiResult(c).Success("create offline transaction error")
-			return
-		}
-		req := &account.SendTxRequest{
-			Chain:   "Polygon",
-			Network: "mainnet",
-			RawTx:   txHex,
-		}
-		sendtx, err := rpc_service.NewRpcService(cfg.RpcUrl).SendTx(context.Background(), req)
-		if err != nil {
-			log.Info("RPC send tx error: %v", err)
-			api_result.NewApiResult(c).Error("Failed to send reward:", err.Error())
-			return
-		} else {
-			err = db.WalletInfoDB.AddWalletAddr(addr)
-			if err != nil {
-				api_result.NewApiResult(c).Error("Failed to insert into database:", err.Error())
-			}
-			api_result.NewApiResult(c).Success("Successfully inserted into database")
-			return
-		}
-
-		log.Info("sendtx.Msg:", sendtx.Msg)
+		api_result.NewApiResult(c).Success(sendTx.TxHash)
+		return
 	}
 }

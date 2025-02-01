@@ -3,6 +3,7 @@ package fishcake_service
 import (
 	"context"
 	"fmt"
+	"github.com/FishcakeLab/fishcake-service/worker/drop_worker"
 
 	"math/big"
 	"strconv"
@@ -68,7 +69,7 @@ func NewIndex(ctx *cli.Context, cfg *config.Config, db *database.DB, shutdown co
 
 func (f *FishCake) newApi(cfg *config.Config, db *database.DB) error {
 
-	service.NewBaseService(db, cfg)
+	service.NewApiBaseService(db, cfg)
 
 	gin.ForceConsoleColor()
 	r := gin.Default()
@@ -110,6 +111,7 @@ func (f *FishCake) newIndex(ctx *cli.Context, cfg *config.Config, db *database.D
 	client, _ := node.DialEthClient(ctx.Context, cfg.PolygonRpc)
 	syncer, _ := synchronizer.NewSynchronizer(cfg, syncConfig, db, client, shutdown)
 	worker, _ := clean_data_worker.NewWorkerProcessor(db, shutdown)
+	dropWorker, _ := drop_worker.NewDropWorkerProcessor(db, cfg, shutdown)
 	err := syncer.Start()
 	if err != nil {
 		log.Error("failed to start synchronizer:", err)
@@ -117,7 +119,12 @@ func (f *FishCake) newIndex(ctx *cli.Context, cfg *config.Config, db *database.D
 	}
 	err = worker.WorkerStart()
 	if err != nil {
-		log.Error("failed to start worker:", err)
+		log.Error("failed to start clean data worker:", err)
+		return err
+	}
+	err = dropWorker.DropWorkerStart()
+	if err != nil {
+		log.Error("failed to start drop  worker:", err)
 		return err
 	}
 	return nil

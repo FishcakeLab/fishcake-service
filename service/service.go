@@ -9,9 +9,12 @@ import (
 	"github.com/FishcakeLab/fishcake-service/service/nft_service"
 	"github.com/FishcakeLab/fishcake-service/service/reward_service"
 	"github.com/FishcakeLab/fishcake-service/service/rpc_service"
+	"github.com/FishcakeLab/fishcake-service/service/wallet_service"
 )
 
-type service struct {
+var BaseService *Service
+
+type Service struct {
 	Db                     *database.DB
 	Cfg                    *config.Config
 	ActivityInfoService    activity_service.ActivityInfoService
@@ -21,12 +24,11 @@ type service struct {
 	DropService            drop_service.DropService
 	ContractInfoService    contract_info.ContractInfoService
 	RewardService          reward_service.RewardService
+	WalletService          wallet_service.WalletService
 }
 
-var BaseService *service
-
-func NewBaseService(db *database.DB, cfg *config.Config) {
-	BaseService = &service{
+func NewBaseService(db *database.DB, cfg *config.Config) *Service {
+	return &Service{
 		Db:                     db,
 		Cfg:                    cfg,
 		ActivityInfoService:    activity_service.NewActivityInfoService(db),
@@ -35,6 +37,11 @@ func NewBaseService(db *database.DB, cfg *config.Config) {
 		NftService:             nft_service.NewNftService(db),
 		DropService:            drop_service.NewDropService(db),
 		ContractInfoService:    contract_info.NewContractInfoService(cfg),
-		RewardService:          reward_service.NewRewardService(""),
+		RewardService:          reward_service.NewRewardService(cfg),
+		WalletService:          wallet_service.NewWalletService(db),
 	}
+}
+
+func NewApiBaseService(db *database.DB, cfg *config.Config) {
+	BaseService = NewBaseService(db, cfg)
 }

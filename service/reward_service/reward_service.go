@@ -1,7 +1,6 @@
 package reward_service
 
 import (
-	"context"
 	"crypto/aes"
 	"crypto/cipher"
 	"crypto/ecdsa"
@@ -9,18 +8,14 @@ import (
 	"encoding/hex"
 	"fmt"
 	"math/big"
-	"strconv"
-	"strings"
 
-	"github.com/ethereum/go-ethereum/rlp"
-
-	"github.com/FishcakeLab/fishcake-service/rpc/account"
-	"github.com/FishcakeLab/fishcake-service/service/rpc_service"
-
-	"github.com/FishcakeLab/fishcake-service/config"
 	"github.com/ethereum/go-ethereum/common"
 	"github.com/ethereum/go-ethereum/core/types"
 	"github.com/ethereum/go-ethereum/crypto"
+	"github.com/ethereum/go-ethereum/log"
+	"github.com/ethereum/go-ethereum/rlp"
+
+	"github.com/FishcakeLab/fishcake-service/config"
 )
 
 // TokenType represents the type of token for transactions
@@ -28,210 +23,111 @@ type TokenType int
 
 const (
 	Native TokenType = iota // Native token
-	USDT                    // USDT token
-	FCC                     // FCC token
+	ERC20                   // ERC20 token
+)
+
+var (
+	StandardTransferGasLimit uint64 = 21000
+	ERC20TransferGasLimit    uint64 = 150000
+	MaxPriorityFeePerGas            = big.NewInt(30000000000)
 )
 
 type RewardService interface {
-	DecryptPrivateKey() ([]byte, error)
-	CreateOfflineTransaction(tokenType TokenType, privateKeyBytes []byte, toAddress string, amount *big.Int) (string, string, error)
+	DecryptPrivateKey() ([]byte, common.Address, error)
+	FccAddress() string
+	CreateOfflineTransaction(ChainID *big.Int, tokenType TokenType, privateKeyBytes []byte, toAddress string, nonce uint64, gasFeeCap *big.Int, amount *big.Int) (string, string, error)
 }
 
-//	var config struct {
-//		EncryptedPrivateKey string `yaml:"encrypted_private_key"`
-//		Nonce               string `yaml:"nonce"`
-//		KeyPhrase           string `yaml:"key_phrase"`
-//	}
 type rewardService struct {
 	cfg *config.Config
 }
 
-func NewRewardService(configPath string) RewardService {
-	if configPath == "" {
-		configPath = "config.yaml" // Default path
-	}
-
-	cfg, err := config.New(configPath)
-	if err != nil {
-		fmt.Printf("Error parsing config file: %v\n", err)
-		return &rewardService{}
-	}
-
+func NewRewardService(cfg *config.Config) RewardService {
 	return &rewardService{
 		cfg: cfg,
 	}
 }
 
-// DecryptPrivateKey reads parameters from config file and decrypts the private key
-func (s *rewardService) DecryptPrivateKey() ([]byte, error) {
-	if s.cfg == nil {
-		return nil, fmt.Errorf("config is not initialized")
-	}
-
-	// Get parameters from config
-	encryptedKey := s.cfg.EncryptedPrivateKey
-	nonce := s.cfg.Nonce
-	keyPhrase := s.cfg.KeyPhrase
-
-	// 1. Decode encrypted data and nonce
-	ciphertext, err := hex.DecodeString(encryptedKey)
+func (s *rewardService) DecryptPrivateKey() ([]byte, common.Address, error) {
+	ciphertext, err := hex.DecodeString(s.cfg.EncryptedPrivateKey)
 	if err != nil {
-		return nil, err
+		log.Error("Decode encrypt private key fail", "err", err)
+		return nil, common.Address{}, err
 	}
-	nonceBytes, err := hex.DecodeString(nonce)
+	nonceBytes, err := hex.DecodeString(s.cfg.Nonce)
 	if err != nil {
-		return nil, err
+		log.Error("Decode nonce fail", "err", err)
+		return nil, common.Address{}, err
 	}
 
-	// 2. Generate key
 	hasher := sha256.New()
-	hasher.Write([]byte(keyPhrase))
+	hasher.Write([]byte(s.cfg.KeyPhrase))
 	key := hasher.Sum(nil)
 
-	// 3. Create decrypter
 	block, err := aes.NewCipher(key)
 	if err != nil {
-		return nil, err
+		log.Error("New cipher fail", "err", err)
+		return nil, common.Address{}, err
 	}
 	gcm, err := cipher.NewGCM(block)
 	if err != nil {
-		return nil, err
+		log.Error("New gcm", "err", err)
+		return nil, common.Address{}, err
 	}
 
-	// 4. Decrypt private key
 	privateKeyBytes, err := gcm.Open(nil, nonceBytes, ciphertext, nil)
 	if err != nil {
-		return nil, err
+		log.Error("Open gcm fail", "err", err)
+		return nil, common.Address{}, err
 	}
 
-	return privateKeyBytes, nil
+	privateKey, _ := crypto.ToECDSA(privateKeyBytes)
+
+	// 3. Generate address from public key
+	publicKey := privateKey.Public()
+	publicKeyECDSA, _ := publicKey.(*ecdsa.PublicKey)
+	address := crypto.PubkeyToAddress(*publicKeyECDSA)
+
+	return privateKeyBytes, address, nil
 }
 
-// CreateOfflineTransaction creates an offline transaction based on token type
-func (s *rewardService) CreateOfflineTransaction(tokenType TokenType, privateKeyBytes []byte, toAddress string, amount *big.Int) (string, string, error) {
+func (s *rewardService) FccAddress() string {
+	return s.cfg.FCC
+}
+
+func (s *rewardService) CreateOfflineTransaction(ChainID *big.Int, tokenType TokenType, privateKeyBytes []byte, toAddress string, nonce uint64, gasFeeCap *big.Int, amount *big.Int) (string, string, error) {
 	switch tokenType {
 	case Native:
-		return s.createNativeTransaction(privateKeyBytes, toAddress, amount)
-	case USDT:
-		return s.createUSDTTransaction(privateKeyBytes, toAddress, amount)
-	case FCC:
-		return s.createFCCTransaction(privateKeyBytes, toAddress, amount)
+		return s.createNativeTransaction(ChainID, privateKeyBytes, toAddress, nonce, gasFeeCap, amount)
+	case ERC20:
+		return s.createERC20Transaction(ChainID, privateKeyBytes, toAddress, nonce, gasFeeCap, amount)
 	default:
 		return "", "", fmt.Errorf("unsupported token type: %v", tokenType)
 	}
 }
 
-// createNativeTransaction creates a native token transaction
-func (s *rewardService) createNativeTransaction(privateKeyBytes []byte, toAddress string, amount *big.Int) (string, string, error) {
+func (s *rewardService) createNativeTransaction(ChainID *big.Int, privateKeyBytes []byte, toAddress string, nonce uint64, gasFeeCap *big.Int, amount *big.Int) (string, string, error) {
 	to := common.HexToAddress(toAddress)
-	gasLimit := uint64(21000) // Standard transfer gas limit
-
-	// 1. Create RPC service client
-	rpcService := rpc_service.NewRpcService(s.cfg.RpcUrl)
-
-	// 2. Prepare request parameters
-	ctx := context.Background()
-
-	req := &account.AccountRequest{
-		Chain:   "Polygon", // Chain name
-		Address: toAddress, // Address to convert
-		Network: "mainnet", // Target network
-	}
-
-	// 3. Call account service
-	getAccount, err := rpcService.GetAccount(ctx, req)
-	if err != nil {
-		return "", "", err
-	}
-
-	nonce, _ := strconv.ParseUint(getAccount.Sequence, 10, 64)
-
-	reqFee := &account.FeeRequest{
-		Chain:   "Polygon",
-		Network: "mainnet",
-	}
-	fee, err := rpcService.GetFee(ctx, reqFee)
-	if err != nil {
-		return "", "", err
-	}
-
-	maxPriorityFeePerGas := new(big.Int).SetInt64(2600000000) // 2.6 Gwei
-	parts := strings.Split(fee.FastFee, "|")
-
-	// Extract first part and convert to big.Int
-	firstNumberStr := parts[0]
-	bigIntValue := new(big.Int)
-	_, _ = bigIntValue.SetString(firstNumberStr, 10)
-
-	chainID := new(big.Int).SetInt64(80001) // Mumbai testnet
-
 	dFeeTx := &types.DynamicFeeTx{
-		ChainID:   chainID,
+		ChainID:   ChainID,
 		Nonce:     nonce,
-		GasTipCap: maxPriorityFeePerGas,
-		GasFeeCap: bigIntValue,
-		Gas:       gasLimit,
+		GasTipCap: MaxPriorityFeePerGas,
+		GasFeeCap: gasFeeCap,
+		Gas:       StandardTransferGasLimit,
 		To:        &to,
 		Value:     amount,
 		Data:      nil,
 	}
-
 	privateKeyHex := hex.EncodeToString(privateKeyBytes)
-	return OfflineSignTx(dFeeTx, privateKeyHex, chainID)
+	return OfflineSignTx(dFeeTx, privateKeyHex, ChainID)
 }
 
-// createUSDTTransaction creates a USDT token transaction
-func (s *rewardService) createUSDTTransaction(privateKeyBytes []byte, toAddress string, amount *big.Int) (string, string, error) {
-	// 1. Create RPC service client
-	rpcService := rpc_service.NewRpcService(s.cfg.RpcUrl)
-
-	// 2. Prepare request parameters
-	ctx := context.Background()
-
+func (s *rewardService) createERC20Transaction(ChainID *big.Int, privateKeyBytes []byte, toAddress string, nonce uint64, gasFeeCap *big.Int, amount *big.Int) (string, string, error) {
 	privateKeyHex := hex.EncodeToString(privateKeyBytes)
-	privateKey, _ := crypto.ToECDSA(privateKeyBytes)
 
-	// 3. Generate address from public key
-	publicKey := privateKey.Public()
-	publicKeyECDSA, _ := publicKey.(*ecdsa.PublicKey)
-	address := crypto.PubkeyToAddress(*publicKeyECDSA)
-
-	req := &account.AccountRequest{
-		Chain:   "Polygon",     // Chain name
-		Address: address.Hex(), // Address to convert
-		Network: "mainnet",     // Target network
-	}
-
-	getAccount, err := rpcService.GetAccount(ctx, req)
-	if err != nil {
-		return "", "", err
-	}
-
-	nonce, _ := strconv.ParseUint(getAccount.Sequence, 10, 64)
-
-	reqFee := &account.FeeRequest{
-		Chain:   "Polygon",
-		Network: "mainnet",
-	}
-	fee, err := rpcService.GetFee(ctx, reqFee)
-	if err != nil {
-		return "", "", err
-	}
-	maxPriorityFeePerGas := new(big.Int).SetInt64(30000000000) // 30 Gwei
-
-	parts := strings.Split(fee.FastFee, "|")
-
-	// Extract first part and convert to big.Int
-	firstNumberStr := parts[0]
-	bigIntValue := new(big.Int)
-	_, _ = bigIntValue.SetString(firstNumberStr, 10)
-
-	contractAddr := s.cfg.USDT // USDT contract address
+	contractAddr := s.cfg.FCC
 	to := common.HexToAddress(contractAddr)
-	gasLimit := uint64(150000)            // ERC20 transfer gas limit
-	chainID := new(big.Int).SetInt64(137) // Polygon mainnet
 
-	// Create ERC20 transfer method data
 	transferFnSignature := []byte("transfer(address,uint256)")
 	hash := crypto.Keccak256(transferFnSignature)
 	methodID := hash[:4]
@@ -243,119 +139,34 @@ func (s *rewardService) createUSDTTransaction(privateKeyBytes []byte, toAddress 
 	data = append(data, methodID...)
 	data = append(data, paddedAddress...)
 	data = append(data, paddedAmount...)
-	bigIntValue = new(big.Int).Mul(bigIntValue, big.NewInt(2))
 
 	dFeeTx := &types.DynamicFeeTx{
-		ChainID:   chainID,
+		ChainID:   ChainID,
 		Nonce:     nonce,
-		GasTipCap: maxPriorityFeePerGas,
-		GasFeeCap: bigIntValue,
-		Gas:       gasLimit,
+		GasTipCap: MaxPriorityFeePerGas,
+		GasFeeCap: gasFeeCap,
+		Gas:       ERC20TransferGasLimit,
 		To:        &to,
-		Value:     new(big.Int), // Value is 0 for ERC20 transfer
+		Value:     big.NewInt(0),
 		Data:      data,
 	}
-
-	return OfflineSignTx(dFeeTx, privateKeyHex, chainID)
+	return OfflineSignTx(dFeeTx, privateKeyHex, ChainID)
 }
 
-func (s *rewardService) createFCCTransaction(privateKeyBytes []byte, toAddress string, amount *big.Int) (string, string, error) {
-
-	// 1. Create RPC service client
-	rpcService := rpc_service.NewRpcService(s.cfg.RpcUrl)
-
-	// 2. Prepare request parameters
-	ctx := context.Background()
-
-	privateKeyHex := hex.EncodeToString(privateKeyBytes)
-	privateKey, _ := crypto.ToECDSA(privateKeyBytes)
-
-	// 3. Generate address from public key
-	publicKey := privateKey.Public()
-	publicKeyECDSA, _ := publicKey.(*ecdsa.PublicKey)
-	address := crypto.PubkeyToAddress(*publicKeyECDSA)
-
-	req := &account.AccountRequest{
-		Chain:   "Polygon",     // Chain name
-		Address: address.Hex(), // Address to convert
-		Network: "mainnet",     // Target network
-	}
-
-	getAccount, err := rpcService.GetAccount(ctx, req)
-	if err != nil || getAccount == nil {
-		return "", "", err
-	}
-
-	nonce, _ := strconv.ParseUint(getAccount.Sequence, 10, 64)
-
-	reqFee := &account.FeeRequest{
-		Chain:   "Polygon",
-		Network: "mainnet",
-	}
-	fee, err := rpcService.GetFee(ctx, reqFee)
-	if err != nil {
-		return "", "", err
-	}
-	maxPriorityFeePerGas := new(big.Int).SetInt64(30000000000) // 30 Gwei
-
-	parts := strings.Split(fee.FastFee, "|")
-
-	// Extract first part and convert to big.Int
-	firstNumberStr := parts[0]
-	bigIntValue := new(big.Int)
-	_, _ = bigIntValue.SetString(firstNumberStr, 10)
-
-	contractAddr := s.cfg.FCC // FCC contract address
-	to := common.HexToAddress(contractAddr)
-	gasLimit := uint64(150000)            // ERC20 transfer gas limit
-	chainID := new(big.Int).SetInt64(137) // Polygon mainnet
-
-	// Create ERC20 transfer method data
-	transferFnSignature := []byte("transfer(address,uint256)")
-	hash := crypto.Keccak256(transferFnSignature)
-	methodID := hash[:4]
-
-	paddedAddress := common.LeftPadBytes(common.HexToAddress(toAddress).Bytes(), 32)
-	paddedAmount := common.LeftPadBytes(amount.Bytes(), 32)
-
-	var data []byte
-	data = append(data, methodID...)
-	data = append(data, paddedAddress...)
-	data = append(data, paddedAmount...)
-	bigIntValue = new(big.Int).Mul(bigIntValue, big.NewInt(2))
-
-	dFeeTx := &types.DynamicFeeTx{
-		ChainID:   chainID,
-		Nonce:     nonce,
-		GasTipCap: maxPriorityFeePerGas,
-		GasFeeCap: bigIntValue,
-		Gas:       gasLimit,
-		To:        &to,
-		Value:     new(big.Int), // Value is 0 for ERC20 transfer
-		Data:      data,
-	}
-
-	return OfflineSignTx(dFeeTx, privateKeyHex, chainID)
-}
-
-// OfflineSignTx signs a transaction offline
 func OfflineSignTx(txData *types.DynamicFeeTx, privateKey string, chainId *big.Int) (string, string, error) {
 	privateKeyEcdsa, err := crypto.HexToECDSA(privateKey)
 	if err != nil {
 		return "", "", err
 	}
-
 	tx := types.NewTx(txData)
 	signer := types.LatestSignerForChainID(chainId)
 	signedTx, err := types.SignTx(tx, signer, privateKeyEcdsa)
 	if err != nil {
 		return "", "", err
 	}
-
 	signedTxData, err := rlp.EncodeToBytes(signedTx)
 	if err != nil {
 		return "", "", err
 	}
-
 	return "0x" + hex.EncodeToString(signedTxData)[4:], signedTx.Hash().String(), nil
 }

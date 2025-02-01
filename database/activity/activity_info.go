@@ -1,22 +1,17 @@
 package activity
 
 import (
-	"context"
 	"errors"
-	"fmt"
 	"math/big"
 	"time"
 
-	"github.com/ethereum/go-ethereum/log"
 	"gorm.io/gorm"
+
+	"github.com/ethereum/go-ethereum/log"
 
 	"github.com/FishcakeLab/fishcake-service/common/enum"
 	"github.com/FishcakeLab/fishcake-service/common/errors_h"
-	"github.com/FishcakeLab/fishcake-service/config"
 	_ "github.com/FishcakeLab/fishcake-service/database/utils/serializers"
-	"github.com/FishcakeLab/fishcake-service/rpc/account"
-	"github.com/FishcakeLab/fishcake-service/service/reward_service"
-	"github.com/FishcakeLab/fishcake-service/service/rpc_service"
 )
 
 // ActivityParticipantAddress represents the participant's address information for an activity
@@ -24,6 +19,7 @@ type ActivityParticipantAddress struct {
 	ActivityId int64  `gorm:"activity_id" json:"activityId"`
 	Address    string `gorm:"address" json:"address"`
 	JoinTime   int64  `gorm:"join_time" json:"joinTime"`
+	Status     int8   `gorm:"column:status;default:0"`
 }
 
 // ActivityInfo represents the main activity information
@@ -59,6 +55,7 @@ type ActivityInfoView interface {
 		activityId,
 		pageNum, pageSize int) ([]ActivityInfo, int)
 	ActivityInfo(activityId int) ActivityInfo
+	UnDropActivityParticipantAddresses() []ActivityParticipantAddress
 }
 
 // ActivityInfoDB defines the interface for activity database operations
@@ -67,10 +64,36 @@ type ActivityInfoDB interface {
 	StoreActivityInfo(activityInfo ActivityInfo) error
 	ActivityFinish(activityId string, ReturnAmount, MinedAmount *big.Int) error
 	UpdateActivityInfo(activityId string) error
+	MarkActivityParticipantAddressDropped(string) error
 }
 
 type activityInfoDB struct {
 	db *gorm.DB
+}
+
+func (a activityInfoDB) UnDropActivityParticipantAddresses() []ActivityParticipantAddress {
+	var dropAddressList []ActivityParticipantAddress
+	err := a.db.Table("activity_participants_addresses").Where("status = ?", 0).Find(&dropAddressList).Error
+	if err != nil {
+		log.Error("Query undrop address list fail", "err", err)
+		return nil
+	}
+	return dropAddressList
+}
+
+func (a activityInfoDB) MarkActivityParticipantAddressDropped(address string) error {
+	var dropAddress *ActivityParticipantAddress
+	err := a.db.Table("activity_participants_addresses").Where("address = ?", address).First(&dropAddress).Error
+	if err != nil {
+		log.Error("mark drop address status fail", "err", err)
+		return err
+	}
+	dropAddress.Status = 1
+	errSave := a.db.Table("activity_participants_addresses").Save(&dropAddress).Error
+	if errSave != nil {
+		return errSave
+	}
+	return nil
 }
 
 // UpdateActivityInfo increments the already_drop_number for an activity
@@ -87,87 +110,33 @@ func (a activityInfoDB) ActivityFinish(activityId string, ReturnAmount, MinedAmo
 	return err
 }
 
-// StoreActivityInfo stores new activity information and handles reward distribution
 func (a activityInfoDB) StoreActivityInfo(activityInfo ActivityInfo) error {
 	activityInfoRecord := new(ActivityInfo)
 	var exist ActivityInfo
-
 	err := a.db.Table(activityInfoRecord.TableName()).Where("activity_id = ?", activityInfo.ActivityId).Take(&exist).Error
-	var existAddress ActivityParticipantAddress
-
-	errAdd := a.db.Table("activity_participants_addresses").
-		Where("address = ?", activityInfo.BusinessAccount).
-		Take(&existAddress).Error
-
-	if errAdd != nil {
-		if errors.Is(errAdd, gorm.ErrRecordNotFound) {
-			fmt.Println(" has no activity_participants_addresses:")
-
-			// Create new participant address record
-			existAddress = ActivityParticipantAddress{
-				ActivityId: activityInfo.ActivityId,
-				Address:    activityInfo.BusinessAccount,
-				JoinTime:   time.Now().Unix(),
-			}
-
-			// Get decryption key for reward distribution
-			privateKey, err := reward_service.NewRewardService("").DecryptPrivateKey()
-			if err != nil {
-				log.Info("decrypt private key error: %v", err)
-			}
-
-			//	amount := new(big.Int).SetUint64(50)
-			amount := new(big.Int).Mul(
-				big.NewInt(50),
-				new(big.Int).Exp(big.NewInt(10), big.NewInt(6), nil),
-			)
-			// Create and send transaction
-			txHex, txHash, err := reward_service.NewRewardService("").CreateOfflineTransaction(
-				reward_service.FCC,
-				privateKey,
-				activityInfo.BusinessAccount,
-				amount,
-			)
-			log.Info(txHex, txHash)
-
-			// Send transaction request
-			req := &account.SendTxRequest{
-				Chain:   "Polygon",
-				Network: "mainnet",
-				RawTx:   txHex,
-			}
-			cfg, err := config.New("./config.yaml")
-
-			sendtx, _ := rpc_service.NewRpcService(cfg.RpcUrl).SendTx(context.Background(), req)
-
-			if err != nil {
-				log.Info("RPC send tx error: %v", err.Error())
-			} else {
-				log.Info("RPC send tx: %v", sendtx.String())
-			}
-			if err := a.db.Table("activity_participants_addresses").Create(&existAddress).Error; err != nil {
-				return err
-			}
-
-		}
-		fmt.Println(" has  activity_participants_addresses:")
-
-	}
 	if err != nil {
-		fmt.Println(" has no activity_info:")
-
 		if errors.Is(err, gorm.ErrRecordNotFound) {
-
-			// Create new activity info record
-			result := a.db.Table(activityInfoRecord.TableName()).
-				Omit("id, basic_deadline, pro_deadline").
-				Create(&activityInfo)
-			return result.Error
+			errCreate := a.db.Table(activityInfoRecord.TableName()).Omit("id, basic_deadline, pro_deadline").Create(&activityInfo).Error
+			if errCreate != nil {
+				log.Error("create activityInfo error", "err", errCreate)
+				return errCreate
+			}
 		}
-		return err
 	}
-	fmt.Println(" has  activity_info:")
-
+	var existAddress ActivityParticipantAddress
+	errApAddress := a.db.Table("activity_participants_addresses").Where("address = ?", activityInfo.BusinessAccount).Take(&existAddress).Error
+	if errApAddress != nil && errors.Is(errApAddress, gorm.ErrRecordNotFound) {
+		existAddress = ActivityParticipantAddress{
+			ActivityId: activityInfo.ActivityId,
+			Address:    activityInfo.BusinessAccount,
+			Status:     0,
+			JoinTime:   time.Now().Unix(),
+		}
+		if errCreate := a.db.Table("activity_participants_addresses").Create(&existAddress).Error; errCreate != nil {
+			log.Error("Create activity_participants_addresses error", "err", errCreate)
+			return errCreate
+		}
+	}
 	return nil
 }
 

@@ -1,9 +1,7 @@
 package drop
 
 import (
-	"context"
 	"errors"
-	"fmt"
 	"gorm.io/gorm"
 	"math/big"
 	"time"
@@ -12,12 +10,8 @@ import (
 
 	"github.com/FishcakeLab/fishcake-service/common/enum"
 	"github.com/FishcakeLab/fishcake-service/common/errors_h"
-	"github.com/FishcakeLab/fishcake-service/config"
 	"github.com/FishcakeLab/fishcake-service/database/activity"
 	_ "github.com/FishcakeLab/fishcake-service/database/utils/serializers"
-	"github.com/FishcakeLab/fishcake-service/rpc/account"
-	"github.com/FishcakeLab/fishcake-service/service/reward_service"
-	"github.com/FishcakeLab/fishcake-service/service/rpc_service"
 )
 
 type DropInfo struct {
@@ -66,71 +60,33 @@ func (d dropInfoDB) IsExist(transactionHash, eventSignature string, dropType int
 }
 
 func (d dropInfoDB) StoreDropInfo(drop DropInfo) error {
-	drpoInfo := new(DropInfo)
-	log.Info("Store drop Information", "drpoInfo", drpoInfo)
+	dropInfo := new(DropInfo)
 	var exist DropInfo
-	err := d.db.Table(drpoInfo.TableName()).Where("transaction_hash = ? and event_signature = ? and drop_type = ?", drop.TransactionHash, drop.EventSignature, drop.DropType).Take(&exist).Error
+	err := d.db.Table(dropInfo.TableName()).Where("transaction_hash = ? and event_signature = ? and drop_type = ?", drop.TransactionHash, drop.EventSignature, drop.DropType).Take(&exist).Error
+	if err != nil && errors.Is(err, gorm.ErrRecordNotFound) {
+		errCreate := d.db.Table(dropInfo.TableName()).Omit("id, token_contract_addr, business_name, return_amount, mined_amount").Create(&drop).Error
+		if errCreate != nil {
+			log.Error("create drop fail", "err", errCreate)
+			return errCreate
+		}
+	}
 	var existAddress activity.ActivityParticipantAddress
-
-	errDrop := d.db.Table("activity_participants_addresses").
-		Where("address = ?", drop.Address).
-		Take(&existAddress).Error
-
+	errDrop := d.db.Table("activity_participants_addresses").Where("address = ?", drop.Address).Take(&existAddress).Error
 	if errDrop != nil {
 		if errors.Is(err, gorm.ErrRecordNotFound) {
 			existAddress = activity.ActivityParticipantAddress{
 				ActivityId: drop.ActivityId,
 				Address:    drop.Address,
+				Status:     0,
 				JoinTime:   time.Now().Unix(),
 			}
-
-			privateKey, err := reward_service.NewRewardService("").DecryptPrivateKey() //获取解密密钥
-			if err != nil {
-				log.Info("decrypt private key error: %v", err)
-
-			}
-
-			amount := new(big.Int).Mul(
-				big.NewInt(50),
-				new(big.Int).Exp(big.NewInt(10), big.NewInt(6), nil),
-			)
-
-			txHex, txHash, err := reward_service.NewRewardService("").CreateOfflineTransaction(
-				reward_service.FCC,
-				privateKey,
-				drop.Address,
-				amount,
-			)
-			log.Info(txHex, txHash)
-			req :=
-				&account.SendTxRequest{
-					Chain:   "Polygon",
-					Network: "mainnet",
-					RawTx:   txHex,
-				}
-
-			cfg, err := config.New("./config.yaml")
-
-			sendtx, err := rpc_service.NewRpcService(cfg.RpcUrl).SendTx(context.Background(), req)
-
-			if err != nil {
-				fmt.Printf("RPC send tx error: %v", err.Error())
-			} else {
-				log.Info("RPC send tx: %v", sendtx.String())
-			}
-			if err := d.db.Table("activity_participants_addresses").Create(&existAddress).Error; err != nil {
-				return err
+			if errCreate := d.db.Table("activity_participants_addresses").Create(&existAddress).Error; errCreate != nil {
+				log.Error("Create activity_participants_addresses fail", "err", errCreate)
+				return errCreate
 			}
 		}
 	}
-	if err != nil {
-		if errors.Is(err, gorm.ErrRecordNotFound) {
-
-			result := d.db.Table(drpoInfo.TableName()).Omit("id, token_contract_addr, business_name, return_amount, mined_amount").Create(&drop)
-			return result.Error
-		}
-	}
-	return err
+	return nil
 }
 
 func (d dropInfoDB) List(pageNum, pageSize int, address, dropType string) ([]DropInfo, int) {
