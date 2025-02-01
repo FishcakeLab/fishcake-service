@@ -3,6 +3,7 @@ package node
 import (
 	"errors"
 	"fmt"
+	"github.com/ethereum/go-ethereum/log"
 	"math/big"
 
 	"github.com/ethereum/go-ethereum/core/types"
@@ -81,6 +82,7 @@ func (f *HeaderTraversal) NextHeaders(maxSize uint64) ([]types.Header, error) {
 	if numHeaders == 0 {
 		return nil, nil
 	} else if f.lastTraversedHeader != nil && headers[0].ParentHash != f.lastTraversedHeader.Hash() {
+		log.Error("block hash is not match", "lastTraversedHeader", f.lastTraversedHeader.Number, "headers[0]", headers[0].Number)
 		return nil, ErrHeaderTraversalAndProviderMismatchedState
 	}
 
