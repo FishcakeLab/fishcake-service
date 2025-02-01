@@ -4,6 +4,12 @@ import (
 	"context"
 	"errors"
 	"fmt"
+	"gorm.io/gorm"
+	"math/big"
+	"time"
+
+	"github.com/ethereum/go-ethereum/log"
+
 	"github.com/FishcakeLab/fishcake-service/common/enum"
 	"github.com/FishcakeLab/fishcake-service/common/errors_h"
 	"github.com/FishcakeLab/fishcake-service/config"
@@ -12,10 +18,6 @@ import (
 	"github.com/FishcakeLab/fishcake-service/rpc/account"
 	"github.com/FishcakeLab/fishcake-service/service/reward_service"
 	"github.com/FishcakeLab/fishcake-service/service/rpc_service"
-	"gorm.io/gorm"
-	"log"
-	"math/big"
-	"time"
 )
 
 type DropInfo struct {
@@ -65,7 +67,7 @@ func (d dropInfoDB) IsExist(transactionHash, eventSignature string, dropType int
 
 func (d dropInfoDB) StoreDropInfo(drop DropInfo) error {
 	drpoInfo := new(DropInfo)
-	log.Println("drpoInfo:==============", drpoInfo)
+	log.Info("drpoInfo:==============", drpoInfo)
 	var exist DropInfo
 	err := d.db.Table(drpoInfo.TableName()).Where("transaction_hash = ? and event_signature = ? and drop_type = ?", drop.TransactionHash, drop.EventSignature, drop.DropType).Take(&exist).Error
 	var existAddress activity.ActivityParticipantAddress
@@ -84,7 +86,7 @@ func (d dropInfoDB) StoreDropInfo(drop DropInfo) error {
 
 			privateKey, err := reward_service.NewRewardService("").DecryptPrivateKey() //获取解密密钥
 			if err != nil {
-				log.Printf("decrypt private key error: %v", err)
+				log.Info("decrypt private key error: %v", err)
 
 			}
 
@@ -99,7 +101,7 @@ func (d dropInfoDB) StoreDropInfo(drop DropInfo) error {
 				drop.Address,
 				amount,
 			)
-			log.Println(txHex, txHash)
+			log.Info(txHex, txHash)
 			req :=
 				&account.SendTxRequest{
 					Chain:   "Polygon",
@@ -114,7 +116,7 @@ func (d dropInfoDB) StoreDropInfo(drop DropInfo) error {
 			if err != nil {
 				fmt.Printf("RPC send tx error: %v", err.Error())
 			} else {
-				log.Printf("RPC send tx: %v", sendtx.String())
+				log.Info("RPC send tx: %v", sendtx.String())
 			}
 			if err := d.db.Table("activity_participants_addresses").Create(&existAddress).Error; err != nil {
 				return err

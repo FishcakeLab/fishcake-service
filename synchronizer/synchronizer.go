@@ -3,7 +3,6 @@ package synchronizer
 import (
 	"context"
 	"fmt"
-	"log"
 	"math/big"
 	"strconv"
 	"time"
@@ -11,6 +10,7 @@ import (
 	"github.com/ethereum/go-ethereum"
 	"github.com/ethereum/go-ethereum/common"
 	"github.com/ethereum/go-ethereum/core/types"
+	"github.com/ethereum/go-ethereum/log"
 
 	"github.com/FishcakeLab/fishcake-service/common/tasks"
 	"github.com/FishcakeLab/fishcake-service/config"
@@ -52,21 +52,21 @@ func NewSynchronizer(ymlCfg *config.Config, cfg *Config, db *database.DB, client
 	}
 	var fromHeader *types.Header
 	if latestHeader != nil {
-		log.Println("detected last indexed block", "number", latestHeader.Number, "hash", latestHeader.Hash)
+		log.Info("detected last indexed block", "number", latestHeader.Number, "hash", latestHeader.Hash)
 		fromHeader = latestHeader.RLPHeader.Header()
 	} else if cfg.StartHeight.BitLen() > 0 {
-		log.Println("no indexed state starting from supplied L1 height;", "height =", cfg.StartHeight.String())
+		log.Info("no indexed state starting from supplied L1 height;", "height =", cfg.StartHeight.String())
 		header, err := client.BlockHeaderByNumber(cfg.StartHeight)
 		if err != nil {
-			log.Fatalf("fetch block header by number fail", "err", err)
+			log.Error("fetch block header by number fail", "err", err)
 			return nil, fmt.Errorf("could not fetch starting block header: %w", err)
 		}
 		fromHeader = header
 	} else {
-		log.Println("no indexed state, starting from genesis")
+		log.Info("no indexed state, starting from genesis")
 	}
 	chainIdInt, _ := strconv.Atoi(strconv.Itoa(int(cfg.ChainId)))
-	log.Println("Support chain", "chainId=", chainIdInt)
+	log.Info("Support chain", "chainId=", chainIdInt)
 	resCtx, resCancel := context.WithCancel(context.Background())
 	return &Synchronizer{
 		loopInterval:     time.Duration(cfg.LoopIntervalMsec) * time.Second,
@@ -87,22 +87,23 @@ func NewSynchronizer(ymlCfg *config.Config, cfg *Config, db *database.DB, client
 
 func (syncer *Synchronizer) Start() error {
 	tickerSyncer := time.NewTicker(syncer.loopInterval)
+	log.Info("exec synchronizer task", "loopInterval", syncer.loopInterval)
 	syncer.tasks.Go(func() error {
 		for range tickerSyncer.C {
 			if len(syncer.headers) > 0 {
-				log.Println("retrying previous batch")
+				log.Info("retrying previous batch")
 			} else {
 				newHeaders, err := syncer.headerTraversal.NextHeaders(syncer.headerBufferSize)
 				if err != nil {
-					log.Println("error querying for headers", "err", err)
+					log.Info("error querying for headers", "err", err)
 				} else if len(newHeaders) == 0 {
-					log.Println("no new headers. syncer at head?")
+					log.Info("no new headers. syncer at head?")
 				} else {
 					syncer.headers = newHeaders
 				}
 				latestHeader := syncer.headerTraversal.LatestHeader()
 				if latestHeader != nil {
-					log.Println("Latest header", "latestHeader Number", latestHeader.Number)
+					log.Info("Latest header", "latestHeader Number", latestHeader.Number)
 				}
 			}
 			err := syncer.processBatch(syncer.headers, syncer.ymlCfg)
@@ -116,11 +117,12 @@ func (syncer *Synchronizer) Start() error {
 }
 
 func (syncer *Synchronizer) processBatch(headers []types.Header, ymlCfg *config.Config) error {
+	fmt.Println("start handle batch", "headers length", len(headers))
 	if len(headers) == 0 {
 		return nil
 	}
 	firstHeader, lastHeader := headers[0], headers[len(headers)-1]
-	log.Println("extracting batch", "size", len(headers))
+	log.Info("extracting batch", "size", len(headers))
 
 	headerMap := make(map[common.Hash]*types.Header, len(headers))
 	for i := range headers {
@@ -134,7 +136,7 @@ func (syncer *Synchronizer) processBatch(headers []types.Header, ymlCfg *config.
 	filterQuery := ethereum.FilterQuery{FromBlock: firstHeader.Number, ToBlock: lastHeader.Number, Addresses: addresses}
 	logs, err := syncer.ethClient.FilterLogs(filterQuery)
 	if err != nil {
-		log.Println("failed to extract logs", "err", err)
+		log.Info("failed to extract logs", "err", err)
 		return err
 	}
 
@@ -145,7 +147,7 @@ func (syncer *Synchronizer) processBatch(headers []types.Header, ymlCfg *config.
 	}
 
 	if len(logs.Logs) > 0 {
-		log.Println("detected logs", "size", len(logs.Logs))
+		log.Info("detected logs", "size", len(logs.Logs))
 	}
 
 	blockHeaders := make([]common2.BlockHeader, 0, len(headers))
@@ -186,7 +188,7 @@ func (syncer *Synchronizer) processBatch(headers []types.Header, ymlCfg *config.
 			}
 			return nil
 		}); err != nil {
-			log.Println("unable to persist batch", err)
+			log.Info("unable to persist batch", err)
 			return nil, fmt.Errorf("unable to persist batch: %w", err)
 		}
 		return nil, nil

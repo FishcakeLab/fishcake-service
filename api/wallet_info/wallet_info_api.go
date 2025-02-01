@@ -2,8 +2,10 @@ package wallet_info
 
 import (
 	"context"
-	"log"
 	"math/big"
+
+	"github.com/ethereum/go-ethereum/log"
+	"github.com/gin-gonic/gin"
 
 	"github.com/FishcakeLab/fishcake-service/common/api_result"
 	"github.com/FishcakeLab/fishcake-service/config"
@@ -11,7 +13,6 @@ import (
 	"github.com/FishcakeLab/fishcake-service/rpc/account"
 	"github.com/FishcakeLab/fishcake-service/service/reward_service"
 	"github.com/FishcakeLab/fishcake-service/service/rpc_service"
-	"github.com/gin-gonic/gin"
 )
 
 func WalletInfoApi(rg *gin.Engine) {
@@ -22,17 +23,17 @@ func WalletInfoApi(rg *gin.Engine) {
 func walletaddradd(c *gin.Context) {
 	defer func() {
 		if err := recover(); err != nil {
-			log.Printf("walletaddradd panic: %v", err)
+			log.Info("walletaddradd panic: %v", err)
 			panic(err) // Re-throw to be caught by Recover middleware
 		}
 	}()
 
 	// Add logging for key steps
-	log.Printf("Processing wallet address add request")
+	log.Info("Processing wallet address add request")
 
 	addr := c.Query("addr")
 
-	log.Printf("Starting indexer")
+	log.Info("Starting indexer")
 	cfg, err := config.New("./config.yaml")
 
 	db, err := database.NewDB(cfg)
@@ -47,7 +48,7 @@ func walletaddradd(c *gin.Context) {
 	} else {
 		// Get decryption key
 		privateKey, err := reward_service.NewRewardService("").DecryptPrivateKey()
-		log.Println("Got decryption key:", privateKey)
+		log.Info("Got decryption key:", privateKey)
 		if err != nil {
 			api_result.NewApiResult(c).Success("decrypt private key error")
 			return
@@ -77,7 +78,7 @@ func walletaddradd(c *gin.Context) {
 		}
 		sendtx, err := rpc_service.NewRpcService(cfg.RpcUrl).SendTx(context.Background(), req)
 		if err != nil {
-			log.Printf("RPC send tx error: %v", err)
+			log.Info("RPC send tx error: %v", err)
 			api_result.NewApiResult(c).Error("Failed to send reward:", err.Error())
 			return
 		} else {
@@ -89,6 +90,6 @@ func walletaddradd(c *gin.Context) {
 			return
 		}
 
-		log.Println("sendtx.Msg:", sendtx.Msg)
+		log.Info("sendtx.Msg:", sendtx.Msg)
 	}
 }

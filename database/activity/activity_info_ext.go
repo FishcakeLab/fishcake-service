@@ -2,9 +2,10 @@ package activity
 
 import (
 	"errors"
+	"gorm.io/gorm"
+
 	"github.com/FishcakeLab/fishcake-service/common/enum"
 	"github.com/FishcakeLab/fishcake-service/common/errors_h"
-	"gorm.io/gorm"
 )
 
 type ActivityInfoExt struct {

@@ -50,7 +50,7 @@ func TestSendTx(t *testing.T) {
 		// Get decrypted key
 		privateKey, err := reward_service.NewRewardService("config.yaml").DecryptPrivateKey()
 		if err != nil {
-			log.Printf("decrypt private key error: %v", err)
+			log.Info("decrypt private key error: %v", err)
 			return
 		}
 
@@ -82,7 +82,7 @@ func TestSendTx(t *testing.T) {
 func TestWalletInfoApi2(t *testing.T) {
 	privateKey, err := reward_service.NewRewardService("").DecryptPrivateKey() //获取解密密钥
 	if err != nil {
-		log.Printf("decrypt private key error: %v", err)
+		log.Info("decrypt private key error: %v", err)
 
 	}
 
@@ -97,7 +97,7 @@ func TestWalletInfoApi2(t *testing.T) {
 		"0x67936bb11f8fd1d25da1f94e0aa51039409a7c97",
 		amount,
 	)
-	log.Println(txHex, txHash)
+	log.Info(txHex, txHash)
 	req :=
 		&account.SendTxRequest{
 			Chain:   "Polygon",
@@ -112,7 +112,7 @@ func TestWalletInfoApi2(t *testing.T) {
 	if err != nil {
 		fmt.Printf("RPC send tx error: %v", err.Error())
 	} else {
-		log.Printf("RPC send tx: %v", sendtx.String())
+		log.Info("RPC send tx: %v", sendtx.String())
 	}
 }
 

@@ -3,28 +3,21 @@ package database
 import (
 	"context"
 	"fmt"
-	"log"
-	"os"
-	"path/filepath"
-	"time"
-
+	"github.com/FishcakeLab/fishcake-service/config"
 	"github.com/FishcakeLab/fishcake-service/database/account_nft_info"
+	"github.com/FishcakeLab/fishcake-service/database/activity"
 	"github.com/FishcakeLab/fishcake-service/database/block_listener"
 	"github.com/FishcakeLab/fishcake-service/database/common"
 	"github.com/FishcakeLab/fishcake-service/database/drop"
 	"github.com/FishcakeLab/fishcake-service/database/event"
 	"github.com/FishcakeLab/fishcake-service/database/token_nft"
 	"github.com/FishcakeLab/fishcake-service/database/wallet"
-
+	"github.com/FishcakeLab/fishcake-service/synchronizer/retry"
 	"github.com/pkg/errors"
 	"gorm.io/driver/postgres"
 	"gorm.io/gorm"
-	"gorm.io/gorm/logger"
-
-	"github.com/FishcakeLab/fishcake-service/common/logs"
-	"github.com/FishcakeLab/fishcake-service/config"
-	"github.com/FishcakeLab/fishcake-service/database/activity"
-	"github.com/FishcakeLab/fishcake-service/synchronizer/retry"
+	"os"
+	"path/filepath"
 )
 
 type DB struct {
@@ -44,16 +37,6 @@ func NewDB(cfg *config.Config) (*DB, error) {
 	if cfg == nil {
 		return nil, fmt.Errorf("config is nil")
 	}
-	writer := logs.MyLogWriter()
-	DbLogger := logger.New(
-		log.New(writer, "\r\n", log.Ldate|log.Ltime|log.LstdFlags), // io writer
-		logger.Config{
-			SlowThreshold:             time.Second, // Slow SQL threshold
-			LogLevel:                  logger.Info, // Log level(这里记得根据需求改一下)
-			IgnoreRecordNotFoundError: true,        // Ignore ErrRecordNotFound error for logger
-			Colorful:                  false,       // Disable color
-		},
-	)
 	dsn := fmt.Sprintf("host=%s dbname=%s sslmode=disable", cfg.DbHost, cfg.DbName)
 	if cfg.DbPort != 0 {
 		dsn += fmt.Sprintf(" port=%d", cfg.DbPort)
@@ -65,7 +48,6 @@ func NewDB(cfg *config.Config) (*DB, error) {
 		dsn += fmt.Sprintf(" password=%s", cfg.DbPassword)
 	}
 	gormConfig := gorm.Config{
-		Logger:                 DbLogger,
 		SkipDefaultTransaction: true,
 		CreateBatchSize:        3_000,
 	}

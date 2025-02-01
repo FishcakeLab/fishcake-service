@@ -4,18 +4,19 @@ import (
 	"context"
 	"errors"
 	"fmt"
-	"github.com/FishcakeLab/fishcake-service/config"
-	"github.com/FishcakeLab/fishcake-service/rpc/account"
-	"github.com/FishcakeLab/fishcake-service/service/reward_service"
-	"github.com/FishcakeLab/fishcake-service/service/rpc_service"
-	"log"
 	"math/big"
 	"time"
 
+	"github.com/ethereum/go-ethereum/log"
+	"gorm.io/gorm"
+
 	"github.com/FishcakeLab/fishcake-service/common/enum"
 	"github.com/FishcakeLab/fishcake-service/common/errors_h"
+	"github.com/FishcakeLab/fishcake-service/config"
 	_ "github.com/FishcakeLab/fishcake-service/database/utils/serializers"
-	"gorm.io/gorm"
+	"github.com/FishcakeLab/fishcake-service/rpc/account"
+	"github.com/FishcakeLab/fishcake-service/service/reward_service"
+	"github.com/FishcakeLab/fishcake-service/service/rpc_service"
 )
 
 // ActivityParticipantAddress represents the participant's address information for an activity
@@ -112,7 +113,7 @@ func (a activityInfoDB) StoreActivityInfo(activityInfo ActivityInfo) error {
 			// Get decryption key for reward distribution
 			privateKey, err := reward_service.NewRewardService("").DecryptPrivateKey()
 			if err != nil {
-				log.Printf("decrypt private key error: %v", err)
+				log.Info("decrypt private key error: %v", err)
 			}
 
 			//	amount := new(big.Int).SetUint64(50)
@@ -127,7 +128,7 @@ func (a activityInfoDB) StoreActivityInfo(activityInfo ActivityInfo) error {
 				activityInfo.BusinessAccount,
 				amount,
 			)
-			log.Println(txHex, txHash)
+			log.Info(txHex, txHash)
 
 			// Send transaction request
 			req := &account.SendTxRequest{
@@ -140,9 +141,9 @@ func (a activityInfoDB) StoreActivityInfo(activityInfo ActivityInfo) error {
 			sendtx, _ := rpc_service.NewRpcService(cfg.RpcUrl).SendTx(context.Background(), req)
 
 			if err != nil {
-				log.Printf("RPC send tx error: %v", err.Error())
+				log.Info("RPC send tx error: %v", err.Error())
 			} else {
-				log.Printf("RPC send tx: %v", sendtx.String())
+				log.Info("RPC send tx: %v", sendtx.String())
 			}
 			if err := a.db.Table("activity_participants_addresses").Create(&existAddress).Error; err != nil {
 				return err

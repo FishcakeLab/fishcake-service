@@ -1,9 +1,9 @@
 package errors_h
 
 import (
-	"log"
 	"runtime/debug"
 
+	"github.com/ethereum/go-ethereum/log"
 	"github.com/gin-gonic/gin"
 
 	"github.com/FishcakeLab/fishcake-service/common/api_result"
@@ -34,13 +34,13 @@ func Recover(c *gin.Context) {
 		if r := recover(); r != nil {
 			if myErr, ok := r.(*error); ok {
 				//打印错误堆栈信息
-				log.Printf("panic: %v\n", r)
+				log.Info("panic: %v\n", r)
 				api_result.NewApiResult(c).Error(myErr.code, myErr.msg)
 			} else {
 				//封装通用json返回
 				api_result.NewApiResult(c).Error("9999", "Service upgrading. Please try again later.")
 				// 未知错误
-				log.Printf("panic: %v\n", r)
+				log.Info("panic: %v\n", r)
 				debug.PrintStack()
 			}
 			//终止后续接口调用，不加的话recover到异常后，还会继续执行接口里后续代码

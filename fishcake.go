@@ -3,13 +3,12 @@ package fishcake_service
 import (
 	"context"
 	"fmt"
-	"github.com/FishcakeLab/fishcake-service/api/wallet_info"
-	"github.com/FishcakeLab/fishcake-service/worker/clean_data_worker"
-	"log"
+
 	"math/big"
 	"strconv"
 	"time"
 
+	"github.com/ethereum/go-ethereum/log"
 	"github.com/gin-gonic/gin"
 	"github.com/urfave/cli/v2"
 
@@ -18,8 +17,8 @@ import (
 	"github.com/FishcakeLab/fishcake-service/api/contract_info"
 	"github.com/FishcakeLab/fishcake-service/api/drop_info"
 	"github.com/FishcakeLab/fishcake-service/api/nft_info"
+	"github.com/FishcakeLab/fishcake-service/api/wallet_info"
 	"github.com/FishcakeLab/fishcake-service/common/errors_h"
-	"github.com/FishcakeLab/fishcake-service/common/logs"
 	"github.com/FishcakeLab/fishcake-service/common/middleware"
 	"github.com/FishcakeLab/fishcake-service/config"
 	"github.com/FishcakeLab/fishcake-service/database"
@@ -27,6 +26,7 @@ import (
 	"github.com/FishcakeLab/fishcake-service/service"
 	"github.com/FishcakeLab/fishcake-service/synchronizer"
 	"github.com/FishcakeLab/fishcake-service/synchronizer/node"
+	"github.com/FishcakeLab/fishcake-service/worker/clean_data_worker"
 )
 
 type FishCake struct {
@@ -59,12 +59,9 @@ func NewIndex(ctx *cli.Context, cfg *config.Config, db *database.DB, shutdown co
 
 func (f *FishCake) newApi(cfg *config.Config, db *database.DB) error {
 
-	// init base service
 	service.NewBaseService(db, cfg)
 
 	gin.ForceConsoleColor()
-	gin.DefaultWriter = logs.MyLogWriter()
-
 	r := gin.Default()
 
 	r.Use(errors_h.Recover)
@@ -84,7 +81,11 @@ func (f *FishCake) newApi(cfg *config.Config, db *database.DB) error {
 	contract_info.ContractInfoApi(r)
 	wallet_info.WalletInfoApi(r)
 	port := fmt.Sprintf(":%d", cfg.HttpPort)
-	r.Run(port)
+	err := r.Run(port)
+	if err != nil {
+		log.Error("new api fail", "err", err)
+		return err
+	}
 	return nil
 }
 
@@ -102,12 +103,12 @@ func (f *FishCake) newIndex(ctx *cli.Context, cfg *config.Config, db *database.D
 	worker, _ := clean_data_worker.NewWorkerProcessor(db, shutdown)
 	err := syncer.Start()
 	if err != nil {
-		log.Println("failed to start synchronizer:", err)
+		log.Error("failed to start synchronizer:", err)
 		return err
 	}
 	err = worker.WorkerStart()
 	if err != nil {
-		log.Println("failed to start worker:", err)
+		log.Error("failed to start worker:", err)
 		return err
 	}
 	return nil
@@ -120,7 +121,7 @@ func (f *FishCake) newEvent(cfg *config.Config, db *database.DB, shutdown contex
 		cfg.StartBlock, cfg.EventStartBlock, epoch, shutdown, cfg.AliConfig)
 	err := eventProcessor.Start()
 	if err != nil {
-		log.Println("failed to start eventProcessor:", err)
+		log.Error("failed to start eventProcessor:", err)
 		return err
 	}
 	return nil

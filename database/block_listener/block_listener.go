@@ -2,10 +2,11 @@ package block_listener
 
 import (
 	"errors"
-	"github.com/ethereum/go-ethereum/log"
 	"gorm.io/gorm"
 	"math/big"
 	"time"
+
+	"github.com/ethereum/go-ethereum/log"
 )
 
 type BlockListener struct {

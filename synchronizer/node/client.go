@@ -4,7 +4,6 @@ import (
 	"context"
 	"errors"
 	"fmt"
-	"log"
 	"math/big"
 	"net"
 	"net/url"
@@ -15,6 +14,7 @@ import (
 	"github.com/ethereum/go-ethereum/common"
 	"github.com/ethereum/go-ethereum/common/hexutil"
 	"github.com/ethereum/go-ethereum/core/types"
+	"github.com/ethereum/go-ethereum/log"
 	"github.com/ethereum/go-ethereum/rpc"
 
 	"github.com/FishcakeLab/fishcake-service/common/global_const"
@@ -140,10 +140,10 @@ func (c *clnt) BlockHeaderByNumber(number *big.Int) (*types.Header, error) {
 	var header *types.Header
 	err := c.rpc.CallContext(ctxwt, &header, "eth_getBlockByNumber", toBlockNumArg(number), false)
 	if err != nil {
-		log.Fatalln("Call eth_getBlockByNumber method fail", "err", err)
+		log.Error("Call eth_getBlockByNumber method fail", "err", err)
 		return nil, err
 	} else if header == nil {
-		log.Println("header not found")
+		log.Info("header not found")
 		return nil, ethereum.NotFound
 	}
 

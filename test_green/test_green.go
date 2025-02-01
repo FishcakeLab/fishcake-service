@@ -14,7 +14,7 @@ func main() {
 		"",
 		"")
 	if createGreenClientErr != nil {
-		log.Println("failed to create green client", "err", createGreenClientErr)
+		log.Info("failed to create green client", "err", createGreenClientErr)
 		// handle exceptions
 		panic(createGreenClientErr)
 	}

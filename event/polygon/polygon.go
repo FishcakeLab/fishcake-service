@@ -3,12 +3,12 @@ package polygon
 import (
 	"context"
 	"fmt"
-	"log"
 	"math/big"
 	"time"
 
 	"github.com/aliyun/alibaba-cloud-sdk-go/services/green"
 	"github.com/ethereum/go-ethereum/common"
+	"github.com/ethereum/go-ethereum/log"
 
 	"github.com/FishcakeLab/fishcake-service/common/bigint"
 	"github.com/FishcakeLab/fishcake-service/common/tasks"
@@ -42,7 +42,7 @@ func NewEventProcessor(db *database.DB, loopInterval time.Duration, contracts []
 	//	aliConfig.AccessKeyId,
 	//	aliConfig.AccessKeySecret)
 	//if createGreenClientErr != nil {
-	//	log.Println("failed to create green client", "err", createGreenClientErr)
+	//	log.Info("failed to create green client", "err", createGreenClientErr)
 	//	// handle exceptions
 	//	panic(createGreenClientErr)
 	//}
@@ -64,12 +64,12 @@ func NewEventProcessor(db *database.DB, loopInterval time.Duration, contracts []
 
 func (pp *PolygonEventProcessor) Start() error {
 	tickerEventOn1 := time.NewTicker(pp.loopInterval)
-	log.Println("starting polygon bridge processor...")
+	log.Info("starting polygon bridge processor...")
 	pp.tasks.Go(func() error {
 		for range tickerEventOn1.C {
 			err := pp.onData()
 			if err != nil {
-				log.Println("no more l1 etl updates. shutting down l1 task")
+				log.Info("no more l1 etl updates. shutting down l1 task")
 				continue
 			}
 		}
@@ -82,7 +82,7 @@ func (pp *PolygonEventProcessor) onData() error {
 	if pp.startHeight == nil {
 		lastListenBlock, err := pp.db.BlockListener.GetLastBlockNumber()
 		if err != nil {
-			log.Println("failed to get last block heard", "err", err)
+			log.Info("failed to get last block heard", "err", err)
 			return err
 		}
 		if lastListenBlock == nil {
@@ -127,7 +127,7 @@ func (pp *PolygonEventProcessor) onData() error {
 		}
 		updateErr := pp.db.BlockListener.SaveOrUpdateLastBlockNumber(lastBlock)
 		if updateErr != nil {
-			log.Println("update last block err :", updateErr)
+			log.Info("update last block err :", updateErr)
 			return updateErr
 		}
 		return nil
@@ -145,13 +145,13 @@ func (pp *PolygonEventProcessor) eventsFetch(fromHeight, toHeight *big.Int) erro
 		contractEventFilter := event.ContractEvent{ContractAddress: common.HexToAddress(contract)}
 		events, err := pp.db.ContractEvent.ContractEventsWithFilter(contractEventFilter, fromHeight, toHeight)
 		if err != nil {
-			log.Println("failed to index ContractEventsWithFilter ", "err", err)
+			log.Info("failed to index ContractEventsWithFilter ", "err", err)
 			return err
 		}
 		for _, contractEvent := range events {
 			unpackErr := pp.eventUnpack(contractEvent)
 			if unpackErr != nil {
-				log.Println("failed to index events", "unpackErr", unpackErr)
+				log.Info("failed to index events", "unpackErr", unpackErr)
 				return unpackErr
 			}
 		}

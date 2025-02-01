@@ -3,8 +3,8 @@ package main
 import (
 	"context"
 	"github.com/urfave/cli/v2"
-	"log"
 
+	"github.com/ethereum/go-ethereum/log"
 	"github.com/ethereum/go-ethereum/params"
 
 	fishcake_service "github.com/FishcakeLab/fishcake-service"
@@ -16,32 +16,32 @@ import (
 )
 
 func runIndexer(ctx *cli.Context, shutdown context.CancelCauseFunc) (cliapp.Lifecycle, error) {
-	log.Printf("run indexer start")
+	log.Info("run indexer start")
 	cfg, err := config.New("./config.yaml")
 	if err != nil {
-		log.Printf("failed to load config", "err", err)
+		log.Info("failed to load config", "err", err)
 		return nil, err
 	}
 	db, err := database.NewDB(cfg)
 	if err != nil {
-		log.Fatalf("failed to connect to database", "err", err)
+		log.Error("failed to connect to database", "err", err)
 		return nil, err
 	}
 	return fishcake_service.NewIndex(ctx, cfg, db, shutdown), nil
 }
 
 func runApi(ctx *cli.Context, _ context.CancelCauseFunc) (cliapp.Lifecycle, error) {
-	log.Printf("run api start")
+	log.Info("run api start")
 	cfg, err := config.New("./config.yaml")
 
 	if err != nil {
-		log.Printf("Failed to load config", "err", err)
+		log.Info("Failed to load config", "err", err)
 		return nil, err
 	}
-	log.Printf("Run api start", "HttpHostHost", cfg.HttpHost, "HttpHostHost", cfg.HttpPort)
+	log.Info("Run api start", "HttpHostHost", cfg.HttpHost, "HttpHostHost", cfg.HttpPort)
 	db, err := database.NewDB(cfg)
 	if err != nil {
-		log.Fatalf("failed to connect to database", "err", err)
+		log.Error("failed to connect to database", "err", err)
 		return nil, err
 	}
 	defer func(db *database.DB) {
@@ -54,16 +54,16 @@ func runApi(ctx *cli.Context, _ context.CancelCauseFunc) (cliapp.Lifecycle, erro
 }
 
 func runMigrations(ctx *cli.Context) error {
-	log.Println("Running migrations...")
+	log.Info("Running migrations...")
 	cfg, err := config.New("./config.yaml")
 	if err != nil {
-		log.Printf("Failed to load config", "err", err)
+		log.Info("Failed to load config", "err", err)
 		return err
 	}
 	ctx.Context = opio.CancelOnInterrupt(ctx.Context)
 	db, err := database.NewDB(cfg)
 	if err != nil {
-		log.Fatalf("failed to connect to database", "err", err)
+		log.Error("failed to connect to database", "err", err)
 		return err
 	}
 	defer func(db *database.DB) {

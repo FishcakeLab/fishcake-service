@@ -2,10 +2,11 @@ package token_nft
 
 import (
 	"errors"
-	"github.com/FishcakeLab/fishcake-service/common/enum"
-	"github.com/FishcakeLab/fishcake-service/common/errors_h"
 	"gorm.io/gorm"
 	"math/big"
+
+	"github.com/FishcakeLab/fishcake-service/common/enum"
+	"github.com/FishcakeLab/fishcake-service/common/errors_h"
 )
 
 type TokenNft struct {
