@@ -29,8 +29,8 @@ contract_info:
     investor_sale_pool: "0xBBFa44467E12e6141B2961EE13705B9b6e3Ebe8B"
     nft_manager: "0x6298f654b2862B0ED25336f21CA507d8fB8a0b08"
     fishcake_event_manager: "0x2CAf752814f244b3778e30c27051cc6B45CB1fc9"
-encrypted_private_key: 35354c975b2fea9a352c9f3923edc3f08320e3fee8e5d7cc8a3230a8aa7eedaea2317e265bd64a945f07223136e2f40a
-nonce: 1b68df2e3ad0d7aaaf8a7997
+encrypted_private_key:
+nonce:
 key_phrase: ""
 usdt: "0xc2132D05D31c914a87C6611C10748AEb04B58e8F" # USDT Token Contract
 fcc: "0x84eBc138F4Ab844A3050a6059763D269dC9951c6"  # FCC Token Contract
