@@ -35,6 +35,7 @@ var (
 type RewardService interface {
 	DecryptPrivateKey() ([]byte, common.Address, error)
 	FccAddress() string
+	UsdtAddress() string
 	CreateOfflineTransaction(ChainID *big.Int, tokenType TokenType, privateKeyBytes []byte, toAddress string, nonce uint64, gasFeeCap *big.Int, amount *big.Int) (string, string, error)
 }
 
@@ -93,6 +94,10 @@ func (s *rewardService) DecryptPrivateKey() ([]byte, common.Address, error) {
 
 func (s *rewardService) FccAddress() string {
 	return s.cfg.FCC
+}
+
+func (s *rewardService) UsdtAddress() string {
+	return s.cfg.USDT
 }
 
 func (s *rewardService) CreateOfflineTransaction(ChainID *big.Int, tokenType TokenType, privateKeyBytes []byte, toAddress string, nonce uint64, gasFeeCap *big.Int, amount *big.Int) (string, string, error) {

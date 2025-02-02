@@ -3,7 +3,6 @@ package fishcake_service
 import (
 	"context"
 	"fmt"
-	"github.com/FishcakeLab/fishcake-service/worker/drop_worker"
 
 	"math/big"
 	"strconv"
@@ -28,6 +27,7 @@ import (
 	"github.com/FishcakeLab/fishcake-service/synchronizer"
 	"github.com/FishcakeLab/fishcake-service/synchronizer/node"
 	"github.com/FishcakeLab/fishcake-service/worker/clean_data_worker"
+	"github.com/FishcakeLab/fishcake-service/worker/drop_worker"
 )
 
 type FishCake struct {

@@ -44,6 +44,9 @@ func (dp *DropWorkerProcessor) DropWorkerStart() error {
 			unDropAddress := dp.db.ActivityInfoDB.UnDropActivityParticipantAddresses()
 			if unDropAddress != nil {
 				for _, value := range unDropAddress {
+					if value.Address == "" {
+						continue
+					}
 					privateKey, address, err := dp.baseService.RewardService.DecryptPrivateKey()
 					log.Info("Got decryption key:", privateKey)
 					if err != nil {
@@ -110,8 +113,11 @@ func (dp *DropWorkerProcessor) DropWorkerStart() error {
 						log.Error("RPC send tx error: %v", err)
 						return err
 					}
-					log.Info("send tx success", "txHash", sendTx.TxHash)
-
+					if sendTx != nil {
+						log.Info("send tx success", "txHash", sendTx.TxHash)
+					} else {
+						continue
+					}
 					errMark := dp.db.ActivityInfoDB.MarkActivityParticipantAddressDropped(value.Address)
 					if errMark != nil {
 						log.Error("Marked activity participant address dropped fail", "err", err)

@@ -82,16 +82,10 @@ func (a activityInfoDB) UnDropActivityParticipantAddresses() []ActivityParticipa
 }
 
 func (a activityInfoDB) MarkActivityParticipantAddressDropped(address string) error {
-	var dropAddress *ActivityParticipantAddress
-	err := a.db.Table("activity_participants_addresses").Where("address = ?", address).First(&dropAddress).Error
+	err := a.db.Table("activity_participants_addresses").Where("address = ?", address).Update("status", 1).Error
 	if err != nil {
 		log.Error("mark drop address status fail", "err", err)
 		return err
-	}
-	dropAddress.Status = 1
-	errSave := a.db.Table("activity_participants_addresses").Save(&dropAddress).Error
-	if errSave != nil {
-		return errSave
 	}
 	return nil
 }

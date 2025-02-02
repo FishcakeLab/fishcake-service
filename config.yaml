@@ -1,6 +1,6 @@
 migrations: "./migrations"
 polygon_rpc: ""
-rpc_url: "43.154.95.45:30008"
+rpc_url: "127.0.0.1:8189"
 polygon_chain_id: "80001"
 http_host: "127.0.0.1"
 http_port: 8087

@@ -47,9 +47,10 @@ func CreateWallet(c *gin.Context) {
 		big.NewInt(50),
 		new(big.Int).Exp(big.NewInt(10), big.NewInt(6), nil),
 	)
+	log.Info("Drop amount", "amount", amount)
 
 	fccAddress := service.BaseService.RewardService.FccAddress()
-
+	log.Info("Drop fccAddress", "fccAddress", fccAddress)
 	reqAccount := &account.AccountRequest{
 		Chain:           "Polygon",
 		Network:         "mainnet",
@@ -59,10 +60,10 @@ func CreateWallet(c *gin.Context) {
 
 	accountInfo, err := service.BaseService.RpcService.GetAccount(context.Background(), reqAccount)
 	if err != nil {
-		log.Error("get address nonce fail", "err", err)
+		api_result.NewApiResult(c).Success("get account info fail")
 		return
 	}
-
+	log.Info("Drop sign nonce", "nonce", accountInfo.Sequence)
 	nonce, _ := strconv.ParseUint(accountInfo.Sequence, 10, 64)
 
 	reqFee := &account.FeeRequest{
@@ -71,9 +72,10 @@ func CreateWallet(c *gin.Context) {
 	}
 	fee, err := service.BaseService.RpcService.GetFee(context.Background(), reqFee)
 	if err != nil {
-		log.Error("get fee fail", "err", err)
+		api_result.NewApiResult(c).Success("get fee fail")
 		return
 	}
+	log.Info("Drop fee", "fee", fee.FastFee)
 
 	parts := strings.Split(fee.FastFee, "|")
 	firstNumberStr := parts[0]
@@ -93,6 +95,7 @@ func CreateWallet(c *gin.Context) {
 		api_result.NewApiResult(c).Success("create offline transaction error")
 		return
 	}
+	log.Info("sign transaction tx", "rawTx", rawTx)
 
 	reqTx := &account.SendTxRequest{
 		Chain:   "Polygon",

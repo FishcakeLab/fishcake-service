@@ -45,7 +45,7 @@ func (w walletInfoDB) StoreWalletAddr(addr string, device string) error {
 func (w walletInfoDB) ExistWalletAddr(addr string, device string) bool {
 	var walletAddress WalletAddress
 	this := w.db.Table("wallet_addresses")
-	result := this.Where("address = ? and device = ?", addr, device).Take(&walletAddress)
+	result := this.Where("address = ? or device = ?", addr, device).Take(&walletAddress)
 	if errors.Is(result.Error, gorm.ErrRecordNotFound) {
 		return true
 	}
