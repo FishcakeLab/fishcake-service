@@ -44,7 +44,7 @@ func CreateWallet(c *gin.Context) {
 	}
 
 	amount := new(big.Int).Mul(
-		big.NewInt(50),
+		big.NewInt(5),
 		new(big.Int).Exp(big.NewInt(10), big.NewInt(6), nil),
 	)
 	log.Info("Drop amount", "amount", amount)
