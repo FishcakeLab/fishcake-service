@@ -174,7 +174,12 @@ func (syncer *Synchronizer) processBatch(headers []types.Header, ymlCfg *config.
 		timestamp := headerMap[logEvent.BlockHash].Time
 		blockNumber := headerMap[logEvent.BlockHash].Number
 		chainContractEvent[i] = event.ContractEventFromLog(&logs.Logs[i], timestamp, blockNumber)
-
+		log.Info("Handle contract logs",
+			"timestamp", headerMap[logEvent.BlockHash].Time,
+			"blockNumber", headerMap[logEvent.BlockHash].Number,
+			"eventSignature", chainContractEvent[i].EventSignature,
+			"rlpLog", chainContractEvent[i].RLPLog,
+		)
 	}
 
 	retryStrategy := &retry.ExponentialStrategy{Min: 1000, Max: 20_000, MaxJitter: 250}
