@@ -54,7 +54,7 @@ func (dp *DropWorkerProcessor) DropWorkerStart() error {
 					}
 
 					amount := new(big.Int).Mul(
-						big.NewInt(50),
+						big.NewInt(10),
 						new(big.Int).Exp(big.NewInt(10), big.NewInt(6), nil),
 					)
 
