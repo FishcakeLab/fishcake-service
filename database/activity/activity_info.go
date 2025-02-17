@@ -44,6 +44,14 @@ type ActivityInfo struct {
 	ReturnAmount       *big.Int `gorm:"serializer:u256;column:return_amount" json:"returnAmount"`
 	MinedAmount        *big.Int `gorm:"serializer:u256;column:mined_amount" json:"minedAmount"`
 }
+type WalletAddress struct {
+	ID        string `gorm:"column:id;primaryKey;default:replace((uuid_generate_v4())::text, '-'::text, ''::text)"`
+	Address   string `gorm:"column:address;unique;not null"`
+	Device    string `gorm:"column:device;unique;not null"`
+	CreatedAt int64  `gorm:"column:created_at;not null"`
+	Status    int8   `gorm:"column:status;default:1"`
+	Remark    string `gorm:"column:remark"`
+}
 
 func (ActivityInfo) TableName() string {
 	return "activity_info"
@@ -117,19 +125,26 @@ func (a activityInfoDB) StoreActivityInfo(activityInfo ActivityInfo) error {
 			}
 		}
 	}
-	var existAddress ActivityParticipantAddress
-	errApAddress := a.db.Table("activity_participants_addresses").Where("address = ?", activityInfo.BusinessAccount).Take(&existAddress).Error
-	if errApAddress != nil && errors.Is(errApAddress, gorm.ErrRecordNotFound) {
-		existAddress = ActivityParticipantAddress{
-			ActivityId: activityInfo.ActivityId,
-			Address:    activityInfo.BusinessAccount,
-			Status:     0,
-			JoinTime:   time.Now().Unix(),
+	var walletAddress WalletAddress
+	this := a.db.Table("wallet_addresses")
+	result := this.Where("address = ?", activityInfo.BusinessAccount).Take(&walletAddress)
+	if result.Error == nil {
+
+		var existAddress ActivityParticipantAddress
+		errApAddress := a.db.Table("activity_participants_addresses").Where("address = ?", activityInfo.BusinessAccount).Take(&existAddress).Error
+		if errApAddress != nil && errors.Is(errApAddress, gorm.ErrRecordNotFound) {
+			existAddress = ActivityParticipantAddress{
+				ActivityId: activityInfo.ActivityId,
+				Address:    activityInfo.BusinessAccount,
+				Status:     0,
+				JoinTime:   time.Now().Unix(),
+			}
+			if errCreate := a.db.Table("activity_participants_addresses").Create(&existAddress).Error; errCreate != nil {
+				log.Error("Create activity_participants_addresses error", "err", errCreate)
+				return errCreate
+			}
 		}
-		if errCreate := a.db.Table("activity_participants_addresses").Create(&existAddress).Error; errCreate != nil {
-			log.Error("Create activity_participants_addresses error", "err", errCreate)
-			return errCreate
-		}
+
 	}
 	return nil
 }
