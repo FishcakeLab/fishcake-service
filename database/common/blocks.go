@@ -3,9 +3,10 @@ package common
 import (
 	"errors"
 	"fmt"
+	"math/big"
+
 	"github.com/google/uuid"
 	"gorm.io/gorm"
-	"math/big"
 
 	"github.com/FishcakeLab/fishcake-service/database/utils"
 	_ "github.com/FishcakeLab/fishcake-service/database/utils/serializers"

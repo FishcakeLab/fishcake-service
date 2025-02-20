@@ -2,9 +2,10 @@ package block_listener
 
 import (
 	"errors"
-	"gorm.io/gorm"
 	"math/big"
 	"time"
+
+	"gorm.io/gorm"
 
 	"github.com/ethereum/go-ethereum/log"
 )
@@ -20,21 +21,16 @@ func (BlockListener) TableName() string {
 	return "block_listener"
 }
 
-type blockListenerDB struct {
-	gorm *gorm.DB
+type BlockListenerDBView interface {
+	GetLastBlockNumber() (lastBlock *BlockListener, err error)
 }
-
 type BlockListenerDB interface {
 	BlockListenerDBView
 	SaveOrUpdateLastBlockNumber(lastBlock BlockListener) error
 }
 
-type BlockListenerDBView interface {
-	GetLastBlockNumber() (lastBlock *BlockListener, err error)
-}
-
-func NewBlockListenerDB(db *gorm.DB) BlockListenerDB {
-	return &blockListenerDB{gorm: db}
+type blockListenerDB struct {
+	gorm *gorm.DB
 }
 
 func (db blockListenerDB) SaveOrUpdateLastBlockNumber(lastBlock BlockListener) error {
@@ -74,4 +70,8 @@ func (db blockListenerDB) GetLastBlockNumber() (lastBlock *BlockListener, err er
 		return nil, err
 	}
 	return lastBlock, nil
+}
+
+func NewBlockListenerDB(db *gorm.DB) BlockListenerDB {
+	return &blockListenerDB{gorm: db}
 }
