@@ -2,9 +2,10 @@ package drop
 
 import (
 	"errors"
-	"gorm.io/gorm"
 	"math/big"
 	"time"
+
+	"gorm.io/gorm"
 
 	"github.com/ethereum/go-ethereum/log"
 

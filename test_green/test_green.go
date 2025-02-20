@@ -3,9 +3,10 @@ package main
 import (
 	"encoding/json"
 	"fmt"
-	"github.com/aliyun/alibaba-cloud-sdk-go/services/green"
-	"log"
+
 	"strconv"
+
+	"github.com/aliyun/alibaba-cloud-sdk-go/services/green"
 )
 
 func main() {
@@ -14,7 +15,7 @@ func main() {
 		"",
 		"")
 	if createGreenClientErr != nil {
-		log.Info("failed to create green client", "err", createGreenClientErr)
+		// log.Info("failed to create green client", "err", createGreenClientErr)
 		// handle exceptions
 		panic(createGreenClientErr)
 	}
