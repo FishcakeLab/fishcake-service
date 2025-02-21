@@ -112,6 +112,17 @@ func (a activityInfoDB) ActivityFinish(activityId string, ReturnAmount, MinedAmo
 	return err
 }
 
+// func (a activityInfoDB) ActivityFinish(activityId string, ReturnAmount, MinedAmount *big.Int) error {
+// 	// use Model and Updates replace SQL
+// 	return a.db.Model(&ActivityInfo{}).
+// 		Where("activity_id = ?", activityId).
+// 		Updates(map[string]interface{}{
+// 			"activity_status": 2,
+// 			"return_amount":   ReturnAmount,
+// 			"mined_amount":    MinedAmount,
+// 		}).Error
+// }
+
 func (a activityInfoDB) StoreActivityInfo(activityInfo ActivityInfo) error {
 	activityInfoRecord := new(ActivityInfo)
 	var exist ActivityInfo
@@ -165,6 +176,26 @@ func (a activityInfoDB) ActivityInfo(activityId int) ActivityInfo {
 		return ActivityInfo{}
 	}
 }
+
+/**
+func (a activityInfoDB) ActivityInfo(activityId int) ActivityInfo {
+	var activityInfo ActivityInfo
+
+	query := a.db.Table(ActivityInfo{}.TableName()).
+		Joins("LEFT JOIN account_nft_info ON activity_info.business_account = account_nft_info.address").
+		Select("activity_info.*,account_nft_info.basic_deadline,account_nft_info.pro_deadline").
+		Where("activity_id = ?", activityId)
+
+	result := query.Take(&activityInfo)
+	if result.Error == nil {
+		return activityInfo
+	} else if !errors.Is(result.Error, gorm.ErrRecordNotFound) {
+		errors_h.NewErrorByEnum(enum.DataErr)
+		return ActivityInfo{}
+	}
+	return ActivityInfo{}
+}
+*/
 
 // ActivityInfoList retrieves a list of activities based on various filters
 func (a activityInfoDB) ActivityInfoList(activityFilter, businessAccount, activityStatus, businessName, tokenContractAddr, latitude, longitude, scope string, activityId, pageNum, pageSize int) ([]ActivityInfo, int) {
