@@ -68,6 +68,10 @@ type contractEventDB struct {
 	gorm *gorm.DB
 }
 
+func (db *contractEventDB) ContractEvent(uuid uuid.UUID) (*ContractEvent, error) {
+	return db.ContractEventWithFilter(ContractEvent{GUID: uuid})
+}
+
 func (db *contractEventDB) ContractEventCount(filter ContractEvent) (int64, error) {
 	var count int64
 	result := db.gorm.Table("contract_events").Where(&filter).Count(&count)
@@ -80,34 +84,9 @@ func (db *contractEventDB) ContractEventCount(filter ContractEvent) (int64, erro
 	return count, nil
 }
 
-func NewContractEventsDB(db *gorm.DB) ContractEventDB {
-	return &contractEventDB{gorm: db}
-}
-
-func (db *contractEventDB) LatestContractEventWithFilter(filter ContractEvent) (*ContractEvent, error) {
-	var l1ContractEvent ContractEvent
-	result := db.gorm.Where(&filter).Order("timestamp DESC").Take(&l1ContractEvent)
-	if result.Error != nil {
-		if errors.Is(result.Error, gorm.ErrRecordNotFound) {
-			return nil, nil
-		}
-		return nil, result.Error
-	}
-	return &l1ContractEvent, nil
-}
-
-func (db *contractEventDB) StoreContractEvents(events []ContractEvent) error {
-	result := db.gorm.CreateInBatches(&events, utils.BatchInsertSize)
-	return result.Error
-}
-
-func (db *contractEventDB) ContractEvent(uuid uuid.UUID) (*ContractEvent, error) {
-	return db.ContractEventWithFilter(ContractEvent{GUID: uuid})
-}
-
 func (db *contractEventDB) ContractEventWithFilter(filter ContractEvent) (*ContractEvent, error) {
 	var l2ContractEvent ContractEvent
-	result := db.gorm.Where(&filter).Take(&l2ContractEvent)
+	result := db.gorm.Table("contract_events").Where(&filter).Take(&l2ContractEvent)
 	if result.Error != nil {
 		if errors.Is(result.Error, gorm.ErrRecordNotFound) {
 			return nil, nil
@@ -141,4 +120,25 @@ func (db *contractEventDB) ContractEventsWithFilter(filter ContractEvent, fromHe
 	}
 
 	return events, nil
+}
+
+func (db *contractEventDB) LatestContractEventWithFilter(filter ContractEvent) (*ContractEvent, error) {
+	var l1ContractEvent ContractEvent
+	result := db.gorm.Table("contract_events").Where(&filter).Order("timestamp DESC").Take(&l1ContractEvent)
+	if result.Error != nil {
+		if errors.Is(result.Error, gorm.ErrRecordNotFound) {
+			return nil, nil
+		}
+		return nil, result.Error
+	}
+	return &l1ContractEvent, nil
+}
+
+func (db *contractEventDB) StoreContractEvents(events []ContractEvent) error {
+	result := db.gorm.Table("contract_events").CreateInBatches(&events, utils.BatchInsertSize)
+	return result.Error
+}
+
+func NewContractEventsDB(db *gorm.DB) ContractEventDB {
+	return &contractEventDB{gorm: db}
 }
