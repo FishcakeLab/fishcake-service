@@ -105,6 +105,14 @@ func (a activityInfoDB) UpdateActivityInfo(activityId string) error {
 	return err
 }
 
+// optional: use Model and Updates replace SQL
+// func (a activityInfoDB) UpdateActivityInfo(activityId string) error {
+// 	result := a.db.Table("activity_info").
+// 		Where("activity_id = ?", activityId).
+// 		UpdateColumn("already_drop_number", gorm.Expr("already_drop_number + 1"))
+// 	return result.Error
+// }
+
 // ActivityFinish updates activity status and amounts when activity is finished
 func (a activityInfoDB) ActivityFinish(activityId string, ReturnAmount, MinedAmount *big.Int) error {
 	finishSql := `update activity_info set activity_status = 2, return_amount = ?, mined_amount = ? where activity_id = ?`
@@ -112,6 +120,7 @@ func (a activityInfoDB) ActivityFinish(activityId string, ReturnAmount, MinedAmo
 	return err
 }
 
+// optional: use Model and Updates replace SQL
 // func (a activityInfoDB) ActivityFinish(activityId string, ReturnAmount, MinedAmount *big.Int) error {
 // 	// use Model and Updates replace SQL
 // 	return a.db.Model(&ActivityInfo{}).
