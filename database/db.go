@@ -3,6 +3,13 @@ package database
 import (
 	"context"
 	"fmt"
+	"os"
+	"path/filepath"
+
+	"github.com/pkg/errors"
+	"gorm.io/driver/postgres"
+	"gorm.io/gorm"
+
 	"github.com/FishcakeLab/fishcake-service/config"
 	"github.com/FishcakeLab/fishcake-service/database/account_nft_info"
 	"github.com/FishcakeLab/fishcake-service/database/activity"
@@ -13,11 +20,6 @@ import (
 	"github.com/FishcakeLab/fishcake-service/database/token_nft"
 	"github.com/FishcakeLab/fishcake-service/database/wallet"
 	"github.com/FishcakeLab/fishcake-service/synchronizer/retry"
-	"github.com/pkg/errors"
-	"gorm.io/driver/postgres"
-	"gorm.io/gorm"
-	"os"
-	"path/filepath"
 )
 
 type DB struct {
