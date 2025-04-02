@@ -2,9 +2,12 @@ package wallet_info
 
 import (
 	"context"
+	"github.com/FishcakeLab/fishcake-service/database"
+	"github.com/FishcakeLab/fishcake-service/database/drop"
 	"math/big"
 	"strconv"
 	"strings"
+	"time"
 
 	"github.com/gin-gonic/gin"
 
@@ -113,6 +116,33 @@ func CreateWallet(c *gin.Context) {
 		if err != nil {
 			api_result.NewApiResult(c).Error("4000", "store wallet address fail")
 		}
+
+		//StoreDropInfo
+		drop := drop.DropInfo{
+			Address:         addr,
+			DropAmount:      amount,
+			ActivityId:      0,
+			DropType:        1,
+			Timestamp:       uint64(time.Now().Unix()),
+			TransactionHash: sendTx.TxHash,
+			EventSignature:  "",
+		}
+
+		if err := service.BaseService.Db.Transaction(func(tx *database.DB) error {
+			resultErr, exist := tx.DropInfoDB.IsExist(drop.TransactionHash, drop.EventSignature, drop.DropType)
+			if !exist && resultErr == nil {
+				if err := tx.DropInfoDB.StoreDropInfo(drop); err != nil {
+					return err
+				}
+			} else {
+				return resultErr
+			}
+			return nil
+		}); err != nil {
+			log.Error("StoreDropInfo error: %v", err)
+			return
+		}
+
 		api_result.NewApiResult(c).Success(sendTx.TxHash)
 		return
 	}

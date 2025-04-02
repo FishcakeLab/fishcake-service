@@ -3,6 +3,7 @@ package drop_worker
 import (
 	"context"
 	"fmt"
+	"github.com/FishcakeLab/fishcake-service/database/drop"
 	"math/big"
 	"strconv"
 	"strings"
@@ -123,6 +124,32 @@ func (dp *DropWorkerProcessor) DropWorkerStart() error {
 						log.Error("Marked activity participant address dropped fail", "err", err)
 						return errMark
 					}
+
+					//StoreDropInfo
+					drop := drop.DropInfo{
+						Address:         value.Address,
+						DropAmount:      amount,
+						ActivityId:      0,
+						DropType:        1,
+						Timestamp:       uint64(time.Now().Unix()),
+						TransactionHash: sendTx.TxHash,
+						EventSignature:  "",
+					}
+
+					if err := dp.db.Transaction(func(tx *database.DB) error {
+						resultErr, exist := tx.DropInfoDB.IsExist(drop.TransactionHash, drop.EventSignature, drop.DropType)
+						if !exist && resultErr == nil {
+							if err := tx.DropInfoDB.StoreDropInfo(drop); err != nil {
+								return err
+							}
+						} else {
+							return resultErr
+						}
+						return nil
+					}); err != nil {
+						return err
+					}
+
 				}
 			}
 		}
