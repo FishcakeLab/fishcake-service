@@ -126,7 +126,7 @@ func (dp *DropWorkerProcessor) DropWorkerStart() error {
 					}
 
 					//StoreDropInfo
-					drop := drop.DropInfo{
+					dropInfo := drop.DropInfo{
 						Address:         value.Address,
 						DropAmount:      amount,
 						ActivityId:      0,
@@ -137,9 +137,9 @@ func (dp *DropWorkerProcessor) DropWorkerStart() error {
 					}
 
 					if err := dp.db.Transaction(func(tx *database.DB) error {
-						resultErr, exist := tx.DropInfoDB.IsExist(drop.TransactionHash, drop.EventSignature, drop.DropType)
+						resultErr, exist := tx.DropInfoDB.IsExist(dropInfo.TransactionHash, dropInfo.EventSignature, dropInfo.DropType)
 						if !exist && resultErr == nil {
-							if err := tx.DropInfoDB.StoreDropInfo(drop); err != nil {
+							if err := tx.DropInfoDB.StoreDropInfo(dropInfo); err != nil {
 								return err
 							}
 						} else {
