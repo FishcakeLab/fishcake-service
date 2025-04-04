@@ -112,6 +112,7 @@ func (f *FishCake) newIndex(ctx *cli.Context, cfg *config.Config, db *database.D
 	syncer, _ := synchronizer.NewSynchronizer(cfg, syncConfig, db, client, shutdown)
 	worker, _ := clean_data_worker.NewWorkerProcessor(db, shutdown)
 	dropWorker, _ := drop_worker.NewDropWorkerProcessor(db, cfg, shutdown)
+	systemDropWorker, _ := drop_worker.NewSystemDropWorkerProcessor(db, cfg, shutdown, client)
 	err := syncer.Start()
 	if err != nil {
 		log.Error("failed to start synchronizer:", err)
@@ -125,6 +126,11 @@ func (f *FishCake) newIndex(ctx *cli.Context, cfg *config.Config, db *database.D
 	err = dropWorker.DropWorkerStart()
 	if err != nil {
 		log.Error("failed to start drop  worker:", err)
+		return err
+	}
+	err = systemDropWorker.SystemDropWorkerStart()
+	if err != nil {
+		log.Error("failed to start system drop worker:", err)
 		return err
 	}
 	return nil

@@ -33,6 +33,7 @@ type DB struct {
 	BlockListener     block_listener.BlockListenerDB
 	AccountNftInfoDB  account_nft_info.AccountNftInfoDB
 	WalletInfoDB      wallet.WalletInfoDB
+	SystemDropInfoDB  drop.SystemDropInfoDB
 }
 
 func NewDB(cfg *config.Config) (*DB, error) {
@@ -73,6 +74,7 @@ func NewDB(cfg *config.Config) (*DB, error) {
 		TokenNftDB:        token_nft.NewTokenNftDB(gorm),
 		AccountNftInfoDB:  account_nft_info.NewAccountNftInfoDB(gorm),
 		DropInfoDB:        drop.NewDropInfoDB(gorm),
+		SystemDropInfoDB:  drop.NewSystemDropInfoDB(gorm),
 		WalletInfoDB:      wallet.NewWalletInfoDB(gorm),
 		BlockListener:     block_listener.NewBlockListenerDB(gorm),
 	}
@@ -89,6 +91,7 @@ func (db *DB) Transaction(fn func(db *DB) error) error {
 			ActivityInfoExtDB: activity.NewActivityInfoExtDB(tx),
 			TokenNftDB:        token_nft.NewTokenNftDB(tx),
 			DropInfoDB:        drop.NewDropInfoDB(tx),
+			SystemDropInfoDB:  drop.NewSystemDropInfoDB(tx),
 			BlockListener:     block_listener.NewBlockListenerDB(tx),
 			AccountNftInfoDB:  account_nft_info.NewAccountNftInfoDB(tx),
 			WalletInfoDB:      wallet.NewWalletInfoDB(tx),

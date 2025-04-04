@@ -44,6 +44,8 @@ type EthClient interface {
 
 	TxByHash(common.Hash) (*types.Transaction, error)
 
+	TxReceiptByHash(common.Hash) (*types.Receipt, error)
+
 	StorageHash(common.Address, *big.Int) (common.Hash, error)
 	FilterLogs(ethereum.FilterQuery) (Logs, error)
 
@@ -249,6 +251,21 @@ func (c *clnt) TxByHash(hash common.Hash) (*types.Transaction, error) {
 
 	var tx *types.Transaction
 	err := c.rpc.CallContext(ctxwt, &tx, "eth_getTransactionByHash", hash)
+	if err != nil {
+		return nil, err
+	} else if tx == nil {
+		return nil, ethereum.NotFound
+	}
+
+	return tx, nil
+}
+
+func (c *clnt) TxReceiptByHash(hash common.Hash) (*types.Receipt, error) {
+	ctxwt, cancel := context.WithTimeout(context.Background(), defaultRequestTimeout)
+	defer cancel()
+
+	var tx *types.Receipt
+	err := c.rpc.CallContext(ctxwt, &tx, "eth_getTransactionReceipt", hash)
 	if err != nil {
 		return nil, err
 	} else if tx == nil {

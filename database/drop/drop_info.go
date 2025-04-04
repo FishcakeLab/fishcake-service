@@ -21,6 +21,7 @@ type DropInfo struct {
 	Address           string   `json:"address" gorm:"address"`
 	DropAmount        *big.Int `json:"dropAmount" gorm:"serializer:u256;column:drop_amount"`
 	DropType          int8     `gorm:"drop_type" json:"dropType"`
+	SystemDropType    string   `gorm:"system_drop_type" json:"-"`
 	Timestamp         uint64   `json:"timestamp" gorm:"timestamp"`
 	TokenContractAddr string   `gorm:"token_contract_addr" json:"tokenContractAddr"`
 	BusinessName      string   `gorm:"business_name" json:"businessName"`
@@ -59,7 +60,12 @@ type dropInfoDB struct {
 func (d dropInfoDB) List(pageNum, pageSize int, address, dropType string) ([]DropInfo, int) {
 	var tokenNft []DropInfo
 	var count int64
-	this := d.db.Table(DropInfo{}.TableName())
+	var this = d.db.Table(DropInfo{}.TableName())
+	// dropType=1 is Token Received need inject system drop info
+	if dropType == "1" {
+		this = d.db.Table("(SELECT id,activity_id,address,drop_amount,drop_type,timestamp,transaction_hash,event_signature,null as system_drop_type FROM drop_info" +
+			" UNION ALL SELECT id,null as activity_id,address,drop_amount,1 as drop_type,timestamp,transaction_hash,null as event_signature,drop_type as system_drop_type FROM system_drop_info where status = 1) AS drop_info")
+	}
 	if address != "" {
 		this = this.Where("address ILIKE ?", address)
 	}

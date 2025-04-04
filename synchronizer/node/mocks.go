@@ -16,6 +16,11 @@ type MockEthClient struct {
 	mock.Mock
 }
 
+func (m *MockEthClient) TxReceiptByHash(hash common.Hash) (*types.Receipt, error) {
+	args := m.Called(hash)
+	return args.Get(0).(*types.Receipt), args.Error(1)
+}
+
 func (m *MockEthClient) LatestSafeBlockHeader() (*types.Header, error) {
 	args := m.Called()
 	return args.Get(0).(*types.Header), args.Error(1)
