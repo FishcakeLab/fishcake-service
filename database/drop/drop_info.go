@@ -73,6 +73,7 @@ func (d dropInfoDB) List(pageNum, pageSize int, address, dropType string) ([]Dro
 		this = this.Where("drop_info.drop_type = ?", dropType)
 	}
 	this = this.Joins("LEFT JOIN activity_info ON drop_info.activity_id = activity_info.activity_id")
+	this = this.Order("drop_info.timestamp DESC")
 	if pageNum > 0 && pageSize > 0 {
 		this = this.Limit(pageSize).Offset((pageNum - 1) * pageSize)
 	}
