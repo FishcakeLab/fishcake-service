@@ -126,7 +126,7 @@ func (r *rpcService) GetFee(ctx context.Context, in *account.FeeRequest) (*accou
 func (r *rpcService) SendTx(ctx context.Context, in *account.SendTxRequest) (*account.SendTxResponse, error) {
 	resp, err := r.accountService.SendTx(ctx, in)
 	if err != nil {
-		return nil, nil
+		return nil, err
 	}
 	return resp, nil
 }
