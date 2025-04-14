@@ -16,7 +16,6 @@ func NftInfoApi(rg *gin.Engine) {
 	r.GET("detail", detail)
 	r.GET("nft_count", NftCount)
 	r.GET("transaction_count", transactionCount)
-
 }
 
 func transactionCount(c *gin.Context) {
