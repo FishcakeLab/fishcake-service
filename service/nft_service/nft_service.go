@@ -1,10 +1,11 @@
 package nft_service
 
 import (
+	"github.com/ethereum/go-ethereum/common"
+
 	"github.com/FishcakeLab/fishcake-service/database"
 	"github.com/FishcakeLab/fishcake-service/database/event"
 	"github.com/FishcakeLab/fishcake-service/database/token_nft"
-	"github.com/ethereum/go-ethereum/common"
 )
 
 type NftService interface {

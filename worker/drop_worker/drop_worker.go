@@ -3,7 +3,6 @@ package drop_worker
 import (
 	"context"
 	"fmt"
-	"github.com/FishcakeLab/fishcake-service/database/drop"
 	"math/big"
 	"strconv"
 	"strings"
@@ -14,6 +13,7 @@ import (
 	"github.com/FishcakeLab/fishcake-service/common/tasks"
 	"github.com/FishcakeLab/fishcake-service/config"
 	"github.com/FishcakeLab/fishcake-service/database"
+	"github.com/FishcakeLab/fishcake-service/database/drop"
 	"github.com/FishcakeLab/fishcake-service/rpc/account"
 	"github.com/FishcakeLab/fishcake-service/service"
 	"github.com/FishcakeLab/fishcake-service/service/reward_service"

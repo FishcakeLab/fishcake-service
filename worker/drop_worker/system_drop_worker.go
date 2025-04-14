@@ -3,16 +3,16 @@ package drop_worker
 import (
 	"context"
 	"fmt"
-	"github.com/FishcakeLab/fishcake-service/synchronizer/node"
-	"github.com/ethereum/go-ethereum/common"
 	"time"
 
+	"github.com/ethereum/go-ethereum/common"
 	"github.com/ethereum/go-ethereum/log"
 
 	"github.com/FishcakeLab/fishcake-service/common/tasks"
 	"github.com/FishcakeLab/fishcake-service/config"
 	"github.com/FishcakeLab/fishcake-service/database"
 	"github.com/FishcakeLab/fishcake-service/service"
+	"github.com/FishcakeLab/fishcake-service/synchronizer/node"
 )
 
 type SystemDropWorkerProcessor struct {

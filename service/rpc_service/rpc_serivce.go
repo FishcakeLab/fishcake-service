@@ -4,8 +4,9 @@ import (
 	"context"
 	"log"
 
-	"github.com/FishcakeLab/fishcake-service/rpc/account"
 	"google.golang.org/grpc"
+
+	"github.com/FishcakeLab/fishcake-service/rpc/account"
 	"google.golang.org/grpc/credentials/insecure"
 )
 
