@@ -1,0 +1,13 @@
+{
+  "type": "service_account",
+  "project_id": "fishcake",
+  "private_key_id": "5eae8736e278e3c9c71ad1d5605bd53ad8a14e5f",
+  "private_key": "-----BEGIN PRIVATE KEY-----\nMIIEvQIBADANBgkqhkiG9w0BAQEFAASCBKcwggSjAgEAAoIBAQD29KqLJ3qJPKTs\niBW4rdhfMhlBdVb2ONBZ4+ZUOWc0t0YDjmLHPy5OtN5U87JPCY5o8skJbwSAqneP\n5RyiOW/+laE74JD63CFFt9Tl7v70mG4RvX72F5oyMZbxX8z0c1qs/0GhQRpU3Bsi\n+m3MJAL9v9PqcuX44gDV5bCLnJtv9uEc00bDdwbEwStvGfGmLHN6O66pV7AvKm2K\nXlrheBQ/v5Lqqw01a054skf13SUoqr4qIwiI8FhlJURKus5DjfYzKGeNSwvKnE3y\nAaC/eYbAibE/ceLlqtmuTPWw9J5O7kSTleKPHi58jO9rdm4iJay95iVQz/HOfSEm\np4DkKGGpAgMBAAECggEAM106J41DiE3Lw8KeOfY2nb4u0JWWS8oPU9L58iSqWaWQ\n82ZnFygF+qrV33d8a8ICE8QDmmmz1wsdqRkvNnKZ36rBiVGw9exZI0YUCusFrlwR\n8LCoOok4Mh5sVbHmUCW6A2doACEpV+Mb5c+OjLokwSBn9EiHmpdvMw3+BVvCXKvl\nFsrFNgngisu5Nrj4m39FI260fE1wXSIqVhLpZeQGWDne+VihWYqwhXuYW/b2SpY5\nNsNvbXw2SNOOK4Q2pydtbqnsLHwd6kGUdTHgkNNauhg0k3zAuDbf3okaAKJWo4te\nrtsUpmRlczqE22SaR5ZmRh5XzBnDpKz4d50D0iOuPQKBgQD+L3EyFIMX9Gn55Bo/\nWnPh05VrSHJiAbX20sr/33mnHGUp3pWVYsbbPJlh6b3FGC9YUPrldLUKfocQDjun\niZiS3wxUhc5bpkPgLTDMg8rZWP1YmspyUKvYkxnfUFJJwRTxE/RvzThdqvGieZJt\ntyuHWNrxgnUu6lopApnzAWEyswKBgQD4uALOXzof0aGorfI+R0qAgn/gf3QQXAVs\nXUrCV9BVgdqMJPAs3aDcoQD+ZTslqjFK+SpsuEAd0kzdZJYZH0w84fj56WnmWttH\niRY1orIyoGFE/EwpXbtpMzh8dKXf7ZL4JRfeuAl251r0yjLGLOAUvskFS/MPGFXh\nkwAZXguYMwKBgGh8oA9yFyF1u0qZ1aBNUm12SGm9ciePhHld1UyxVJS5O2ymrt6l\nqBDfLD3vk669bljjkP9ZpkIWGPckoqkQCsP1JGBqUJWkFyrD6NdpJa2Kwzn1B1tO\nhhWVAoGlxu3CjRU8mrKKrazzZDjhuKuZLC+K+xVkBz+t3joVc6tM2eO5AoGBAMAO\n3+PadvjBGPM3NxtOU8J+gx6pbMeBN5LhS2xdAPw2ZLvZfjk2/xO/pBPNuemwzZWW\naGNBuAkPLtm65YkKuQU+fdMFoggGWtOXkTXjp3UekV4C8RD0V1a5/cFlFf2f5+CE\nTDVoqa5OotbqGGEdn/+E/5d+eXdLlG225Nmx3IQvAoGAcsGqIqBPIKbLa1i9xban\nojCJpsoyBirzQE07j1/vU9M/pQ4Q4E6AQiD/tANTVVqP+oFh79eP0o8d8UbhITi4\nf6CRlzN475m/1g4YTPlbkrC3lzaSbt0rUwd7RyhzHzjfJVwIWqKMyykDzTMTOxoC\nCyUTWi/aRUHvP1XCM/vANeU=\n-----END PRIVATE KEY-----\n",
+  "client_email": "firebase-adminsdk-fbsvc@fishcake.iam.gserviceaccount.com",
+  "client_id": "108759304271474450972",
+  "auth_uri": "https://accounts.google.com/o/oauth2/auth",
+  "token_uri": "https://oauth2.googleapis.com/token",
+  "auth_provider_x509_cert_url": "https://www.googleapis.com/oauth2/v1/certs",
+  "client_x509_cert_url": "https://www.googleapis.com/robot/v1/metadata/x509/firebase-adminsdk-fbsvc%40fishcake.iam.gserviceaccount.com",
+  "universe_domain": "googleapis.com"
+}

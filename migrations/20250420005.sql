@@ -6,8 +6,9 @@ IF NOT EXISTS (
         WHERE table_name='drop_info'
         AND column_name='system_drop_type'
     ) THEN
-ALTER TABLE drop_info ADD COLUMN system_drop_type int2 DEFAULT 0;
+ALTER TABLE drop_info ADD COLUMN system_drop_type varchar DEFAULT "";
 END IF;
 
 END
 $$;
+

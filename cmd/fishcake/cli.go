@@ -4,15 +4,13 @@ import (
 	"context"
 	"github.com/urfave/cli/v2"
 
-	"github.com/ethereum/go-ethereum/log"
-	"github.com/ethereum/go-ethereum/params"
-
 	fishcake_service "github.com/FishcakeLab/fishcake-service"
 	"github.com/FishcakeLab/fishcake-service/common/cliapp"
 	"github.com/FishcakeLab/fishcake-service/common/opio"
 	"github.com/FishcakeLab/fishcake-service/config"
 	"github.com/FishcakeLab/fishcake-service/database"
 	flag2 "github.com/FishcakeLab/fishcake-service/flags"
+	"github.com/ethereum/go-ethereum/log"
 )
 
 func runIndexer(ctx *cli.Context, shutdown context.CancelCauseFunc) (cliapp.Lifecycle, error) {
@@ -75,10 +73,10 @@ func runMigrations(ctx *cli.Context) error {
 	return db.ExecuteSQLMigration(cfg.Migrations)
 }
 
-func newCli(GitCommit string, GitDate string) *cli.App {
+func newCli() *cli.App {
 	flags := flag2.Flags
 	return &cli.App{
-		Version:              params.VersionWithCommit(GitCommit, GitDate),
+		Version:              "0.0.1",
 		Description:          "An indexer of all optimism events with a serving api layer",
 		EnableBashCompletion: true,
 		Commands: []*cli.Command{

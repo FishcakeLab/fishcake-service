@@ -3,6 +3,7 @@ package fishcake_service
 import (
 	"context"
 	"fmt"
+	"github.com/FishcakeLab/fishcake-service/api/notification"
 
 	"math/big"
 	"strconv"
@@ -90,6 +91,7 @@ func (f *FishCake) newApi(cfg *config.Config, db *database.DB) error {
 	drop_info.DropInfoApi(r)
 	contract_info.ContractInfoApi(r)
 	wallet_info.WalletInfoApi(r)
+	notification.NotificationApi(r)
 	port := fmt.Sprintf(":%d", cfg.HttpPort)
 	err := r.Run(port)
 	if err != nil {

@@ -1,4 +1,5 @@
 migrations: "./migrations"
+firebase_path: "./firebases/fishcakefrebase.json"
 polygon_rpc: ""
 rpc_url: "127.0.0.1:8189"
 polygon_chain_id: "80001"

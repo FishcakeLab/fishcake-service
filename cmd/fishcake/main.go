@@ -9,14 +9,9 @@ import (
 	"github.com/FishcakeLab/fishcake-service/common/opio"
 )
 
-var (
-	GitCommit = ""
-	GitDate   = ""
-)
-
 func main() {
 	log.SetDefault(log.NewLogger(log.NewTerminalHandlerWithLevel(os.Stderr, log.LevelInfo, true)))
-	app := newCli(GitCommit, GitDate)
+	app := newCli()
 	ctx := opio.WithInterruptBlocker(context.Background())
 	if err := app.RunContext(ctx, os.Args); err != nil {
 		log.Error("application failed", "err", err)
