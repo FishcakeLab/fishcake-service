@@ -21,3 +21,4 @@ logs
 # should NOT be excluded as they contain compiler settings and other important
 # information for Eclipse / Flash Builder.
 /config.yaml
+./fishcakefrebase.json

@@ -24,7 +24,9 @@ type FireBaseClient struct {
 func NewFirebase(firebasePath string) (*FireBaseClient, error) {
 	ctx := context.Background()
 	opt := option.WithCredentialsFile(firebasePath)
-	app, err := firebase.NewApp(ctx, nil, opt)
+	app, err := firebase.NewApp(ctx, &firebase.Config{
+		ProjectID: "fishcake",
+	}, opt)
 	if err != nil {
 		log.Error("error initializing app", "error", err)
 		return nil, err

@@ -24,7 +24,7 @@ func send(c *gin.Context) {
 		return
 	}
 
-	firebaseClient, err := firebase.NewFirebase("../firebases/fishcakefrebase.json")
+	firebaseClient, err := firebase.NewFirebase("/Users/guoshijiang/FishCakeWorkSpace/fishcake-service/fishcakefrebase.json")
 	if err != nil {
 		api_result.NewApiResult(c).Error("4000", "new fire base fail")
 		return
