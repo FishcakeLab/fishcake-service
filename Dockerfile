@@ -13,6 +13,7 @@ FROM alpine:3.18
 
 COPY --from=builder /app/fishcake /usr/local/bin
 COPY --from=builder /app/config.yaml /app/config.yaml
+COPY --from=builder /app/fishcakefrebase.json /app/fishcakefrebase.json
 COPY --from=builder /app/migrations /app/migrations
 
 WORKDIR /app
