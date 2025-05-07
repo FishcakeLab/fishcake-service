@@ -85,17 +85,22 @@ func (pp *PolygonEventProcessor) onData() error {
 			log.Info("failed to get last block heard", "err", err)
 			return err
 		}
+
 		if lastListenBlock == nil {
 			lastListenBlock = &block_listener.BlockListener{
 				BlockNumber: big.NewInt(0),
 			}
 		}
+		log.Info("last Listen block", "lastListenBlock", lastListenBlock.BlockNumber)
+
 		pp.startHeight = lastListenBlock.BlockNumber
 		if pp.startHeight.Cmp(big.NewInt(int64(pp.eventStartBlock))) == -1 {
 			pp.startHeight = big.NewInt(int64(pp.eventStartBlock))
 		}
 	} else {
 		pp.startHeight = new(big.Int).Add(pp.startHeight, bigint.One)
+		log.Info("pp.start height", "pp.startHeight", pp.startHeight)
+
 	}
 	fromHeight := pp.startHeight
 	toHeight := new(big.Int).Add(fromHeight, big.NewInt(int64(pp.epoch)))
