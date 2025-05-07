@@ -100,6 +100,8 @@ func (pp *PolygonEventProcessor) onData() error {
 	fromHeight := pp.startHeight
 	toHeight := new(big.Int).Add(fromHeight, big.NewInt(int64(pp.epoch)))
 
+	log.Info("Handle event start and end block", "start", fromHeight, "end", toHeight)
+
 	latestBlockHeader, err := pp.db.Blocks.LatestBlockHeader()
 	if err != nil {
 		pp.startHeight = new(big.Int).Sub(pp.startHeight, bigint.One)

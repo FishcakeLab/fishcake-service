@@ -122,7 +122,8 @@ func (syncer *Synchronizer) processBatch(headers []types.Header, ymlCfg *config.
 		return nil
 	}
 	firstHeader, lastHeader := headers[0], headers[len(headers)-1]
-	log.Info("extracting batch", "size", len(headers))
+
+	log.Info("extracting batch star and end block", "size", len(headers), "start", headers[0].Number, "end", headers[len(headers)-1].Number)
 
 	headerMap := make(map[common.Hash]*types.Header, len(headers))
 	for i := range headers {
