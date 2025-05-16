@@ -107,7 +107,7 @@ func (f *FishCake) newIndex(ctx *cli.Context, cfg *config.Config, db *database.D
 		LoopIntervalMsec:  1,
 		HeaderBufferSize:  100,
 		StartHeight:       new(big.Int).SetUint64(cfg.StartBlock),
-		ConfirmationDepth: big.NewInt(5),
+		ConfirmationDepth: big.NewInt(12),
 		ChainId:           uint(chainId),
 	}
 	client, _ := node.DialEthClient(ctx.Context, cfg.PolygonRpc)
