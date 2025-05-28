@@ -109,6 +109,9 @@ func (syncer *Synchronizer) Start() error {
 			err := syncer.processBatch(syncer.headers, syncer.ymlCfg)
 			if err == nil {
 				syncer.headers = nil
+			} else {
+				log.Error("process batch fail", "err", err)
+				return nil
 			}
 		}
 		return nil
