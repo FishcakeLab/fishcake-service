@@ -111,7 +111,6 @@ func (syncer *Synchronizer) Start() error {
 				syncer.headers = nil
 			} else {
 				log.Error("process batch fail", "err", err)
-				return nil
 			}
 		}
 		return nil
