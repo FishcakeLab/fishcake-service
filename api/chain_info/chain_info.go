@@ -4,7 +4,9 @@ import (
 	"context"
 	"github.com/gin-gonic/gin"
 	"math/big"
+	"strconv"
 	"strings"
+	"sync"
 
 	"github.com/FishcakeLab/fishcake-service/common/api_result"
 	"github.com/FishcakeLab/fishcake-service/common/enum"
@@ -28,12 +30,116 @@ type BalanceResultValue struct {
 	FccBalance  string `json:"fcc_balance"`
 }
 
+type TransactionInfo struct {
+	RawTx string
+}
+
 func ChainInfoApi(rg *gin.Engine) {
 	r := rg.Group("/v1/chain_info")
 	r.GET("balance", balance)
+	r.GET("balance_sync", balanceSync)
 	r.GET("sign_info", signInfo)
 	r.GET("send_tx", sentRawTransaction)
 	r.GET("transactions", transactions)
+	r.POST("submit_tx", submitTx)
+}
+
+func balanceSync(c *gin.Context) {
+	address := c.Query("address")
+	if address == "" {
+		api_result.NewApiResult(c).Error(enum.ParamErr.Code, enum.ParamErr.Msg)
+		return
+	}
+
+	type balResult struct {
+		balance string
+		errCode int
+		errMsg  string
+	}
+
+	var (
+		wg      sync.WaitGroup
+		resPol  balResult
+		resUsdt balResult
+		resFcc  balResult
+	)
+	wg.Add(3)
+
+	// Polygon 主币余额
+	go func() {
+		defer wg.Done()
+		reqPol := &account.AccountRequest{
+			Chain:           "Polygon",
+			Network:         "mainnet",
+			Address:         address,
+			ContractAddress: "0x00",
+		}
+		responsePol, _ := service.BaseService.RpcService.GetAccount(context.Background(), reqPol)
+		if responsePol.Code == global_const.RpcReturnCodeError {
+			resPol.errCode = 500
+			resPol.errMsg = responsePol.Msg
+			return
+		}
+		resPol.balance = responsePol.Balance
+	}()
+
+	// USDT 余额
+	go func() {
+		defer wg.Done()
+		reqUsdt := &account.AccountRequest{
+			Chain:           "Polygon",
+			Network:         "mainnet",
+			Address:         address,
+			ContractAddress: service.BaseService.RewardService.UsdtAddress(),
+		}
+		responseUsdt, _ := service.BaseService.RpcService.GetAccount(context.Background(), reqUsdt)
+		if responseUsdt.Code == global_const.RpcReturnCodeError {
+			resUsdt.errCode = 500
+			resUsdt.errMsg = responseUsdt.Msg
+			return
+		}
+		resUsdt.balance = responseUsdt.Balance
+	}()
+
+	// FCC 余额
+	go func() {
+		defer wg.Done()
+		reqFcc := &account.AccountRequest{
+			Chain:           "Polygon",
+			Network:         "mainnet",
+			Address:         address,
+			ContractAddress: service.BaseService.RewardService.FccAddress(),
+		}
+		responseFcc, _ := service.BaseService.RpcService.GetAccount(context.Background(), reqFcc)
+		if responseFcc.Code == global_const.RpcReturnCodeError {
+			resFcc.errCode = 500
+			resFcc.errMsg = responseFcc.Msg
+			return
+		}
+		resFcc.balance = responseFcc.Balance
+	}()
+
+	wg.Wait()
+
+	if resPol.errCode != 0 {
+		api_result.NewApiResult(c).Error(strconv.Itoa(resPol.errCode), resPol.errMsg)
+		return
+	}
+	if resUsdt.errCode != 0 {
+		api_result.NewApiResult(c).Error(strconv.Itoa(resUsdt.errCode), resUsdt.errMsg)
+		return
+	}
+	if resFcc.errCode != 0 {
+		api_result.NewApiResult(c).Error(strconv.Itoa(resFcc.errCode), resFcc.errMsg)
+		return
+	}
+
+	balanceRet := BalanceResultValue{
+		PolBalance:  resPol.balance,
+		UsdtBalance: resUsdt.balance,
+		FccBalance:  resFcc.balance,
+	}
+	api_result.NewApiResult(c).Success(balanceRet)
 }
 
 func balance(c *gin.Context) {
@@ -165,4 +271,23 @@ func transactions(c *gin.Context) {
 		return
 	}
 	api_result.NewApiResult(c).Error(enum.GrpcErr.Code, response.Msg)
+}
+
+func submitTx(c *gin.Context) {
+	var txInfo TransactionInfo
+	if err := c.ShouldBindJSON(&txInfo); err != nil {
+		api_result.NewApiResult(c).Error("400", "param parse fail")
+		return
+	}
+	exist := service.BaseService.WalletService.IsExistRawTx(txInfo.RawTx)
+	if exist {
+		api_result.NewApiResult(c).Error("400", "raw tx is already exist queue tx")
+		return
+	}
+	err := service.BaseService.WalletService.StoreRawTx(txInfo.RawTx)
+	if err != nil {
+		api_result.NewApiResult(c).Error("400", "store raw tx to queue tx fail")
+		return
+	}
+	api_result.NewApiResult(c).Success("ok")
 }
