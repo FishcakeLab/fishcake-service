@@ -3,6 +3,7 @@ package database
 import (
 	"context"
 	"fmt"
+	"github.com/FishcakeLab/fishcake-service/database/sign_status"
 	"os"
 	"path/filepath"
 
@@ -34,6 +35,7 @@ type DB struct {
 	AccountNftInfoDB  account_nft_info.AccountNftInfoDB
 	WalletInfoDB      wallet.WalletInfoDB
 	SystemDropInfoDB  drop.SystemDropInfoDB
+	SignStatusDB      sign_status.SignStatusDB
 }
 
 func NewDB(cfg *config.Config) (*DB, error) {
@@ -77,6 +79,7 @@ func NewDB(cfg *config.Config) (*DB, error) {
 		SystemDropInfoDB:  drop.NewSystemDropInfoDB(gorm),
 		WalletInfoDB:      wallet.NewWalletInfoDB(gorm),
 		BlockListener:     block_listener.NewBlockListenerDB(gorm),
+		SignStatusDB:      sign_status.NewSignStatusDB(gorm),
 	}
 	return db, nil
 }

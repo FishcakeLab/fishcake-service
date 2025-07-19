@@ -34,6 +34,7 @@ func ChainInfoApi(rg *gin.Engine) {
 	r.GET("sign_info", signInfo)
 	r.GET("send_tx", sentRawTransaction)
 	r.GET("transactions", transactions)
+	r.POST("send_sign", sendSign)
 }
 
 func balance(c *gin.Context) {
@@ -165,4 +166,28 @@ func transactions(c *gin.Context) {
 		return
 	}
 	api_result.NewApiResult(c).Error(enum.GrpcErr.Code, response.Msg)
+}
+
+type Offline struct {
+	RawTx string
+}
+
+func sendSign(c *gin.Context) {
+	var offline Offline
+	// 将request的body中的数据，自动按照json格式解析到结构体
+	if err := c.ShouldBindJSON(&offline); err != nil {
+		api_result.NewApiResult(c).Error("400", "param parse fail")
+		return
+	}
+	exist := service.BaseService.SignService.IsExistSign(offline.RawTx)
+	if exist {
+		api_result.NewApiResult(c).Error("400", "sign is already exist")
+		return
+	}
+	err := service.BaseService.SignService.StoreSign(offline.RawTx)
+	if err != nil {
+		api_result.NewApiResult(c).Error("400", "store sign fail")
+		return
+	}
+	api_result.NewApiResult(c).Success("ok")
 }

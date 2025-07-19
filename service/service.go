@@ -9,6 +9,7 @@ import (
 	"github.com/FishcakeLab/fishcake-service/service/nft_service"
 	"github.com/FishcakeLab/fishcake-service/service/reward_service"
 	"github.com/FishcakeLab/fishcake-service/service/rpc_service"
+	"github.com/FishcakeLab/fishcake-service/service/sign_service"
 	"github.com/FishcakeLab/fishcake-service/service/wallet_service"
 )
 
@@ -25,6 +26,7 @@ type Service struct {
 	ContractInfoService    contract_info.ContractInfoService
 	RewardService          reward_service.RewardService
 	WalletService          wallet_service.WalletService
+	SignService            sign_service.SignService
 }
 
 func NewBaseService(db *database.DB, cfg *config.Config) *Service {
@@ -39,6 +41,7 @@ func NewBaseService(db *database.DB, cfg *config.Config) *Service {
 		ContractInfoService:    contract_info.NewContractInfoService(cfg),
 		RewardService:          reward_service.NewRewardService(cfg),
 		WalletService:          wallet_service.NewWalletService(db),
+		SignService:            sign_service.NewSignService(db),
 	}
 }
 

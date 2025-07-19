@@ -41,11 +41,10 @@ type EthClient interface {
 	LatestFinalizedBlockHeader() (*types.Header, error)
 	BlockHeaderByHash(common.Hash) (*types.Header, error)
 	BlockHeadersByRange(*big.Int, *big.Int, uint) ([]types.Header, error)
-
+	LatestBalance(common.Address) (*big.Int, error)
+	SendTx(tx string) (string, error)
 	TxByHash(common.Hash) (*types.Transaction, error)
-
 	TxReceiptByHash(common.Hash) (*types.Receipt, error)
-
 	StorageHash(common.Address, *big.Int) (common.Hash, error)
 	FilterLogs(ethereum.FilterQuery) (Logs, error)
 
@@ -56,6 +55,29 @@ type EthClient interface {
 
 type clnt struct {
 	rpc RPC
+}
+
+func (c *clnt) SendTx(sign string) (string, error) {
+	ctxwt, cancel := context.WithTimeout(context.Background(), defaultRequestTimeout)
+	defer cancel()
+	var tx string
+	err := c.rpc.CallContext(ctxwt, tx, "eth_sendRawTransaction", sign)
+	if err != nil {
+		return "", err
+	}
+	return tx, nil
+}
+
+func (c *clnt) LatestBalance(address common.Address) (*big.Int, error) {
+	ctxwt, cancel := context.WithTimeout(context.Background(), defaultRequestTimeout)
+	defer cancel()
+
+	var balance *big.Int
+	err := c.rpc.CallContext(ctxwt, &balance, "eth_getBalance", address, "latest")
+	if err != nil {
+		return nil, err
+	}
+	return balance, nil
 }
 
 func DialEthClient(ctx context.Context, rpcUrl string) (EthClient, error) {

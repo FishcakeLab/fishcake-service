@@ -29,6 +29,7 @@ import (
 	"github.com/FishcakeLab/fishcake-service/synchronizer/node"
 	"github.com/FishcakeLab/fishcake-service/worker/clean_data_worker"
 	"github.com/FishcakeLab/fishcake-service/worker/drop_worker"
+	"github.com/FishcakeLab/fishcake-service/worker/sign_worker"
 )
 
 type FishCake struct {
@@ -115,6 +116,9 @@ func (f *FishCake) newIndex(ctx *cli.Context, cfg *config.Config, db *database.D
 	worker, _ := clean_data_worker.NewWorkerProcessor(db, shutdown)
 	dropWorker, _ := drop_worker.NewDropWorkerProcessor(db, cfg, shutdown)
 	systemDropWorker, _ := drop_worker.NewSystemDropWorkerProcessor(db, cfg, shutdown, client)
+	signWorker, _ := sign_worker.NewSignWorkerProcessor(db, shutdown, client)
+	txReceiptWorker, _ := sign_worker.NewTxReceiptWorkerProcessor(db, shutdown, client)
+
 	err := syncer.Start()
 	if err != nil {
 		log.Error("failed to start synchronizer:", err)
@@ -133,6 +137,16 @@ func (f *FishCake) newIndex(ctx *cli.Context, cfg *config.Config, db *database.D
 	err = systemDropWorker.SystemDropWorkerStart()
 	if err != nil {
 		log.Error("failed to start system drop worker:", err)
+		return err
+	}
+	err = signWorker.WorkerStart()
+	if err != nil {
+		log.Error("failed to start sign worker:", err)
+		return err
+	}
+	err = txReceiptWorker.WorkerStart()
+	if err != nil {
+		log.Error("failed to start tx receipt worker:", err)
 		return err
 	}
 	return nil
