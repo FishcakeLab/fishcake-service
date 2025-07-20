@@ -89,8 +89,8 @@ func (qt *QueueTxProcessor) ProcessSendQueueTx() error {
 
 		sendTx, errSentTx := qt.baseService.RpcService.SendTx(context.Background(), reqTx)
 		if errSentTx != nil {
-			log.Error("RPC send tx error: %v", err)
-			unhandledTx.Result = fmt.Sprintf("RPC send tx error: %v", err)
+			log.Error("RPC send tx error: %v", errSentTx)
+			unhandledTx.Result = fmt.Sprintf("RPC send tx error: %v", errSentTx)
 			unhandledTx.Status = 3
 		}
 		if sendTx != nil {
@@ -99,8 +99,6 @@ func (qt *QueueTxProcessor) ProcessSendQueueTx() error {
 			unhandledTx.Timestamp = uint64(time.Now().Unix())
 			unhandledTx.Result = "success to send tx"
 			unhandledTx.Status = 1
-		} else {
-			continue
 		}
 		handledTxList = append(handledTxList, unhandledTx)
 	}
