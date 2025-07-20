@@ -9,11 +9,11 @@ import (
 )
 
 type QueueTx struct {
-	ID              string `gorm:"column:id;primaryKey;default:replace((uuid_generate_v4())::text, '-'::text, ''::text)"`
+	ID              string `json:"id" gorm:"column:id;primaryKey;default:replace((uuid_generate_v4())::text, '-'::text, ''::text)"`
 	RawTx           string `json:"raw_tx" gorm:"raw_tx"`
 	Result          string `json:"result" gorm:"result"`
 	TransactionHash string `gorm:"transaction_hash" json:"transactionHash"`
-	Status          int8   `gorm:"column:status;default:0"`
+	Status          int8   `json:"status" gorm:"column:status;default:0"`
 	Timestamp       uint64 `json:"timestamp" gorm:"timestamp"`
 }
 
@@ -22,6 +22,7 @@ type QueueTxDB interface {
 	StoreRawTx(string) error
 	QueryRawTxInfoByStatus(int8) ([]QueueTx, error)
 	MarkedTxToSentOrSuccess([]QueueTx) error
+	QueryTxInfoByHash(txHash string) (*QueueTx, error)
 }
 
 type queueTxDB struct {
@@ -85,9 +86,22 @@ func (w *queueTxDB) MarkedTxToSentOrSuccess(queueTxList []QueueTx) error {
 func (w queueTxDB) ExistQueueTx(rawTx string) bool {
 	var queueTx QueueTx
 	this := w.db.Table("queue_tx")
-	result := this.Where("raw_tx = ", rawTx).Take(&queueTx)
+	result := this.Where("raw_tx = ?", rawTx).Take(&queueTx)
 	if errors.Is(result.Error, gorm.ErrRecordNotFound) {
 		return true
 	}
 	return false
+}
+
+func (w queueTxDB) QueryTxInfoByHash(txHash string) (*QueueTx, error) {
+	var queueTx QueueTx
+	result := w.db.Table("queue_tx").Where("transaction_hash = ?", txHash).Take(&queueTx)
+	if result.Error != nil {
+		log.Info("query fail", "err", result.Error)
+		if errors.Is(result.Error, gorm.ErrRecordNotFound) {
+			return nil, nil
+		}
+		return nil, result.Error
+	}
+	return &queueTx, nil
 }

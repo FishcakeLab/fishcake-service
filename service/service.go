@@ -5,11 +5,13 @@ import (
 	"github.com/FishcakeLab/fishcake-service/database"
 	"github.com/FishcakeLab/fishcake-service/service/activity_service"
 	"github.com/FishcakeLab/fishcake-service/service/contract_info"
+	"github.com/FishcakeLab/fishcake-service/service/dapplink_service"
 	"github.com/FishcakeLab/fishcake-service/service/drop_service"
 	"github.com/FishcakeLab/fishcake-service/service/nft_service"
 	"github.com/FishcakeLab/fishcake-service/service/reward_service"
 	"github.com/FishcakeLab/fishcake-service/service/rpc_service"
 	"github.com/FishcakeLab/fishcake-service/service/wallet_service"
+	"github.com/ethereum/go-ethereum/log"
 )
 
 var BaseService *Service
@@ -25,9 +27,15 @@ type Service struct {
 	ContractInfoService    contract_info.ContractInfoService
 	RewardService          reward_service.RewardService
 	WalletService          wallet_service.WalletService
+	DappLinkService        dapplink_service.DappLinkService
 }
 
 func NewBaseService(db *database.DB, cfg *config.Config) *Service {
+	dapplinkService, err := dapplink_service.NewDappLinkService(cfg)
+	if err != nil {
+		log.Error("new dappplink service fail", "err", err)
+		return nil
+	}
 	return &Service{
 		Db:                     db,
 		Cfg:                    cfg,
@@ -39,6 +47,7 @@ func NewBaseService(db *database.DB, cfg *config.Config) *Service {
 		ContractInfoService:    contract_info.NewContractInfoService(cfg),
 		RewardService:          reward_service.NewRewardService(cfg),
 		WalletService:          wallet_service.NewWalletService(db),
+		DappLinkService:        *dapplinkService,
 	}
 }
 

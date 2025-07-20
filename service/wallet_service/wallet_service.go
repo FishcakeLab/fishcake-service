@@ -1,12 +1,16 @@
 package wallet_service
 
-import "github.com/FishcakeLab/fishcake-service/database"
+import (
+	"github.com/FishcakeLab/fishcake-service/database"
+	"github.com/FishcakeLab/fishcake-service/database/wallet"
+)
 
 type WalletService interface {
 	WalletExist(address, device string) bool
 	StoreWallet(address, device string) error
-	IsExistRawTx(sign string) bool
-	StoreRawTx(sign string) error
+	IsExistRawTx(rawTx string) bool
+	StoreRawTx(rawTx string) error
+	QueryTxInfoByHash(txHash string) (*wallet.QueueTx, error)
 }
 
 type walletService struct {
@@ -31,4 +35,8 @@ func (w walletService) IsExistRawTx(rawTx string) bool {
 
 func (w walletService) StoreRawTx(rawTx string) error {
 	return w.Db.QueueTxDB.StoreRawTx(rawTx)
+}
+
+func (w walletService) QueryTxInfoByHash(txHash string) (*wallet.QueueTx, error) {
+	return w.Db.QueueTxDB.QueryTxInfoByHash(txHash)
 }

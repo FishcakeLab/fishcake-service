@@ -2,6 +2,7 @@ package chain_info
 
 import (
 	"context"
+	"github.com/ethereum/go-ethereum/log"
 	"github.com/gin-gonic/gin"
 	"math/big"
 	"strconv"
@@ -31,7 +32,7 @@ type BalanceResultValue struct {
 }
 
 type TransactionInfo struct {
-	RawTx string
+	RawTx string `json:"raw_tx"`
 }
 
 func ChainInfoApi(rg *gin.Engine) {
@@ -42,6 +43,7 @@ func ChainInfoApi(rg *gin.Engine) {
 	r.GET("send_tx", sentRawTransaction)
 	r.GET("transactions", transactions)
 	r.POST("submit_tx", submitTx)
+	r.GET("txn_status", TxnStatus)
 }
 
 func balanceSync(c *gin.Context) {
@@ -68,59 +70,42 @@ func balanceSync(c *gin.Context) {
 	// Polygon 主币余额
 	go func() {
 		defer wg.Done()
-		reqPol := &account.AccountRequest{
-			Chain:           "Polygon",
-			Network:         "mainnet",
-			Address:         address,
-			ContractAddress: "0x00",
-		}
-		responsePol, _ := service.BaseService.RpcService.GetAccount(context.Background(), reqPol)
-		if responsePol.Code == global_const.RpcReturnCodeError {
+		balanceStr, err := service.BaseService.DappLinkService.GetPolBalanceByAddress(address)
+		if err != nil {
 			resPol.errCode = 500
-			resPol.errMsg = responsePol.Msg
+			resPol.errMsg = err.Error()
 			return
 		}
-		resPol.balance = responsePol.Balance
+		resPol.balance = balanceStr
 	}()
 
 	// USDT 余额
 	go func() {
 		defer wg.Done()
-		reqUsdt := &account.AccountRequest{
-			Chain:           "Polygon",
-			Network:         "mainnet",
-			Address:         address,
-			ContractAddress: service.BaseService.RewardService.UsdtAddress(),
-		}
-		responseUsdt, _ := service.BaseService.RpcService.GetAccount(context.Background(), reqUsdt)
-		if responseUsdt.Code == global_const.RpcReturnCodeError {
+		balanceStr, err := service.BaseService.DappLinkService.GetErc20BalanceByAddress(service.BaseService.RewardService.UsdtAddress(), address)
+		if err != nil {
 			resUsdt.errCode = 500
-			resUsdt.errMsg = responseUsdt.Msg
+			resUsdt.errMsg = err.Error()
 			return
 		}
-		resUsdt.balance = responseUsdt.Balance
+		resUsdt.balance = balanceStr
 	}()
 
 	// FCC 余额
 	go func() {
 		defer wg.Done()
-		reqFcc := &account.AccountRequest{
-			Chain:           "Polygon",
-			Network:         "mainnet",
-			Address:         address,
-			ContractAddress: service.BaseService.RewardService.FccAddress(),
-		}
-		responseFcc, _ := service.BaseService.RpcService.GetAccount(context.Background(), reqFcc)
-		if responseFcc.Code == global_const.RpcReturnCodeError {
+		responseFcc, err := service.BaseService.DappLinkService.GetErc20BalanceByAddress(service.BaseService.RewardService.FccAddress(), address)
+		if err != nil {
 			resFcc.errCode = 500
-			resFcc.errMsg = responseFcc.Msg
+			resFcc.errMsg = err.Error()
 			return
 		}
-		resFcc.balance = responseFcc.Balance
+		resFcc.balance = responseFcc
 	}()
 
 	wg.Wait()
 
+	// 任意一个失败就直接返回
 	if resPol.errCode != 0 {
 		api_result.NewApiResult(c).Error(strconv.Itoa(resPol.errCode), resPol.errMsg)
 		return
@@ -280,7 +265,7 @@ func submitTx(c *gin.Context) {
 		return
 	}
 	exist := service.BaseService.WalletService.IsExistRawTx(txInfo.RawTx)
-	if exist {
+	if !exist {
 		api_result.NewApiResult(c).Error("400", "raw tx is already exist queue tx")
 		return
 	}
@@ -290,4 +275,18 @@ func submitTx(c *gin.Context) {
 		return
 	}
 	api_result.NewApiResult(c).Success("ok")
+}
+
+func TxnStatus(c *gin.Context) {
+	txHash := c.Query("hash")
+	if txHash == "" {
+		api_result.NewApiResult(c).Error(enum.ParamErr.Code, enum.ParamErr.Msg)
+	}
+	queueTx, err := service.BaseService.WalletService.QueryTxInfoByHash(txHash)
+	if err != nil {
+		log.Error("query transaction info fail", "err", err)
+		api_result.NewApiResult(c).Error("400", "query tx fail")
+		return
+	}
+	api_result.NewApiResult(c).Success(queueTx)
 }

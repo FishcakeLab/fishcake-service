@@ -30,6 +30,8 @@ type Config struct {
 	EncryptedPrivateKey string       `yaml:"encrypted_private_key"`
 	Nonce               string       `yaml:"nonce"`
 	KeyPhrase           string       `yaml:"key_phrase"`
+	DataApiUrl          string       `yaml:"data_api_url"`
+	DataApiKey          string       `yaml:"data_api_key"`
 }
 
 type AliConfig struct {
