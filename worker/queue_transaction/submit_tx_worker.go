@@ -141,7 +141,7 @@ func (qt *QueueTxProcessor) AfterSentQueueTx() error {
 
 		fetchTx, errFetchTx := qt.baseService.RpcService.GetTxByHash(context.Background(), reqTx)
 		if errFetchTx != nil {
-			log.Error("RPC send tx error: %v", err)
+			log.Error("fetch tx receipt error: %v", errFetchTx)
 			continue
 		}
 		if fetchTx != nil {
