@@ -32,7 +32,8 @@ type BalanceResultValue struct {
 }
 
 type TransactionInfo struct {
-	RawTx string `json:"raw_tx"`
+	TxHash string `json:"tx_hash"`
+	RawTx  string `json:"raw_tx"`
 }
 
 func ChainInfoApi(rg *gin.Engine) {
@@ -269,7 +270,7 @@ func submitTx(c *gin.Context) {
 		api_result.NewApiResult(c).Error("400", "raw tx is already exist queue tx")
 		return
 	}
-	err := service.BaseService.WalletService.StoreRawTx(txInfo.RawTx)
+	err := service.BaseService.WalletService.StoreRawTx(txInfo.RawTx, txInfo.TxHash)
 	if err != nil {
 		api_result.NewApiResult(c).Error("400", "store raw tx to queue tx fail")
 		return

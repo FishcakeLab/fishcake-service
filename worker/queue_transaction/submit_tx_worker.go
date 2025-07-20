@@ -50,7 +50,7 @@ func (qt *QueueTxProcessor) QueueTxStart() error {
 	tickerRun := time.NewTicker(time.Second * 2)
 	qt.tasks.Go(func() error {
 		for range tickerRun.C {
-			log.Info("handle queue transaction list")
+			log.Info("send queue transaction list")
 			err := qt.ProcessSendQueueTx()
 			if err != nil {
 				log.Error("handle queue transaction list fail", "err", err)
@@ -59,7 +59,7 @@ func (qt *QueueTxProcessor) QueueTxStart() error {
 		}
 
 		for range tickerRun.C {
-			log.Info("handle queue transaction list")
+			log.Info("fetch queue transaction receipt")
 			err := qt.AfterSentQueueTx()
 			if err != nil {
 				log.Error("handle queue transaction receipt fail", "err", err)
@@ -91,7 +91,7 @@ func (qt *QueueTxProcessor) ProcessSendQueueTx() error {
 		if errSentTx != nil {
 			log.Error("RPC send tx error: %v", err)
 			unhandledTx.Result = fmt.Sprintf("RPC send tx error: %v", err)
-			continue
+			unhandledTx.Status = 3
 		}
 		if sendTx != nil {
 			log.Info("send tx success", "txHash", sendTx.TxHash)

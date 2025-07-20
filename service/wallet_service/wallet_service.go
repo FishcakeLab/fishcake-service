@@ -9,7 +9,7 @@ type WalletService interface {
 	WalletExist(address, device string) bool
 	StoreWallet(address, device string) error
 	IsExistRawTx(rawTx string) bool
-	StoreRawTx(rawTx string) error
+	StoreRawTx(rawTx string, txHash string) error
 	QueryTxInfoByHash(txHash string) (*wallet.QueueTx, error)
 }
 
@@ -33,8 +33,8 @@ func (w walletService) IsExistRawTx(rawTx string) bool {
 	return w.Db.QueueTxDB.ExistQueueTx(rawTx)
 }
 
-func (w walletService) StoreRawTx(rawTx string) error {
-	return w.Db.QueueTxDB.StoreRawTx(rawTx)
+func (w walletService) StoreRawTx(rawTx string, txHash string) error {
+	return w.Db.QueueTxDB.StoreRawTx(rawTx, txHash)
 }
 
 func (w walletService) QueryTxInfoByHash(txHash string) (*wallet.QueueTx, error) {

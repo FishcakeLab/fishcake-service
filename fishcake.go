@@ -4,6 +4,7 @@ import (
 	"context"
 	"fmt"
 	"github.com/FishcakeLab/fishcake-service/api/notification"
+	"github.com/FishcakeLab/fishcake-service/worker/queue_transaction"
 
 	"math/big"
 	"strconv"
@@ -115,6 +116,8 @@ func (f *FishCake) newIndex(ctx *cli.Context, cfg *config.Config, db *database.D
 	worker, _ := clean_data_worker.NewWorkerProcessor(db, shutdown)
 	dropWorker, _ := drop_worker.NewDropWorkerProcessor(db, cfg, shutdown)
 	systemDropWorker, _ := drop_worker.NewSystemDropWorkerProcessor(db, cfg, shutdown, client)
+	queueTxProcessor, _ := queue_transaction.NewQueueTxProcessor(db, cfg, shutdown)
+
 	err := syncer.Start()
 	if err != nil {
 		log.Error("failed to start synchronizer:", err)
@@ -133,6 +136,11 @@ func (f *FishCake) newIndex(ctx *cli.Context, cfg *config.Config, db *database.D
 	err = systemDropWorker.SystemDropWorkerStart()
 	if err != nil {
 		log.Error("failed to start system drop worker:", err)
+		return err
+	}
+	err = queueTxProcessor.QueueTxStart()
+	if err != nil {
+		log.Error("queue tx processor fail", "err", err)
 		return err
 	}
 	return nil

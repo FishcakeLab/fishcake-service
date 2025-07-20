@@ -4,7 +4,6 @@ import (
 	"github.com/pkg/errors"
 	"gorm.io/gorm"
 
-	"github.com/ethereum/go-ethereum/common"
 	"github.com/ethereum/go-ethereum/log"
 )
 
@@ -19,7 +18,7 @@ type QueueTx struct {
 
 type QueueTxDB interface {
 	ExistQueueTx(rawTx string) bool
-	StoreRawTx(string) error
+	StoreRawTx(string, string) error
 	QueryRawTxInfoByStatus(int8) ([]QueueTx, error)
 	MarkedTxToSentOrSuccess([]QueueTx) error
 	QueryTxInfoByHash(txHash string) (*QueueTx, error)
@@ -33,11 +32,11 @@ func NewQueueTxDB(db *gorm.DB) QueueTxDB {
 	return &queueTxDB{db: db}
 }
 
-func (w queueTxDB) StoreRawTx(rawTx string) error {
+func (w queueTxDB) StoreRawTx(rawTx string, txHash string) error {
 	queueTx := QueueTx{
 		RawTx:           rawTx,
 		Result:          "receive transaction from frontend",
-		TransactionHash: common.Hash{}.String(),
+		TransactionHash: txHash,
 		Status:          0,
 		Timestamp:       0,
 	}
