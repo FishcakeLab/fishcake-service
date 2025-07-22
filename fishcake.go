@@ -116,7 +116,7 @@ func (f *FishCake) newIndex(ctx *cli.Context, cfg *config.Config, db *database.D
 	worker, _ := clean_data_worker.NewWorkerProcessor(db, shutdown)
 	dropWorker, _ := drop_worker.NewDropWorkerProcessor(db, cfg, shutdown)
 	systemDropWorker, _ := drop_worker.NewSystemDropWorkerProcessor(db, cfg, shutdown, client)
-	queueTxProcessor, _ := queue_transaction.NewQueueTxProcessor(db, cfg, shutdown)
+	queueTxProcessor, _ := queue_transaction.NewQueueTxProcessor(db, cfg, client, shutdown)
 
 	err := syncer.Start()
 	if err != nil {
