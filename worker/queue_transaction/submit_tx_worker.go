@@ -3,6 +3,8 @@ package queue_transaction
 import (
 	"context"
 	"fmt"
+	"github.com/FishcakeLab/fishcake-service/synchronizer/node"
+	"github.com/ethereum/go-ethereum/common"
 	"time"
 
 	"github.com/ethereum/go-ethereum/log"
@@ -25,11 +27,12 @@ type QueueTxProcessor struct {
 	baseService    *service.Service
 	db             *database.DB
 	tasks          tasks.Group
+	ethClient      node.EthClient
 	resourceCtx    context.Context
 	resourceCancel context.CancelFunc
 }
 
-func NewQueueTxProcessor(db *database.DB, cfg *config.Config, shutdown context.CancelCauseFunc) (*QueueTxProcessor, error) {
+func NewQueueTxProcessor(db *database.DB, cfg *config.Config, client node.EthClient, shutdown context.CancelCauseFunc) (*QueueTxProcessor, error) {
 	baseService := service.NewBaseService(db, cfg)
 
 	resCtx, resCancel := context.WithCancel(context.Background())
@@ -40,6 +43,7 @@ func NewQueueTxProcessor(db *database.DB, cfg *config.Config, shutdown context.C
 		tasks: tasks.Group{HandleCrit: func(err error) {
 			shutdown(fmt.Errorf("critical error in queue tx processor: %w", err))
 		}},
+		ethClient:      client,
 		resourceCtx:    resCtx,
 		resourceCancel: resCancel,
 	}
@@ -47,9 +51,9 @@ func NewQueueTxProcessor(db *database.DB, cfg *config.Config, shutdown context.C
 }
 
 func (qt *QueueTxProcessor) QueueTxStart() error {
-	tickerRun := time.NewTicker(time.Second * 2)
+	tickerProcessSend := time.NewTicker(time.Second * 2)
 	qt.tasks.Go(func() error {
-		for range tickerRun.C {
+		for range tickerProcessSend.C {
 			log.Info("send queue transaction list")
 			err := qt.ProcessSendQueueTx()
 			if err != nil {
@@ -57,8 +61,12 @@ func (qt *QueueTxProcessor) QueueTxStart() error {
 				return err
 			}
 		}
+		return nil
+	})
 
-		for range tickerRun.C {
+	qt.tasks.Go(func() error {
+		tickerAfterSent := time.NewTicker(time.Second * 2)
+		for range tickerAfterSent.C {
 			log.Info("fetch queue transaction receipt")
 			err := qt.AfterSentQueueTx()
 			if err != nil {
@@ -66,7 +74,6 @@ func (qt *QueueTxProcessor) QueueTxStart() error {
 				return err
 			}
 		}
-
 		return nil
 	})
 	return nil
@@ -133,21 +140,17 @@ func (qt *QueueTxProcessor) AfterSentQueueTx() error {
 
 	var handledTxList []wallet.QueueTx
 	for _, unhandledTx := range unhandledTxList {
-		reqTx := &account.TxHashRequest{
-			Chain:   "Polygon",
-			Network: "mainnet",
-			Hash:    unhandledTx.TransactionHash,
-		}
-
-		fetchTx, errFetchTx := qt.baseService.RpcService.GetTxByHash(context.Background(), reqTx)
+		log.Error("unhandled transaction", "txHash", unhandledTx.TransactionHash, "blockNumber", unhandledTx.Status)
+		fetchTx, errFetchTx := qt.ethClient.TxReceiptByHash(common.HexToHash(unhandledTx.TransactionHash))
 		if errFetchTx != nil {
 			log.Error("fetch tx receipt error: %v", errFetchTx)
 			continue
 		}
 		if fetchTx != nil {
-			if fetchTx.Tx.Status == account.TxStatus_Success {
+			if fetchTx.Status == 1 {
 				unhandledTx.Status = 2
-			} else {
+			}
+			if fetchTx.Status == 0 {
 				unhandledTx.Status = 3
 			}
 		} else {
