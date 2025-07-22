@@ -144,7 +144,8 @@ func (qt *QueueTxProcessor) AfterSentQueueTx() error {
 		fetchTx, errFetchTx := qt.ethClient.TxReceiptByHash(common.HexToHash(unhandledTx.TransactionHash))
 		if errFetchTx != nil {
 			log.Error("fetch tx receipt error: %v", errFetchTx)
-			continue
+			unhandledTx.Result = errFetchTx.Error()
+			unhandledTx.Status = 3
 		}
 		if fetchTx != nil {
 			if fetchTx.Status == 1 {
@@ -153,8 +154,6 @@ func (qt *QueueTxProcessor) AfterSentQueueTx() error {
 			if fetchTx.Status == 0 {
 				unhandledTx.Status = 3
 			}
-		} else {
-			continue
 		}
 		handledTxList = append(handledTxList, unhandledTx)
 	}
