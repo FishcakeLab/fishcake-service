@@ -152,6 +152,7 @@ func (qt *QueueTxProcessor) AfterSentQueueTx() error {
 				unhandledTx.Status = 2
 			}
 			if fetchTx.Status == 0 {
+				unhandledTx.Result = "transaction exec fail on chain"
 				unhandledTx.Status = 3
 			}
 		}
