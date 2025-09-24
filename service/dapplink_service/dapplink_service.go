@@ -2,9 +2,13 @@ package dapplink_service
 
 import (
 	"context"
+	"fmt"
+	"math/big"
+	"time"
+
+	"github.com/ethereum/go-ethereum"
 	"github.com/ethereum/go-ethereum/common"
 	"github.com/ethereum/go-ethereum/ethclient"
-	"time"
 
 	"github.com/ethereum/go-ethereum/log"
 
@@ -37,17 +41,35 @@ func NewDappLinkService(conf *config.Config) (*DappLinkService, error) {
 }
 
 func (ds *DappLinkService) GetErc20BalanceByAddress(contractAddress string, address string) (string, error) {
-	balanceResult, err := ds.ethDataClient.GetBalanceByAddress(contractAddress, address)
+
+	contractAddr := common.HexToAddress(contractAddress)
+	userAddr := common.HexToAddress(address)
+
+	data := dapplink_api.BuildErc20BalanceData(userAddr)
+
+	ctxwt, cancel := context.WithTimeout(context.Background(), 10*time.Second)
+	defer cancel()
+
+	// 构造 CallMsg
+	msg := ethereum.CallMsg{
+		To:   &contractAddr,
+		Data: data,
+	}
+
+	res, err := ds.ethCli.CallContract(ctxwt, msg, nil)
 	if err != nil {
 		log.Error("get balance fail", "err", err)
-		return "0", err
+		return "", err
 	}
-	log.Info("balance result", "balance=", balanceResult, "balanceStr=", balanceResult.BalanceStr)
-	balanceStr := "0"
-	if balanceResult.Balance != nil && balanceResult.Balance.Int() != nil {
-		balanceStr = balanceResult.Balance.Int().String()
+
+	if len(res) == 0 {
+		return "0", nil
 	}
-	return balanceStr, nil
+
+	out := new(big.Int).SetBytes(res)
+	fmt.Println(out.String()) // 得到十进制的余额字符串
+
+	return out.String(), nil
 }
 
 func (ds *DappLinkService) GetPolBalanceByAddress(address string) (string, error) {
