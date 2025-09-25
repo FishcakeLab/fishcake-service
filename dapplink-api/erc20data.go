@@ -3,6 +3,8 @@ package dapplink_api
 import (
 	"time"
 
+	"github.com/ethereum/go-ethereum/common"
+	"github.com/ethereum/go-ethereum/crypto"
 	"github.com/ethereum/go-ethereum/log"
 
 	"github.com/dapplink-labs/chain-explorer-api/common/account"
@@ -62,4 +64,18 @@ func (ed *EthData) GetBalanceByAddress(contractAddr, address string) (*account.A
 		return nil, err
 	}
 	return etherscanResp, nil
+}
+
+func BuildErc20BalanceData(address common.Address) []byte {
+	var data []byte
+
+	transferFnSignature := []byte("balanceOf(address)")
+	hash := crypto.Keccak256Hash(transferFnSignature)
+	methodId := hash[:4]
+	dataAddress := common.LeftPadBytes(address.Bytes(), 32)
+
+	data = append(data, methodId...)
+	data = append(data, dataAddress...)
+
+	return data
 }
