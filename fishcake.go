@@ -3,6 +3,7 @@ package fishcake_service
 import (
 	"context"
 	"fmt"
+
 	"github.com/FishcakeLab/fishcake-service/api/notification"
 	"github.com/FishcakeLab/fishcake-service/worker/queue_transaction"
 
@@ -149,8 +150,7 @@ func (f *FishCake) newIndex(ctx *cli.Context, cfg *config.Config, db *database.D
 func (f *FishCake) newEvent(cfg *config.Config, db *database.DB, shutdown context.CancelCauseFunc) error {
 	var epoch uint64 = 10_000
 	var loopInterval time.Duration = time.Second * 2
-	eventProcessor, _ := polygon.NewEventProcessor(db, loopInterval, cfg.Contracts,
-		cfg.StartBlock, cfg.EventStartBlock, epoch, shutdown, cfg.AliConfig)
+	eventProcessor, _ := polygon.NewEventProcessor(db, cfg, loopInterval, epoch, shutdown)
 	err := eventProcessor.Start()
 	if err != nil {
 		log.Error("failed to start eventProcessor:", err)
