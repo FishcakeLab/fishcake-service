@@ -10,7 +10,11 @@ import (
 	"github.com/FishcakeLab/fishcake-service/service/nft_service"
 	"github.com/FishcakeLab/fishcake-service/service/reward_service"
 	"github.com/FishcakeLab/fishcake-service/service/rpc_service"
+
 	"github.com/FishcakeLab/fishcake-service/service/staking_service"
+
+	"github.com/FishcakeLab/fishcake-service/service/token_transfer_service"
+
 	"github.com/FishcakeLab/fishcake-service/service/wallet_service"
 	"github.com/ethereum/go-ethereum/log"
 )
@@ -29,7 +33,10 @@ type Service struct {
 	RewardService          reward_service.RewardService
 	WalletService          wallet_service.WalletService
 	DappLinkService        dapplink_service.DappLinkService
-	StakingInfoService     staking_service.StakingInfoService
+
+	StakingInfoService staking_service.StakingInfoService
+
+	TokenTransferService token_transfer_service.TokenTransferService
 }
 
 func NewBaseService(db *database.DB, cfg *config.Config) *Service {
@@ -51,6 +58,7 @@ func NewBaseService(db *database.DB, cfg *config.Config) *Service {
 		WalletService:          wallet_service.NewWalletService(db),
 		DappLinkService:        *dapplinkService,
 		StakingInfoService:     staking_service.NewStakingInfoService(db),
+		TokenTransferService:   token_transfer_service.NewTokenTransferService(db),
 	}
 }
 

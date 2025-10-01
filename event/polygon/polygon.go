@@ -8,6 +8,8 @@ import (
 
 	"github.com/aliyun/alibaba-cloud-sdk-go/services/green"
 	"github.com/ethereum/go-ethereum/common"
+	"github.com/ethereum/go-ethereum/core/types"
+	"github.com/ethereum/go-ethereum/crypto"
 	"github.com/ethereum/go-ethereum/log"
 
 	"github.com/FishcakeLab/fishcake-service/common/bigint"
@@ -16,8 +18,10 @@ import (
 	"github.com/FishcakeLab/fishcake-service/database"
 	"github.com/FishcakeLab/fishcake-service/database/block_listener"
 	"github.com/FishcakeLab/fishcake-service/database/event"
+	"github.com/FishcakeLab/fishcake-service/database/token_transfer"
 	"github.com/FishcakeLab/fishcake-service/event/polygon/abi"
 	"github.com/FishcakeLab/fishcake-service/event/polygon/unpack"
+	"github.com/FishcakeLab/fishcake-service/synchronizer/node"
 )
 
 type PolygonEventProcessor struct {
@@ -32,9 +36,10 @@ type PolygonEventProcessor struct {
 	contracts        []string
 	aliContentClient *green.Client
 	cfg              *config.Config
+	client           node.EthClient
 }
 
-func NewEventProcessor(db *database.DB, cfg *config.Config, loopInterval time.Duration, epoch uint64, shutdown context.CancelCauseFunc,
+func NewEventProcessor(db *database.DB, cfg *config.Config, client node.EthClient, loopInterval time.Duration, epoch uint64, shutdown context.CancelCauseFunc,
 ) (*PolygonEventProcessor, error) {
 
 	var contracts []string = cfg.Contracts
@@ -66,6 +71,7 @@ func NewEventProcessor(db *database.DB, cfg *config.Config, loopInterval time.Du
 		epoch:            epoch,
 		aliContentClient: nil,
 		cfg:              cfg,
+		client:           client,
 	}, nil
 }
 
@@ -204,10 +210,85 @@ func (pp *PolygonEventProcessor) eventsFetch(fromHeight, toHeight *big.Int) erro
 			}
 		}
 	}
+
+	// 2. 再处理原生代币转账
+	for height := new(big.Int).Set(fromHeight); height.Cmp(toHeight) <= 0; height.Add(height, big.NewInt(1)) {
+		block, err := pp.client.BlockByNumber(height)
+		if err != nil {
+			log.Error("failed to fetch block", "height", height, "err", err)
+			return err
+		}
+
+		for _, tx := range block.Transactions() {
+			if tx.Value().Cmp(big.NewInt(0)) > 0 {
+
+				signer := types.LatestSignerForChainID(tx.ChainId())
+
+				from, err := types.Sender(signer, tx)
+				if err != nil {
+					log.Warn("failed to get sender", "txHash", tx.Hash(), "err", err)
+					continue
+				}
+
+				to := ""
+				if tx.To() != nil {
+					to = tx.To().Hex()
+				} else {
+					to = "ContractCreation"
+				}
+
+				tokenSent := token_transfer.TokenSent{
+					Address:      from.Hex(),
+					TokenAddress: "0x0000000000000000000000000000000000001010", // Polygon 原生代币地址
+					Amount:       tx.Value(),
+					Description:  "Polygon Native Token Transfer",
+					Timestamp:    uint64(block.Time()),
+				}
+
+				tokenReceived := token_transfer.TokenReceived{
+					Address:      to,
+					TokenAddress: "0x0000000000000000000000000000000000001010", // Polygon 原生代币地址
+					Amount:       tx.Value(),
+					Description:  "Polygon Native Token Transfer",
+					Timestamp:    uint64(block.Time()),
+				}
+
+				if err := pp.db.Transaction(func(tx *database.DB) error {
+
+					if err := pp.db.TokenSentDB.StoreTokenSent(tokenSent); err != nil {
+						return err
+					}
+					if err := pp.db.TokenReceivedDB.StoreTokenReceived(tokenReceived); err != nil {
+						return err
+					}
+					return nil
+				}); err != nil {
+					return err
+				}
+			}
+		}
+	}
+
 	return nil
 }
 
 func (pp *PolygonEventProcessor) eventUnpack(event event.ContractEvent) error {
+
+	transferSig := crypto.Keccak256Hash([]byte("Transfer(address,address,uint256)"))
+	if event.EventSignature == transferSig {
+		address := event.RLPLog.Address.Hex()
+		if address != "0x84eBc138F4Ab844A3050a6059763D269dC9951c6" && address != "0xc2132D05D31c914a87C6611C10748AEb04B58e8F" {
+			log.Info("skipping transfer event for non fcc/USDT", "address", address)
+			return nil
+		}
+		err := unpack.Transfer(event, pp.db, address)
+		if err != nil {
+			log.Info("failed to unpack transfer event", "err", err)
+			return err
+		}
+		return nil
+	}
+
 	merchantAbi, _ := abi.FishcakeEventManagerMetaData.GetAbi()
 	nftTokenAbi, _ := abi.NftManagerMetaData.GetAbi()
 	stakeAbi, _ := abi.StakingManagerMetaData.GetAbi()

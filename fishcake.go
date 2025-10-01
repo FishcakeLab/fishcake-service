@@ -74,7 +74,7 @@ func NewIndex(ctx *cli.Context, cfg *config.Config, db *database.DB, shutdown co
 	if err != nil {
 		return nil
 	}
-	err = f.newEvent(cfg, db, shutdown)
+	err = f.newEvent(ctx, cfg, db, shutdown)
 	if err != nil {
 		return nil
 	}
@@ -191,10 +191,12 @@ func (f *FishCake) newIndex(ctx *cli.Context, cfg *config.Config, db *database.D
 	return nil
 }
 
-func (f *FishCake) newEvent(cfg *config.Config, db *database.DB, shutdown context.CancelCauseFunc) error {
+func (f *FishCake) newEvent(ctx *cli.Context, cfg *config.Config, db *database.DB, shutdown context.CancelCauseFunc) error {
+
+	client, _ := node.DialEthClient(ctx.Context, cfg.PolygonRpc)
 	var epoch uint64 = 10_000
 	var loopInterval time.Duration = time.Second * 2
-	eventProcessor, _ := polygon.NewEventProcessor(db, cfg, loopInterval, epoch, shutdown)
+	eventProcessor, _ := polygon.NewEventProcessor(db, cfg, client, loopInterval, epoch, shutdown)
 	err := eventProcessor.Start()
 	if err != nil {
 		log.Error("failed to start eventProcessor:", err)
