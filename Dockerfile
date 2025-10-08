@@ -7,20 +7,20 @@ COPY ./go.sum /app/go.sum
 
 WORKDIR /app
 
+RUN go mod download
+
 COPY . /app/fishcake-service
 
 WORKDIR /app/fishcake-service
 
-
-RUN go mod download && go mod tidy
 RUN make fishcake
 
 FROM alpine:3.18
 
-COPY --from=builder /app/fishcake /usr/local/bin
+COPY --from=builder /app/fishcake-service/fishcake /usr/local/bin
 COPY --from=builder /app/fishcake-service/config.yaml /app/fishcake-service/config.yaml
-COPY --from=builder /app/fishcakefrebase.json /app/fishcakefrebase.json
-COPY --from=builder /app/migrations /app/migrations
+COPY --from=builder /app/fishcake-service/fishcakefrebase.json /app/fishcake-service/fishcakefrebase.json
+COPY --from=builder /app/fishcake-service/migrations /app/fishcake-service/migrations
 
 ENV FISHCAKE_MIGRATIONS_DIR="/app/fishcake-service/migrations"
 ENV FISHCAKE_CONFIG="/app/fishcake-service/config.yaml"
