@@ -93,7 +93,8 @@ func runBackUpScript(ctx *cli.Context) error { // only for once so don't opt it
 		}
 	}(db)
 	if err := db.ExecuteSQLMigration("/app/backup").Error; err != nil {
-		return fmt.Errorf("failed to execute script %w", err)
+		log.Error("failed to execute script", "err", err)
+		return fmt.Errorf("failed to execute script")
 	}
 	log.Info("Database backup completed successfully")
 	return nil
