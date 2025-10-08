@@ -4,6 +4,8 @@ import (
 	"context"
 	"fmt"
 	"github.com/FishcakeLab/fishcake-service/api/notification"
+	"github.com/FishcakeLab/fishcake-service/worker/drop_worker"
+	"github.com/FishcakeLab/fishcake-service/worker/queue_transaction"
 	"math/big"
 	"strconv"
 	"time"
@@ -111,9 +113,9 @@ func (f *FishCake) newIndex(ctx *cli.Context, cfg *config.Config, db *database.D
 	client, _ := node.DialEthClient(ctx.Context, cfg.PolygonRpc)
 	syncer, _ := synchronizer.NewSynchronizer(cfg, syncConfig, db, client, shutdown)
 	worker, _ := clean_data_worker.NewWorkerProcessor(db, shutdown)
-	// dropWorker, _ := drop_worker.NewDropWorkerProcessor(db, cfg, shutdown)
-	// systemDropWorker, _ := drop_worker.NewSystemDropWorkerProcessor(db, cfg, shutdown, client)
-	// queueTxProcessor, _ := queue_transaction.NewQueueTxProcessor(db, cfg, client, shutdown)
+	dropWorker, _ := drop_worker.NewDropWorkerProcessor(db, cfg, shutdown)
+	systemDropWorker, _ := drop_worker.NewSystemDropWorkerProcessor(db, cfg, shutdown, client)
+	queueTxProcessor, _ := queue_transaction.NewQueueTxProcessor(db, cfg, client, shutdown)
 
 	err := syncer.Start()
 	if err != nil {
@@ -125,21 +127,21 @@ func (f *FishCake) newIndex(ctx *cli.Context, cfg *config.Config, db *database.D
 		log.Error("failed to start clean data worker:", err)
 		return err
 	}
-	//err = dropWorker.DropWorkerStart()
-	//if err != nil {
-	//	log.Error("failed to start drop  worker:", err)
-	//	return err
-	//}
-	//err = systemDropWorker.SystemDropWorkerStart()
-	//if err != nil {
-	//	log.Error("failed to start system drop worker:", err)
-	//	return err
-	//}
-	//err = queueTxProcessor.QueueTxStart()
-	//if err != nil {
-	//	log.Error("queue tx processor fail", "err", err)
-	//	return err
-	//}
+	err = dropWorker.DropWorkerStart()
+	if err != nil {
+		log.Error("failed to start drop  worker:", err)
+		return err
+	}
+	err = systemDropWorker.SystemDropWorkerStart()
+	if err != nil {
+		log.Error("failed to start system drop worker:", err)
+		return err
+	}
+	err = queueTxProcessor.QueueTxStart()
+	if err != nil {
+		log.Error("queue tx processor fail", "err", err)
+		return err
+	}
 	return nil
 }
 
