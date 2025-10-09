@@ -10,7 +10,6 @@ import (
 
 	"github.com/FishcakeLab/fishcake-service/common/api_result"
 	"github.com/FishcakeLab/fishcake-service/common/enum"
-	"github.com/FishcakeLab/fishcake-service/common/global_const"
 	"github.com/FishcakeLab/fishcake-service/rpc/account"
 	"github.com/FishcakeLab/fishcake-service/service"
 )
@@ -140,7 +139,7 @@ func balance(c *gin.Context) {
 		ContractAddress: service.BaseService.RewardService.FccAddress(),
 	}
 	responseFcc, _ := service.BaseService.RpcService.GetAccount(context.Background(), reqFcc)
-	if responseFcc.Code == global_const.RpcReturnCodeError {
+	if responseFcc.Code == account.ReturnCode_ERROR {
 		api_result.NewApiResult(c).Error(enum.GrpcErr.Code, responseFcc.Msg)
 		return
 	}
@@ -152,7 +151,7 @@ func balance(c *gin.Context) {
 		ContractAddress: "0x00",
 	}
 	responsePol, _ := service.BaseService.RpcService.GetAccount(context.Background(), reqPol)
-	if responsePol.Code == global_const.RpcReturnCodeError {
+	if responsePol.Code == account.ReturnCode_ERROR {
 		api_result.NewApiResult(c).Error(enum.GrpcErr.Code, responsePol.Msg)
 		return
 	}
@@ -164,7 +163,7 @@ func balance(c *gin.Context) {
 		ContractAddress: service.BaseService.RewardService.UsdtAddress(),
 	}
 	responseUsdt, _ := service.BaseService.RpcService.GetAccount(context.Background(), reqUsdt)
-	if responseUsdt.Code == global_const.RpcReturnCodeError {
+	if responseUsdt.Code == account.ReturnCode_ERROR {
 		api_result.NewApiResult(c).Error(enum.GrpcErr.Code, responseUsdt.Msg)
 		return
 	}
@@ -186,7 +185,7 @@ func signInfo(c *gin.Context) {
 		Address: address,
 	}
 	responseAccount, _ := service.BaseService.RpcService.GetAccount(context.Background(), reqAccount)
-	if responseAccount.Code == global_const.RpcReturnCodeError {
+	if responseAccount.Code == account.ReturnCode_ERROR {
 		api_result.NewApiResult(c).Error(enum.GrpcErr.Code, responseAccount.Msg)
 		return
 	}
@@ -196,7 +195,7 @@ func signInfo(c *gin.Context) {
 		Network: "mainnet",
 	}
 	responseFee, _ := service.BaseService.RpcService.GetFee(context.Background(), reqFee)
-	if responseFee.Code == global_const.RpcReturnCodeError {
+	if responseFee.Code == account.ReturnCode_ERROR {
 		api_result.NewApiResult(c).Error(enum.GrpcErr.Code, responseFee.Msg)
 		return
 	}
@@ -228,7 +227,7 @@ func sentRawTransaction(c *gin.Context) {
 		api_result.NewApiResult(c).Error(enum.GrpcErr.Code, "send tx fail, please try again later")
 		return
 	}
-	if response.Code == global_const.RpcReturnCodeError {
+	if response.Code == account.ReturnCode_ERROR {
 		api_result.NewApiResult(c).Error(enum.GrpcErr.Code, response.Msg)
 		return
 	}
@@ -248,7 +247,7 @@ func transactions(c *gin.Context) {
 		Address: address,
 	}
 	response, _ := service.BaseService.RpcService.GetTxByAddress(context.Background(), req)
-	if response.Code == global_const.RpcReturnCodeSuccess {
+	if response.Code == account.ReturnCode_ERROR {
 		api_result.NewApiResult(c).Success(response)
 		return
 	}
