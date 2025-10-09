@@ -6,7 +6,6 @@ import (
 	"github.com/gin-gonic/gin"
 	"math/big"
 	"strconv"
-	"strings"
 	"sync"
 
 	"github.com/FishcakeLab/fishcake-service/common/api_result"
@@ -202,11 +201,8 @@ func signInfo(c *gin.Context) {
 		return
 	}
 
-	parts := strings.Split(responseFee.FastFee, "|")
-	// Extract first part and convert to big.Int
-	firstNumberStr := parts[0]
 	bigIntValue := new(big.Int)
-	_, _ = bigIntValue.SetString(firstNumberStr, 10)
+	_, _ = bigIntValue.SetString(responseFee.Eip1559Wallet.MaxFeePerGas, 10)
 
 	retValue := SignReturnValue{
 		Nonce:                responseAccount.Sequence,
