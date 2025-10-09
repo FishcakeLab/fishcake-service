@@ -85,6 +85,8 @@ func (dp *DropWorkerProcessor) DropWorkerStart() error {
 						return err
 					}
 
+					log.Info("RpcService GetFee Eip1559Wallet MaxFeePerGas", "MaxFeePerGas", fee.Eip1559Wallet.MaxFeePerGas)
+
 					bigIntValue := new(big.Int)
 					_, _ = bigIntValue.SetString(fee.Eip1559Wallet.MaxFeePerGas, 10)
 
