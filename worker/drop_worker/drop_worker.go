@@ -84,6 +84,12 @@ func (dp *DropWorkerProcessor) DropWorkerStart() error {
 						log.Error("get fee fail", "err", err)
 						return err
 					}
+					log.Info("RpcService GetFee", "fee", fee)
+
+					if fee.Code == account.ReturnCode_ERROR {
+						log.Error("get fee fail code is", account.ReturnCode_ERROR)
+						continue
+					}
 
 					log.Info("RpcService GetFee Eip1559Wallet MaxFeePerGas", "MaxFeePerGas", fee.Eip1559Wallet.MaxFeePerGas)
 
