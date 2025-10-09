@@ -5,7 +5,6 @@ import (
 	"fmt"
 	"math/big"
 	"strconv"
-	"strings"
 	"time"
 
 	"github.com/ethereum/go-ethereum/log"
@@ -86,10 +85,8 @@ func (dp *DropWorkerProcessor) DropWorkerStart() error {
 						return err
 					}
 
-					parts := strings.Split(fee.FastFee, "|")
-					firstNumberStr := parts[0]
 					bigIntValue := new(big.Int)
-					_, _ = bigIntValue.SetString(firstNumberStr, 10)
+					_, _ = bigIntValue.SetString(fee.Eip1559Wallet.MaxFeePerGas, 10)
 
 					rawTx, _, err := dp.baseService.RewardService.CreateOfflineTransaction(
 						big.NewInt(137),

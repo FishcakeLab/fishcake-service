@@ -22,6 +22,7 @@ COPY --from=builder /app/fishcake-service/config.yaml /app/fishcake-service/conf
 COPY --from=builder /app/fishcake-service/fishcakefrebase.json /app/fishcake-service/fishcakefrebase.json
 COPY --from=builder /app/fishcake-service/migrations /app/fishcake-service/migrations
 
+ENV FISHCAKE_FFB="/app/fishcake-service/fishcakefrebase.json"
 ENV FISHCAKE_MIGRATIONS_DIR="/app/fishcake-service/migrations"
 ENV FISHCAKE_CONFIG="/app/fishcake-service/config.yaml"
 
