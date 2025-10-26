@@ -4,7 +4,6 @@ import (
 	"context"
 	"fmt"
 
-
 	"math/big"
 	"strconv"
 	"time"
@@ -30,8 +29,6 @@ import (
 	"github.com/FishcakeLab/fishcake-service/synchronizer/node"
 	"github.com/FishcakeLab/fishcake-service/worker/clean_data_worker"
 	"github.com/FishcakeLab/fishcake-service/worker/drop_worker"
-	"github.com/FishcakeLab/fishcake-service/worker/queue_transaction"
-  "github.com/FishcakeLab/fishcake-service/api/notification"
 	"github.com/FishcakeLab/fishcake-service/worker/queue_transaction"
 )
 
