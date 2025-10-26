@@ -2,8 +2,7 @@ package main
 
 import (
 	"context"
-	"github.com/urfave/cli/v2"
-
+	"fmt"
 	fishcake_service "github.com/FishcakeLab/fishcake-service"
 	"github.com/FishcakeLab/fishcake-service/common/cliapp"
 	"github.com/FishcakeLab/fishcake-service/common/opio"
@@ -11,6 +10,7 @@ import (
 	"github.com/FishcakeLab/fishcake-service/database"
 	flag2 "github.com/FishcakeLab/fishcake-service/flags"
 	"github.com/ethereum/go-ethereum/log"
+	"github.com/urfave/cli/v2"
 )
 
 func runIndexer(ctx *cli.Context, shutdown context.CancelCauseFunc) (cliapp.Lifecycle, error) {
@@ -73,6 +73,33 @@ func runMigrations(ctx *cli.Context) error {
 	return db.ExecuteSQLMigration(cfg.Migrations)
 }
 
+func runBackUpScript(ctx *cli.Context) error { // only for once so don't opt it
+	log.Info("Running database backup scripts...")
+	cfg, err := config.New("./config.yaml")
+	if err != nil {
+		log.Info("Failed to load config", "err", err)
+		return err
+	}
+	ctx.Context = opio.CancelOnInterrupt(ctx.Context)
+	db, err := database.NewDB(cfg)
+	if err != nil {
+		log.Error("failed to connect to database", "err", err)
+		return err
+	}
+	defer func(db *database.DB) {
+		err := db.Close()
+		if err != nil {
+			return
+		}
+	}(db)
+	if err := db.ExecuteSQLMigration("/app/backup").Error; err != nil {
+		log.Error("failed to execute script", "err", err)
+		return fmt.Errorf("failed to execute script")
+	}
+	log.Info("Database backup completed successfully")
+	return nil
+}
+
 func newCli() *cli.App {
 	flags := flag2.Flags
 	return &cli.App{
@@ -97,6 +124,12 @@ func newCli() *cli.App {
 				Flags:       flags,
 				Description: "Runs the database migrations",
 				Action:      runMigrations,
+			},
+			{
+				Name:        "backup-history",
+				Flags:       flags,
+				Description: "Runs the database migrations",
+				Action:      runBackUpScript,
 			},
 			{
 				Name:        "version",

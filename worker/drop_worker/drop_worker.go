@@ -5,7 +5,6 @@ import (
 	"fmt"
 	"math/big"
 	"strconv"
-	"strings"
 	"time"
 
 	"github.com/ethereum/go-ethereum/log"
@@ -85,11 +84,17 @@ func (dp *DropWorkerProcessor) DropWorkerStart() error {
 						log.Error("get fee fail", "err", err)
 						return err
 					}
+					log.Info("RpcService GetFee", "fee", fee)
 
-					parts := strings.Split(fee.FastFee, "|")
-					firstNumberStr := parts[0]
+					if fee.Code == account.ReturnCode_ERROR {
+						log.Error("get fee fail code is", account.ReturnCode_ERROR)
+						continue
+					}
+
+					log.Info("RpcService GetFee Eip1559Wallet MaxFeePerGas", "MaxFeePerGas", fee.Eip1559Wallet.MaxFeePerGas)
+
 					bigIntValue := new(big.Int)
-					_, _ = bigIntValue.SetString(firstNumberStr, 10)
+					_, _ = bigIntValue.SetString(fee.Eip1559Wallet.MaxFeePerGas, 10)
 
 					rawTx, _, err := dp.baseService.RewardService.CreateOfflineTransaction(
 						big.NewInt(137),

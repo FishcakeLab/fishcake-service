@@ -149,7 +149,7 @@ func (r *rpcService) GetTxByHash(ctx context.Context, in *account.TxHashRequest)
 }
 
 func (r *rpcService) CreateUnSignTransaction(ctx context.Context, in *account.UnSignTransactionRequest) (*account.UnSignTransactionResponse, error) {
-	resp, err := r.accountService.CreateUnSignTransaction(ctx, in)
+	resp, err := r.accountService.BuildUnSignTransaction(ctx, in)
 	if err != nil {
 		return nil, nil
 	}
