@@ -6,6 +6,7 @@ import (
 	"time"
 
 	"gorm.io/gorm"
+	"gorm.io/gorm/clause"
 
 	"github.com/ethereum/go-ethereum/log"
 
@@ -100,7 +101,7 @@ func (a activityInfoDB) MarkActivityParticipantAddressDropped(address string) er
 
 // UpdateActivityInfo increments the already_drop_number for an activity
 func (a activityInfoDB) UpdateActivityInfo(activityId string) error {
-	sql := `update activity_info set already_drop_number = already_drop_number + 1 where activity_id = ?`
+	sql := `update activity_info set already_drop_number = already_drop_number + 1 where activity_id = ? AND already_drop_number < drop_number;`
 	err := a.db.Exec(sql, activityId).Error
 	return err
 }
@@ -134,17 +135,29 @@ func (a activityInfoDB) ActivityFinish(activityId string, ReturnAmount, MinedAmo
 
 func (a activityInfoDB) StoreActivityInfo(activityInfo ActivityInfo) error {
 	activityInfoRecord := new(ActivityInfo)
-	var exist ActivityInfo
-	err := a.db.Table(activityInfoRecord.TableName()).Where("activity_id = ?", activityInfo.ActivityId).Take(&exist).Error
+
+	// var exist ActivityInfo
+
+	err := a.db.Table(activityInfoRecord.TableName()).
+		Clauses(clause.OnConflict{
+			Columns:   []clause.Column{{Name: "activity_id"}},
+			DoNothing: true,
+		}).Create(&activityInfo).Error
 	if err != nil {
-		if errors.Is(err, gorm.ErrRecordNotFound) {
-			errCreate := a.db.Table(activityInfoRecord.TableName()).Omit("id, basic_deadline, pro_deadline").Create(&activityInfo).Error
-			if errCreate != nil {
-				log.Error("create activityInfo error", "err", errCreate)
-				return errCreate
-			}
-		}
+		log.Error("create activityInfo error", "err", err)
+		return err
 	}
+
+	// err := a.db.Table(activityInfoRecord.TableName()).Where("activity_id = ?", activityInfo.ActivityId).Take(&exist).Error
+	// if err != nil {
+	// 	if errors.Is(err, gorm.ErrRecordNotFound) {
+	// 		errCreate := a.db.Table(activityInfoRecord.TableName()).Omit("id, basic_deadline, pro_deadline").Create(&activityInfo).Error
+	// 		if errCreate != nil {
+	// 			log.Error("create activityInfo error", "err", errCreate)
+	// 			return errCreate
+	// 		}
+	// 	}
+	// }
 	var walletAddress WalletAddress
 	this := a.db.Table("wallet_addresses")
 	result := this.Where("address = ?", activityInfo.BusinessAccount).Take(&walletAddress)
