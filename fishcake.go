@@ -3,13 +3,14 @@ package fishcake_service
 import (
 	"context"
 	"fmt"
+
 	"net/http"
 	"os"
 	"os/signal"
 	"syscall"
 
-	"github.com/FishcakeLab/fishcake-service/api/notification"
-	"github.com/FishcakeLab/fishcake-service/worker/queue_transaction"
+	
+
 
 	"math/big"
 	"strconv"
@@ -24,6 +25,7 @@ import (
 	"github.com/FishcakeLab/fishcake-service/api/contract_info"
 	"github.com/FishcakeLab/fishcake-service/api/drop_info"
 	"github.com/FishcakeLab/fishcake-service/api/nft_info"
+	"github.com/FishcakeLab/fishcake-service/api/notification"
 	"github.com/FishcakeLab/fishcake-service/api/wallet_info"
 	"github.com/FishcakeLab/fishcake-service/common/errors_h"
 	"github.com/FishcakeLab/fishcake-service/common/middleware"
@@ -35,6 +37,7 @@ import (
 	"github.com/FishcakeLab/fishcake-service/synchronizer/node"
 	"github.com/FishcakeLab/fishcake-service/worker/clean_data_worker"
 	"github.com/FishcakeLab/fishcake-service/worker/drop_worker"
+	"github.com/FishcakeLab/fishcake-service/worker/queue_transaction"
 )
 
 type FishCake struct {
@@ -194,8 +197,7 @@ func (f *FishCake) newIndex(ctx *cli.Context, cfg *config.Config, db *database.D
 func (f *FishCake) newEvent(cfg *config.Config, db *database.DB, shutdown context.CancelCauseFunc) error {
 	var epoch uint64 = 10_000
 	var loopInterval time.Duration = time.Second * 2
-	eventProcessor, _ := polygon.NewEventProcessor(db, loopInterval, cfg.Contracts,
-		cfg.StartBlock, cfg.EventStartBlock, epoch, shutdown, cfg.AliConfig)
+	eventProcessor, _ := polygon.NewEventProcessor(db, cfg, loopInterval, epoch, shutdown)
 	err := eventProcessor.Start()
 	if err != nil {
 		log.Error("failed to start eventProcessor:", err)

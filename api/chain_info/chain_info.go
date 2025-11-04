@@ -6,12 +6,10 @@ import (
 	"github.com/gin-gonic/gin"
 	"math/big"
 	"strconv"
-	"strings"
 	"sync"
 
 	"github.com/FishcakeLab/fishcake-service/common/api_result"
 	"github.com/FishcakeLab/fishcake-service/common/enum"
-	"github.com/FishcakeLab/fishcake-service/common/global_const"
 	"github.com/FishcakeLab/fishcake-service/rpc/account"
 	"github.com/FishcakeLab/fishcake-service/service"
 )
@@ -141,7 +139,7 @@ func balance(c *gin.Context) {
 		ContractAddress: service.BaseService.RewardService.FccAddress(),
 	}
 	responseFcc, _ := service.BaseService.RpcService.GetAccount(context.Background(), reqFcc)
-	if responseFcc.Code == global_const.RpcReturnCodeError {
+	if responseFcc.Code == account.ReturnCode_ERROR {
 		api_result.NewApiResult(c).Error(enum.GrpcErr.Code, responseFcc.Msg)
 		return
 	}
@@ -153,7 +151,7 @@ func balance(c *gin.Context) {
 		ContractAddress: "0x00",
 	}
 	responsePol, _ := service.BaseService.RpcService.GetAccount(context.Background(), reqPol)
-	if responsePol.Code == global_const.RpcReturnCodeError {
+	if responsePol.Code == account.ReturnCode_ERROR {
 		api_result.NewApiResult(c).Error(enum.GrpcErr.Code, responsePol.Msg)
 		return
 	}
@@ -165,7 +163,7 @@ func balance(c *gin.Context) {
 		ContractAddress: service.BaseService.RewardService.UsdtAddress(),
 	}
 	responseUsdt, _ := service.BaseService.RpcService.GetAccount(context.Background(), reqUsdt)
-	if responseUsdt.Code == global_const.RpcReturnCodeError {
+	if responseUsdt.Code == account.ReturnCode_ERROR {
 		api_result.NewApiResult(c).Error(enum.GrpcErr.Code, responseUsdt.Msg)
 		return
 	}
@@ -187,7 +185,7 @@ func signInfo(c *gin.Context) {
 		Address: address,
 	}
 	responseAccount, _ := service.BaseService.RpcService.GetAccount(context.Background(), reqAccount)
-	if responseAccount.Code == global_const.RpcReturnCodeError {
+	if responseAccount.Code == account.ReturnCode_ERROR {
 		api_result.NewApiResult(c).Error(enum.GrpcErr.Code, responseAccount.Msg)
 		return
 	}
@@ -197,16 +195,13 @@ func signInfo(c *gin.Context) {
 		Network: "mainnet",
 	}
 	responseFee, _ := service.BaseService.RpcService.GetFee(context.Background(), reqFee)
-	if responseFee.Code == global_const.RpcReturnCodeError {
+	if responseFee.Code == account.ReturnCode_ERROR {
 		api_result.NewApiResult(c).Error(enum.GrpcErr.Code, responseFee.Msg)
 		return
 	}
 
-	parts := strings.Split(responseFee.FastFee, "|")
-	// Extract first part and convert to big.Int
-	firstNumberStr := parts[0]
 	bigIntValue := new(big.Int)
-	_, _ = bigIntValue.SetString(firstNumberStr, 10)
+	_, _ = bigIntValue.SetString(responseFee.Eip1559Wallet.MaxFeePerGas, 10)
 
 	retValue := SignReturnValue{
 		Nonce:                responseAccount.Sequence,
@@ -232,7 +227,7 @@ func sentRawTransaction(c *gin.Context) {
 		api_result.NewApiResult(c).Error(enum.GrpcErr.Code, "send tx fail, please try again later")
 		return
 	}
-	if response.Code == global_const.RpcReturnCodeError {
+	if response.Code == account.ReturnCode_ERROR {
 		api_result.NewApiResult(c).Error(enum.GrpcErr.Code, response.Msg)
 		return
 	}
@@ -252,7 +247,7 @@ func transactions(c *gin.Context) {
 		Address: address,
 	}
 	response, _ := service.BaseService.RpcService.GetTxByAddress(context.Background(), req)
-	if response.Code == global_const.RpcReturnCodeSuccess {
+	if response.Code == account.ReturnCode_ERROR {
 		api_result.NewApiResult(c).Success(response)
 		return
 	}

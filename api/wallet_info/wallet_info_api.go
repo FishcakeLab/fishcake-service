@@ -5,7 +5,6 @@ import (
 	"github.com/FishcakeLab/fishcake-service/database/drop"
 	"math/big"
 	"strconv"
-	"strings"
 	"time"
 
 	"github.com/gin-gonic/gin"
@@ -77,12 +76,10 @@ func CreateWallet(c *gin.Context) {
 		api_result.NewApiResult(c).Success("get fee fail")
 		return
 	}
-	log.Info("Drop fee", "fee", fee.FastFee)
+	log.Info("Drop fee", "fee", fee.Eip1559Wallet.MaxFeePerGas)
 
-	parts := strings.Split(fee.FastFee, "|")
-	firstNumberStr := parts[0]
 	bigIntValue := new(big.Int)
-	_, _ = bigIntValue.SetString(firstNumberStr, 10)
+	_, _ = bigIntValue.SetString(fee.Eip1559Wallet.MaxFeePerGas, 10)
 
 	rawTx, _, err := service.BaseService.RewardService.CreateOfflineTransaction(
 		big.NewInt(137),

@@ -1,14 +1,16 @@
-migrations: "./migrations"
+migrations: "/app/fishcake-service/migrations"
 polygon_rpc: "https://polygon-mainnet.g.alchemy.com/v2/afSCtxPWD3NE5vSjJm2GQ"
-rpc_url: "127.0.0.1:8189"
+rpc_url: "tw-wallet-chain-account:80"
 polygon_chain_id: "80001"
 http_host: "127.0.0.1"
-http_port: 8087
-db_host: "127.0.0.1"
+http_port: 8189
+db_host: "postgresql.mainnet"
 db_port: 5432
 db_name: "fishcake"
-db_user: "postgres"
-db_password: "WthHTebo0d"
+
+db_user: "bitadmin"
+db_password: "wZa9wHac"
+
 metrics_host:
 metrics_port:
 start_block: 67252625
