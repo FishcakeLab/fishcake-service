@@ -2,6 +2,7 @@ package main
 
 import (
 	"context"
+
 	"github.com/urfave/cli/v2"
 
 	fishcake_service "github.com/FishcakeLab/fishcake-service"
@@ -42,12 +43,12 @@ func runApi(ctx *cli.Context, _ context.CancelCauseFunc) (cliapp.Lifecycle, erro
 		log.Error("failed to connect to database", "err", err)
 		return nil, err
 	}
-	defer func(db *database.DB) {
-		err := db.Close()
-		if err != nil {
-			return
-		}
-	}(db)
+	// defer func(db *database.DB) {
+	// 	err := db.Close()
+	// 	if err != nil {
+	// 		return
+	// 	}
+	// }(db)
 	return fishcake_service.NewFishCake(cfg, db), nil
 }
 

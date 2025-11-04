@@ -54,6 +54,11 @@ type WalletAddress struct {
 	Remark    string `gorm:"column:remark"`
 }
 
+type BusinessRank struct {
+	BusinessAccount string `json:"businessAccount"`
+	TotalMined      string `json:"totalMined"`
+}
+
 func (ActivityInfo) TableName() string {
 	return "activity_info"
 }
@@ -74,10 +79,32 @@ type ActivityInfoDB interface {
 	ActivityFinish(activityId string, ReturnAmount, MinedAmount *big.Int) error
 	UpdateActivityInfo(activityId string) error
 	MarkActivityParticipantAddressDropped(string) error
+	GetActivityRank(monthFilter bool) ([]BusinessRank, error)
 }
 
 type activityInfoDB struct {
 	db *gorm.DB
+}
+
+func (d activityInfoDB) GetActivityRank(monthFilter bool) ([]BusinessRank, error) {
+	db := d.db.Table("activity_info").
+		Select("business_account, SUM(mined_amount::numeric) as total_mined").
+		Where("activity_status = ?", 2).
+		Group("business_account").
+		Order("total_mined DESC")
+
+	if monthFilter {
+		// 当前时间戳减去 30 天
+		now := time.Now().Unix()
+		oneMonthAgo := now - 30*24*3600
+		db = db.Where("activity_deadline >= ?", oneMonthAgo)
+	}
+
+	var ranks []BusinessRank
+	if err := db.Scan(&ranks).Error; err != nil {
+		return nil, err
+	}
+	return ranks, nil
 }
 
 func (a activityInfoDB) UnDropActivityParticipantAddresses() []ActivityParticipantAddress {
@@ -136,17 +163,17 @@ func (a activityInfoDB) ActivityFinish(activityId string, ReturnAmount, MinedAmo
 func (a activityInfoDB) StoreActivityInfo(activityInfo ActivityInfo) error {
 	activityInfoRecord := new(ActivityInfo)
 
-	// var exist ActivityInfo
-
 	err := a.db.Table(activityInfoRecord.TableName()).
 		Clauses(clause.OnConflict{
 			Columns:   []clause.Column{{Name: "activity_id"}},
 			DoNothing: true,
-		}).Create(&activityInfo).Error
+		}).Omit("id, basic_deadline, pro_deadline").Create(&activityInfo).Error
 	if err != nil {
 		log.Error("create activityInfo error", "err", err)
 		return err
 	}
+
+	// var exist ActivityInfo
 
 	// err := a.db.Table(activityInfoRecord.TableName()).Where("activity_id = ?", activityInfo.ActivityId).Take(&exist).Error
 	// if err != nil {

@@ -3,6 +3,11 @@ package fishcake_service
 import (
 	"context"
 	"fmt"
+	"net/http"
+	"os"
+	"os/signal"
+	"syscall"
+
 	"github.com/FishcakeLab/fishcake-service/api/notification"
 	"github.com/FishcakeLab/fishcake-service/worker/queue_transaction"
 
@@ -33,6 +38,7 @@ import (
 )
 
 type FishCake struct {
+	db *database.DB
 }
 
 func (f *FishCake) Start(ctx context.Context) error {
@@ -40,6 +46,12 @@ func (f *FishCake) Start(ctx context.Context) error {
 }
 
 func (f *FishCake) Stop(ctx context.Context) error {
+	log.Info("Shutting down HTTP server...")
+
+	err := f.db.Close()
+	if err != nil {
+		return err
+	}
 	return nil
 }
 
@@ -48,7 +60,7 @@ func (f *FishCake) Stopped() bool {
 }
 
 func NewFishCake(cfg *config.Config, db *database.DB) *FishCake {
-	f := &FishCake{}
+	f := &FishCake{db: db}
 	err := f.newApi(cfg, db)
 	if err != nil {
 		return nil
@@ -94,12 +106,45 @@ func (f *FishCake) newApi(cfg *config.Config, db *database.DB) error {
 	wallet_info.WalletInfoApi(r)
 	notification.NotificationApi(r)
 	port := fmt.Sprintf(":%d", cfg.HttpPort)
-	err := r.Run(port)
-	if err != nil {
-		log.Error("new api fail", "err", err)
-		return err
+
+	// ✅ 改成 http.Server
+	srv := &http.Server{
+		Addr:    port,
+		Handler: r,
 	}
+
+	// ✅ 启动 Gin server 在 goroutine 里
+	go func() {
+		if err := srv.ListenAndServe(); err != nil && err != http.ErrServerClosed {
+			log.Error("HTTP server error", "err", err)
+		}
+	}()
+
+	// ✅ 等待退出信号
+	go func() {
+		quit := make(chan os.Signal, 1)
+		signal.Notify(quit, syscall.SIGINT, syscall.SIGTERM)
+		<-quit
+		log.Info("Shutting down HTTP server...")
+
+		ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
+		defer cancel()
+
+		if err := srv.Shutdown(ctx); err != nil {
+			log.Error("HTTP server forced to shutdown", "err", err)
+		} else {
+			log.Info("HTTP server exited properly")
+		}
+	}()
+
 	return nil
+
+	// err := r.Run(port)
+	// if err != nil {
+	// 	log.Error("new api fail", "err", err)
+	// 	return err
+	// }
+	// return nil
 }
 
 func (f *FishCake) newIndex(ctx *cli.Context, cfg *config.Config, db *database.DB, shutdown context.CancelCauseFunc) error {

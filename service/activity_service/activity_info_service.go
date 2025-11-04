@@ -10,6 +10,7 @@ type ActivityInfoService interface {
 		activityId,
 		pageNum, pageSize int) ([]activity.ActivityInfo, int)
 	ActivityInfo(activityId int) activity.ActivityInfo
+	GetActivityRank(monthFilter bool) ([]activity.BusinessRank, error)
 }
 
 type activityInfoService struct {
@@ -28,4 +29,12 @@ func (s *activityInfoService) ActivityInfoList(activityFilter, businessAccount, 
 func (s *activityInfoService) ActivityInfo(activityId int) activity.ActivityInfo {
 	infos := s.Db.ActivityInfoDB.ActivityInfo(activityId)
 	return infos
+}
+
+func (s *activityInfoService) GetActivityRank(monthFilter bool) ([]activity.BusinessRank, error) {
+	ranks, err := s.Db.ActivityInfoDB.GetActivityRank(monthFilter)
+	if err != nil {
+		return nil, err
+	}
+	return ranks, nil
 }

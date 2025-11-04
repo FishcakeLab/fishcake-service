@@ -8,6 +8,7 @@ LDFLAGS := -ldflags "$(LDFLAGSSTRING)"
 
 EVENT_ABI_ARTIFACT := ./abis/FishcakeEventManager.sol/FishcakeEventManager.json
 NFT_ABI_ARTIFACT := ./abis/NftManager.sol/NftManager.json
+STAKING_ABI_ARTIFACT := ./abis/StakingManager.sol/StakingManager.json
 
 fishcake:
 	env GO111MODULE=on go build -v $(LDFLAGS) ./cmd/fishcake
@@ -42,6 +43,15 @@ binding-nft:
 	--abi - \
 	--out event/polygon/abi/nft_manager.go \
 	--type NftManager \
+	rm $(temp)
+
+binding-staking:
+	$(eval temp := $(shell mktemp))
+	cat $(STAKING_ABI_ARTIFACT) | jq .abi \
+	| abigen --pkg abi \
+	--abi - \
+	--out event/polygon/abi/staking_manager.go \
+	--type StakingManager \
 	rm $(temp)
 
 

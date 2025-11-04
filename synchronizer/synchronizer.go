@@ -91,7 +91,7 @@ func (syncer *Synchronizer) Start() error {
 	syncer.tasks.Go(func() error {
 		for range tickerSyncer.C {
 			if len(syncer.headers) > 0 {
-				log.Info("retrying previous batch")
+				log.Info("retrying previous batch") // 一直卡在这里
 			} else {
 				newHeaders, err := syncer.headerTraversal.NextHeaders(syncer.headerBufferSize)
 				if err != nil {
@@ -110,7 +110,7 @@ func (syncer *Synchronizer) Start() error {
 			if err == nil {
 				syncer.headers = nil
 			} else {
-				log.Error("process batch fail", "err", err)
+				log.Error("process batch fail", "err", err) // 一直报错，卡在这里
 			}
 		}
 		return nil
@@ -135,13 +135,14 @@ func (syncer *Synchronizer) processBatch(headers []types.Header, ymlCfg *config.
 	addresses := make([]common.Address, len(ymlCfg.Contracts))
 	addresses[0] = common.HexToAddress(ymlCfg.Contracts[0])
 	addresses[1] = common.HexToAddress(ymlCfg.Contracts[1])
+	addresses[2] = common.HexToAddress(ymlCfg.Contracts[2])
 
 	filterQuery := ethereum.FilterQuery{FromBlock: firstHeader.Number, ToBlock: lastHeader.Number, Addresses: addresses}
 	logs, err := syncer.ethClient.FilterLogs(filterQuery)
 	if err != nil {
 		log.Info("failed to extract logs", "err", err)
 		return err
-	}
+	} // 这个一直在报错，FromBlock = nil, ToBlock = nil
 
 	if logs.ToBlockHeader.Number.Cmp(lastHeader.Number) != 0 {
 		return fmt.Errorf("mismatch in FilterLog#ToBlock number")

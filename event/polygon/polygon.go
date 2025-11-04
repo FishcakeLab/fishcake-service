@@ -169,6 +169,7 @@ func (pp *PolygonEventProcessor) eventsFetch(fromHeight, toHeight *big.Int) erro
 func (pp *PolygonEventProcessor) eventUnpack(event event.ContractEvent) error {
 	merchantAbi, _ := abi.FishcakeEventManagerMetaData.GetAbi()
 	nftTokenAbi, _ := abi.NftManagerMetaData.GetAbi()
+	stakeAbi, _ := abi.StakingManagerMetaData.GetAbi()
 	switch event.EventSignature.String() {
 	case merchantAbi.Events["ActivityAdd"].ID.String():
 		err := unpack.ActivityAdd(event, pp.db)
@@ -181,6 +182,14 @@ func (pp *PolygonEventProcessor) eventUnpack(event event.ContractEvent) error {
 		return err
 	case merchantAbi.Events["Drop"].ID.String():
 		err := unpack.Drop(event, pp.db)
+		return err
+
+	case stakeAbi.Events["StakeHolderDepositStaking"].ID.String():
+		err := unpack.StakeHolderDepositStaking(event, pp.db)
+		return err
+
+	case stakeAbi.Events["StakeHolderWithdrawStaking"].ID.String():
+		err := unpack.StakeHolderWithdrawStaking(event, pp.db)
 		return err
 	}
 	return nil
