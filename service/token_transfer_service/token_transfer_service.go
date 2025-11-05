@@ -24,5 +24,6 @@ func (n *tokenTransferService) ListSent(address, tokenType string, lastTimestamp
 }
 
 func (n *tokenTransferService) ListReceived(address, tokenType string, lastTimestamp uint64, limit int) ([]token_transfer.TokenReceived, error) {
-	return nil, nil
+	infos, err := n.Db.TokenReceivedDB.List(address, tokenType, lastTimestamp, limit)
+	return infos, err
 }

@@ -172,14 +172,14 @@ func (pp *PolygonEventProcessor) onData() error {
 		}
 	}
 	if err := pp.db.Transaction(func(tx *database.DB) error {
-		eventsFetchErr := pp.eventsFetch(fromHeight, toHeight)
+		eventsFetchErr := pp.eventsFetch(fromHeight, toHeight, tx) // *** 传入事务tx ***
 		if eventsFetchErr != nil {
 			return eventsFetchErr
 		}
 		lastBlock := block_listener.BlockListener{
 			BlockNumber: toHeight,
 		}
-		updateErr := pp.db.BlockListener.SaveOrUpdateLastBlockNumber(lastBlock)
+		updateErr := tx.BlockListener.SaveOrUpdateLastBlockNumber(lastBlock)
 		if updateErr != nil {
 			log.Info("update last block err :", updateErr)
 			return updateErr
@@ -193,7 +193,9 @@ func (pp *PolygonEventProcessor) onData() error {
 	return nil
 }
 
-func (pp *PolygonEventProcessor) eventsFetch(fromHeight, toHeight *big.Int) error {
+func (pp *PolygonEventProcessor) eventsFetch(fromHeight, toHeight *big.Int, tx *database.DB) error {
+
+	// 1. 先处理合约事件
 	contracts := pp.contracts
 	for _, contract := range contracts {
 		contractEventFilter := event.ContractEvent{ContractAddress: common.HexToAddress(contract)}
@@ -203,7 +205,7 @@ func (pp *PolygonEventProcessor) eventsFetch(fromHeight, toHeight *big.Int) erro
 			return err
 		}
 		for _, contractEvent := range events {
-			unpackErr := pp.eventUnpack(contractEvent)
+			unpackErr := pp.eventUnpack(contractEvent, tx)
 			if unpackErr != nil {
 				log.Info("failed to index events", "unpackErr", unpackErr)
 				return unpackErr
@@ -222,9 +224,9 @@ func (pp *PolygonEventProcessor) eventsFetch(fromHeight, toHeight *big.Int) erro
 		for _, tx := range block.Transactions() {
 			if tx.Value().Cmp(big.NewInt(0)) > 0 {
 
-				signer := types.LatestSignerForChainID(tx.ChainId())
+				signer := types.LatestSignerForChainID(tx.ChainId()) // 找出正确的签名规则
 
-				from, err := types.Sender(signer, tx)
+				from, err := types.Sender(signer, tx) // 根据交易内容和签名恢复发送者地址
 				if err != nil {
 					log.Warn("failed to get sender", "txHash", tx.Hash(), "err", err)
 					continue
@@ -249,16 +251,16 @@ func (pp *PolygonEventProcessor) eventsFetch(fromHeight, toHeight *big.Int) erro
 					Address:      to,
 					TokenAddress: "0x0000000000000000000000000000000000001010", // Polygon 原生代币地址
 					Amount:       tx.Value(),
-					Description:  "Polygon Native Token Transfer",
+					Description:  "Polygon Native Token Received",
 					Timestamp:    uint64(block.Time()),
 				}
 
 				if err := pp.db.Transaction(func(tx *database.DB) error {
 
-					if err := pp.db.TokenSentDB.StoreTokenSent(tokenSent); err != nil {
+					if err := tx.TokenSentDB.StoreTokenSent(tokenSent); err != nil {
 						return err
 					}
-					if err := pp.db.TokenReceivedDB.StoreTokenReceived(tokenReceived); err != nil {
+					if err := tx.TokenReceivedDB.StoreTokenReceived(tokenReceived); err != nil {
 						return err
 					}
 					return nil
@@ -272,7 +274,7 @@ func (pp *PolygonEventProcessor) eventsFetch(fromHeight, toHeight *big.Int) erro
 	return nil
 }
 
-func (pp *PolygonEventProcessor) eventUnpack(event event.ContractEvent) error {
+func (pp *PolygonEventProcessor) eventUnpack(event event.ContractEvent, tx *database.DB) error {
 
 	transferSig := crypto.Keccak256Hash([]byte("Transfer(address,address,uint256)"))
 	if event.EventSignature == transferSig {
@@ -280,8 +282,8 @@ func (pp *PolygonEventProcessor) eventUnpack(event event.ContractEvent) error {
 		if address != "0x84eBc138F4Ab844A3050a6059763D269dC9951c6" && address != "0xc2132D05D31c914a87C6611C10748AEb04B58e8F" {
 			log.Info("skipping transfer event for non fcc/USDT", "address", address)
 			return nil
-		}
-		err := unpack.Transfer(event, pp.db, address)
+		} // 筛选出 FCC 和 USDT 合约地址的 Transfer 事件
+		err := unpack.Transfer(event, tx, address)
 		if err != nil {
 			log.Info("failed to unpack transfer event", "err", err)
 			return err
@@ -294,24 +296,24 @@ func (pp *PolygonEventProcessor) eventUnpack(event event.ContractEvent) error {
 	stakeAbi, _ := abi.StakingManagerMetaData.GetAbi()
 	switch event.EventSignature.String() {
 	case merchantAbi.Events["ActivityAdd"].ID.String():
-		err := unpack.ActivityAdd(event, pp.db)
+		err := unpack.ActivityAdd(event, tx)
 		return err
 	case merchantAbi.Events["ActivityFinish"].ID.String():
-		err := unpack.ActivityFinish(event, pp.db)
+		err := unpack.ActivityFinish(event, tx)
 		return err
 	case nftTokenAbi.Events["CreateNFT"].ID.String():
-		err := unpack.MintNft(event, pp.db)
+		err := unpack.MintNft(event, tx)
 		return err
 	case merchantAbi.Events["Drop"].ID.String():
-		err := unpack.Drop(event, pp.db)
+		err := unpack.Drop(event, tx)
 		return err
 
 	case stakeAbi.Events["StakeHolderDepositStaking"].ID.String():
-		err := unpack.StakeHolderDepositStaking(event, pp.db)
+		err := unpack.StakeHolderDepositStaking(event, tx)
 		return err
 
 	case stakeAbi.Events["StakeHolderWithdrawStaking"].ID.String():
-		err := unpack.StakeHolderWithdrawStaking(event, pp.db)
+		err := unpack.StakeHolderWithdrawStaking(event, tx)
 		return err
 	}
 	return nil

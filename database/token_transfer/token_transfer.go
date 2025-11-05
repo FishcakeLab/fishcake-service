@@ -68,7 +68,7 @@ func (ts tokenSentDB) List(address, tokenType string, lastTimestamp uint64, limi
 		query = query.Where("token_address = ?", tokenType)
 	}
 
-	// ⚡ 查询比上次游标新的数据
+	// 查询比上次游标新的数据
 	if lastTimestamp > 0 {
 		query = query.Where("timestamp > ?", lastTimestamp)
 	}
@@ -100,7 +100,7 @@ func (ts tokenReceivedDB) List(address, tokenType string, lastTimestamp uint64, 
 		query = query.Where("token_address = ?", tokenType)
 	}
 
-	// ⚡ 查询比上次游标新的数据
+	// 查询比上次游标新的数据
 	if lastTimestamp > 0 {
 		query = query.Where("timestamp > ?", lastTimestamp)
 	}

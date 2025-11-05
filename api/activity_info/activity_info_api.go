@@ -14,7 +14,7 @@ func ActivityInfoApi(rg *gin.Engine) {
 	r := rg.Group("/v1/activity")
 	r.GET("list", list)
 	r.GET("info", info)
-	r.GET("rank", rank) // router for mining rank
+	r.GET("miningRank", rank) // router for mining rank
 }
 
 func list(c *gin.Context) {

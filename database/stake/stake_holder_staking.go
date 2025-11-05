@@ -321,7 +321,7 @@ func (d *stakeHolderStakingDB) GetTotalRewardRank(monthFilter bool) ([]TotalRewa
 		})
 	}
 
-	// ✅ 3. 按 totalReward 降序排序
+	// 3. 按 totalReward 降序排序
 	sort.Slice(result, func(i, j int) bool {
 		return result[i].TotalReward.Cmp(result[j].TotalReward) > 0
 	})

@@ -33,13 +33,13 @@ func stakingRank(c *gin.Context) {
 	}
 
 	log.Info(">>> stakeRank API called", "monthFilter", monthFilter)
-	ranks, err := service.BaseService.StakingInfoService.GetStakeRank(monthFilter)
+	res, err := service.BaseService.StakingInfoService.GetStakeRank(monthFilter)
 	if err != nil {
 		api_result.NewApiResult(c).Error(enum.DataErr.Code, err.Error())
 		return
 	}
 
-	api_result.NewApiResult(c).Success(ranks)
+	api_result.NewApiResult(c).Success(res)
 }
 
 // /v1/staking/claimedRank?month=1

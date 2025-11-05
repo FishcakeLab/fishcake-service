@@ -63,11 +63,11 @@ func ActivityAdd(event event.ContractEvent, db *database.DB) error {
 
 	if err := db.Transaction(func(tx *database.DB) error {
 
-		if err := db.ActivityInfoDB.StoreActivityInfo(activityInfo); err != nil {
+		if err := tx.ActivityInfoDB.StoreActivityInfo(activityInfo); err != nil {
 			return err
 		}
 
-		if err := db.TokenSentDB.StoreTokenSent(tokenSent); err != nil {
+		if err := tx.TokenSentDB.StoreTokenSent(tokenSent); err != nil {
 			return err
 		}
 
@@ -101,11 +101,11 @@ func ActivityFinish(event event.ContractEvent, db *database.DB) error {
 	}
 
 	if err := db.Transaction(func(tx *database.DB) error {
-		if err := db.ActivityInfoDB.ActivityFinish(ActivityId, ReturnAmount, MinedAmount); err != nil {
+		if err := tx.ActivityInfoDB.ActivityFinish(ActivityId, ReturnAmount, MinedAmount); err != nil {
 			return err
 		}
 
-		if err := db.TokenReceivedDB.StoreTokenReceived(tokenReceived); err != nil {
+		if err := tx.TokenReceivedDB.StoreTokenReceived(tokenReceived); err != nil {
 			return err
 		}
 
@@ -307,7 +307,7 @@ func Transfer(event event.ContractEvent, db *database.DB, address string) error 
 		Address:      from,
 		TokenAddress: address,
 		Amount:       value,
-		Description:  "ERC20 Token Transfer",
+		Description:  "ERC20 Token Transfer Sent",
 		Timestamp:    uint64(event.Timestamp),
 	}
 
@@ -315,7 +315,7 @@ func Transfer(event event.ContractEvent, db *database.DB, address string) error 
 		Address:      to,
 		TokenAddress: address,
 		Amount:       value,
-		Description:  "ERC20 Token Transfer",
+		Description:  "ERC20 Token Transfer Received",
 		Timestamp:    uint64(event.Timestamp),
 	}
 
