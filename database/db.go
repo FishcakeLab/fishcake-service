@@ -119,10 +119,22 @@ func (db *DB) Transaction(fn func(db *DB) error) error {
 }
 
 func (db *DB) Close() error {
+	// 判空防止 nil dereference
+	if db == nil {
+		return nil
+	}
+	if db.gorm == nil {
+		return nil
+	}
+
 	sql, err := db.gorm.DB()
 	if err != nil {
 		return err
 	}
+	if sql == nil {
+		return nil
+	}
+
 	return sql.Close()
 }
 

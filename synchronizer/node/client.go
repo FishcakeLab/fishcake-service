@@ -14,6 +14,7 @@ import (
 	"github.com/ethereum/go-ethereum/common"
 	"github.com/ethereum/go-ethereum/common/hexutil"
 	"github.com/ethereum/go-ethereum/core/types"
+	"github.com/ethereum/go-ethereum/ethclient"
 	"github.com/ethereum/go-ethereum/log"
 	"github.com/ethereum/go-ethereum/rpc"
 
@@ -58,6 +59,7 @@ type EthClient interface {
 
 type clnt struct {
 	rpc RPC
+	ec  *ethclient.Client // 新增一个 ethclient
 }
 
 func DialEthClient(ctx context.Context, rpcUrl string) (EthClient, error) {
@@ -82,7 +84,14 @@ func DialEthClient(ctx context.Context, rpcUrl string) (EthClient, error) {
 		return nil, err
 	}
 
-	return &clnt{rpc: NewRPC(rpcClient)}, nil
+	// 基于同一个底层连接创建 ethclient
+	ethCl := ethclient.NewClient(rpcClient)
+
+	// 初始化并返回
+	return &clnt{
+		rpc: NewRPC(rpcClient),
+		ec:  ethCl,
+	}, nil
 }
 
 // BlockHeaderByHash retrieves the block header attributed to the supplied hash
@@ -154,33 +163,14 @@ func (c *clnt) BlockHeaderByNumber(number *big.Int) (*types.Header, error) {
 	return header, nil
 }
 
-// BlockByNumber retrieves the block attributed to the supplied block number
 func (c *clnt) BlockByNumber(number *big.Int) (*types.Block, error) {
 	ctxwt, cancel := context.WithTimeout(context.Background(), defaultRequestTimeout)
 	defer cancel()
 
-	// 参数：区块号 → hex 字符串，如果 nil 表示 latest
-	var numArg string
-	if number == nil {
-		numArg = "latest"
-	} else {
-		numArg = hexutil.EncodeBig(number) // 0x-prefixed
-	}
-
-	var block *types.Block
-	err := c.rpc.CallContext(ctxwt, &block, "eth_getBlockByNumber", numArg, true)
+	block, err := c.ec.BlockByNumber(ctxwt, number)
 	if err != nil {
-		return nil, err
+		return nil, fmt.Errorf("ethclient.BlockByNumber failed: %w", err)
 	}
-	if block == nil {
-		return nil, ethereum.NotFound
-	}
-
-	// sanity check
-	if number != nil && block.Number().Cmp(number) != 0 {
-		return nil, errors.New("block number mismatch")
-	}
-
 	return block, nil
 }
 

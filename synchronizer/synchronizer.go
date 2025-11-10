@@ -129,8 +129,9 @@ func (syncer *Synchronizer) processBatch(headers []types.Header, ymlCfg *config.
 
 	headerMap := make(map[common.Hash]*types.Header, len(headers))
 	for i := range headers {
-		header := headers[i]
-		headerMap[header.Hash()] = &header
+		// header := headers[i]
+		// headerMap[header.Hash()] = &header
+		headerMap[headers[i].Hash()] = &headers[i]
 	}
 	addresses := make([]common.Address, len(ymlCfg.Contracts))
 	addresses[0] = common.HexToAddress(ymlCfg.Contracts[0])

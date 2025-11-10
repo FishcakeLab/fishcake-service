@@ -1,41 +1,57 @@
-migrations: "/app/fishcake-service/migrations"
-polygon_rpc: "https://polygon-mainnet.g.alchemy.com/v2/afSCtxPWD3NE5vSjJm2GQ"
-rpc_url: "tw-wallet-chain-account:80"
+migrations: "./migrations"
+
+# Polygon RPC（用公共节点即可，读区块够用）
+polygon_rpc: "https://polygon-mainnet.g.alchemy.com/v2/Sr-jePEX8IwI4T--VH5xju9OEHopQfut"
+rpc_url: "http://127.0.0.1:8545"  # 若你本地没 geth，可随意填 http://127.0.0.1:8545
 polygon_chain_id: "80001"
+
 http_host: "127.0.0.1"
 http_port: 8189
-db_host: "postgresql.mainnet"
+
+db_host: "127.0.0.1"
 db_port: 5432
 db_name: "fishcake"
-
 db_user: "bitadmin"
 db_password: "wZa9wHac"
 
-metrics_host:
-metrics_port:
+metrics_host: "127.0.0.1"
+metrics_port: 9090
+
+# 同步起始区块
 start_block: 67252625
 eventStartBlock: 67252625
-contracts:
-    - "0x6298f654b2862B0ED25336f21CA507d8fB8a0b08"
-    - "0x2CAf752814f244b3778e30c27051cc6B45CB1fc9"
-    - "0x953E6DB14753552050B04a6393a827661bB4913a" # StakingManager Contract
-ali_config:
-    region_id: "cn-hang"
-    access_key: "LTAI5tQ5"
-    access_secret: "Q5"
 
+# 三个合约地址（都用合法的格式即可）
+contracts:
+  - "0x6298f654b2862B0ED25336f21CA507d8fB8a0b08"
+  - "0x2CAf752814f244b3778e30c27051cc6B45CB1fc9"
+  - "0xBfF28a398663B1460Ee4f237261Cdfa57341A569"
+
+# 阿里云配置（本地无调用逻辑时填假值防空指针）
+ali_config:
+  region_id: "cn-hangzhou"
+  access_key: "FAKE_ACCESS_KEY"
+  access_secret: "FAKE_ACCESS_SECRET"
+
+# 合约依赖映射（都填上有效格式地址即可）
 contract_info:
-    fcc_token: "0x9482bbA1De30f2715E9293964dcb692437BCDce4"
-    usdt_token: "0xc2132D05D31c914a87C6611C10748AEb04B58e8F"
-    redemption_pool: "0x953E6DB14753552050B04a6393a827661bB4913a"
-    direct_sale_pool: "0xff99312c30466740bDA94b3Ff9E8FC1071BF18cE"
-    investor_sale_pool: "0xBBFa44467E12e6141B2961EE13705B9b6e3Ebe8B"
-    nft_manager: "0x6298f654b2862B0ED25336f21CA507d8fB8a0b08"
-    fishcake_event_manager: "0x2CAf752814f244b3778e30c27051cc6B45CB1fc9"
-encrypted_private_key:
-nonce:
-key_phrase: ""
-usdt: "0xc2132D05D31c914a87C6611C10748AEb04B58e8F" # USDT Token Contract
-fcc: "0x84eBc138F4Ab844A3050a6059763D269dC9951c6"  # FCC Token Contract
-data_api_url: 'https://api.polygonscan.com/api?'
-data_api_key: 'MSZJ952GZXKTJITPXYS1YKC33TBNWHDSIX'
+  fcc_token: "0x9482bbA1De30f2715E9293964dcb692437BCDce4"
+  usdt_token: "0xc2132D05D31c914a87C6611C10748AEb04B58e8F"
+  redemption_pool: "0x953E6DB14753552050B04a6393a827661bB4913a"
+  direct_sale_pool: "0xff99312c30466740bDA94b3Ff9E8FC1071BF18cE"
+  investor_sale_pool: "0xBBFa44467E12e6141B2961EE13705B9b6e3Ebe8B"
+  nft_manager: "0x6298f654b2862B0ED25336f21CA507d8fB8a0b08"
+  fishcake_event_manager: "0x2CAf752814f244b3778e30c27051cc6B45CB1fc9"
+
+# 加密字段防空指针：随便填假值
+encrypted_private_key: "0x1234567890abcdef"
+nonce: "0xabcdef1234567890"
+key_phrase: "test key phrase for local debugging"
+
+# Token 映射
+usdt: "0xc2132D05D31c914a87C6611C10748AEb04B58e8F"
+fcc: "0x84eBc138F4Ab844A3050a6059763D269dC9951c6"
+
+# PolygonScan API（假的 key 也没关系，主要是防止空字符串）
+data_api_url: "https://api-testnet.polygonscan.com/api?"
+data_api_key: "TEST_KEY_FOR_LOCAL"
