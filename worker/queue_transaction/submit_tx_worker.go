@@ -3,9 +3,10 @@ package queue_transaction
 import (
 	"context"
 	"fmt"
+	"time"
+
 	"github.com/FishcakeLab/fishcake-service/synchronizer/node"
 	"github.com/ethereum/go-ethereum/common"
-	"time"
 
 	"github.com/ethereum/go-ethereum/log"
 
@@ -19,8 +20,11 @@ import (
 )
 
 const (
-	UnSendQueueTx  = 0
-	UnGotReceiptTx = 1
+	UnSendQueueTx    = 0
+	UnGotReceiptTx   = 1
+	ConfirmedOnchain = 2
+	SentErr          = 3
+	ConfirmedErr     = 4
 )
 
 type QueueTxProcessor struct {
@@ -113,7 +117,7 @@ func (qt *QueueTxProcessor) ProcessSendQueueTx() error {
 	if _, err := retry.Do[interface{}](qt.resourceCtx, 10, retryStrategy, func() (interface{}, error) {
 		if err := qt.db.Transaction(func(tx *database.DB) error {
 			if len(handledTxList) > 0 {
-				err := qt.db.QueueTxDB.MarkedTxToSentOrSuccess(handledTxList)
+				err := tx.QueueTxDB.MarkedTxToSentOrSuccess(handledTxList)
 				if err != nil {
 					log.Error("Market tx to send fail", "err", err)
 					return err
@@ -145,7 +149,9 @@ func (qt *QueueTxProcessor) AfterSentQueueTx() error {
 		if errFetchTx != nil {
 			log.Error("fetch tx receipt error: %v", errFetchTx)
 			unhandledTx.Result = errFetchTx.Error()
-			unhandledTx.Status = 3
+			unhandledTx.Status = 1
+		} else if fetchTx == nil {
+			log.Info("receipt not found yet", "txHash", unhandledTx.TransactionHash)
 		}
 		if fetchTx != nil {
 			if fetchTx.Status == 1 {
@@ -153,7 +159,7 @@ func (qt *QueueTxProcessor) AfterSentQueueTx() error {
 			}
 			if fetchTx.Status == 0 {
 				unhandledTx.Result = "transaction exec fail on chain"
-				unhandledTx.Status = 3
+				unhandledTx.Status = 4
 			}
 		}
 		handledTxList = append(handledTxList, unhandledTx)
@@ -162,7 +168,7 @@ func (qt *QueueTxProcessor) AfterSentQueueTx() error {
 	if _, err := retry.Do[interface{}](qt.resourceCtx, 10, retryStrategy, func() (interface{}, error) {
 		if err := qt.db.Transaction(func(tx *database.DB) error {
 			if len(handledTxList) > 0 {
-				err := qt.db.QueueTxDB.MarkedTxToSentOrSuccess(handledTxList)
+				err := tx.QueueTxDB.MarkedTxToSentOrSuccess(handledTxList)
 				if err != nil {
 					log.Error("Market tx to success fail", "err", err)
 					return err

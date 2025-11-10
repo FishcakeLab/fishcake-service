@@ -261,14 +261,20 @@ func (a activityInfoDB) ActivityInfoList(activityFilter, businessAccount, activi
 	if businessAccount != "" {
 		this = this.Where("business_account ILIKE ?", "%"+businessAccount+"%")
 	}
+
 	if activityStatus != "" {
-		this = this.Where("activity_status = ?", activityStatus)
-		if activityStatus == "2" {
-			this = this.Where("activity_deadline < ?", time.Now().Unix())
-		} else {
-			this = this.Where("activity_deadline > ?", time.Now().Unix())
+		switch activityStatus {
+		case "2":
+			this = this.Where("activity_status = ?", 2) // 如果是 2，就是finish了，不考虑过期
+		case "1":
+			this = this.Where("activity_status = ?", 1)
+			this = this.Where("activity_deadline > ?", time.Now().Unix()) // 如果是1，就是还没finish，也没过期
+		case "3":
+			this = this.Where("activity_status = ?", 1)
+			this = this.Where("activity_deadline < ?", time.Now().Unix()) // 如果是3，就是还没finish，但过期了
 		}
 	}
+
 	if businessName != "" {
 		this = this.Where("business_name ILIKE ?", "%"+businessName+"%")
 	}
