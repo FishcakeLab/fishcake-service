@@ -2,21 +2,26 @@ package unpack
 
 import (
 	"math/big"
+	"time"
 
 	"github.com/ethereum/go-ethereum/common"
+	"github.com/ethereum/go-ethereum/log"
 
 	"github.com/FishcakeLab/fishcake-service/database"
 	"github.com/FishcakeLab/fishcake-service/database/account_nft_info"
 	"github.com/FishcakeLab/fishcake-service/database/activity"
 	"github.com/FishcakeLab/fishcake-service/database/drop"
 	"github.com/FishcakeLab/fishcake-service/database/event"
+	"github.com/FishcakeLab/fishcake-service/database/stake"
 	"github.com/FishcakeLab/fishcake-service/database/token_nft"
+	"github.com/FishcakeLab/fishcake-service/database/token_transfer"
 	"github.com/FishcakeLab/fishcake-service/event/polygon/abi"
 )
 
 var (
 	NftTokenUnpack, _ = abi.NewNftManagerFilterer(common.Address{}, nil)
 	MerchantUnpack, _ = abi.NewFishcakeEventManagerFilterer(common.Address{}, nil)
+	StakingUnpack, _  = abi.NewStakingManagerFilterer(common.Address{}, nil)
 )
 
 func ActivityAdd(event event.ContractEvent, db *database.DB) error {
@@ -25,6 +30,7 @@ func ActivityAdd(event event.ContractEvent, db *database.DB) error {
 	if unpackErr != nil {
 		return unpackErr
 	}
+
 	activityInfo := activity.ActivityInfo{
 		ActivityId:         uEvent.ActivityId.Int64(),
 		BusinessName:       uEvent.BusinessName,
@@ -43,7 +49,34 @@ func ActivityAdd(event event.ContractEvent, db *database.DB) error {
 		ReturnAmount:       big.NewInt(0),
 		MinedAmount:        big.NewInt(0),
 	}
-	return db.ActivityInfoDB.StoreActivityInfo(activityInfo)
+
+	tokenSent := token_transfer.TokenSent{
+		Address:      activityInfo.BusinessAccount,
+		TokenAddress: activityInfo.TokenContractAddr,
+		Amount: new(big.Int).Mul(
+			activityInfo.MaxDropAmt,
+			uEvent.DropNumber,
+		),
+		Description: uEvent.ActivityContent,
+		Timestamp:   uint64(activityInfo.ActivityCreateTime),
+	}
+
+	if err := db.Transaction(func(tx *database.DB) error {
+
+		if err := tx.ActivityInfoDB.StoreActivityInfo(activityInfo); err != nil {
+			return err
+		}
+
+		if err := tx.TokenSentDB.StoreTokenSent(tokenSent); err != nil {
+			return err
+		}
+
+		return nil
+	}); err != nil {
+		return nil
+	}
+	return nil
+
 }
 
 func ActivityFinish(event event.ContractEvent, db *database.DB) error {
@@ -55,7 +88,34 @@ func ActivityFinish(event event.ContractEvent, db *database.DB) error {
 	ActivityId := uEvent.ActivityId.String()
 	ReturnAmount := uEvent.ReturnAmount
 	MinedAmount := uEvent.MinedAmount
-	return db.ActivityInfoDB.ActivityFinish(ActivityId, ReturnAmount, MinedAmount)
+
+	address := db.ActivityInfoDB.ActivityInfo(int(uEvent.ActivityId.Int64())).BusinessAccount
+	content := db.ActivityInfoDB.ActivityInfo(int(uEvent.ActivityId.Int64())).ActivityContent
+
+	tokenReceived := token_transfer.TokenReceived{
+		Address:      address,
+		TokenAddress: db.ActivityInfoDB.ActivityInfo(int(uEvent.ActivityId.Int64())).TokenContractAddr,
+		Amount:       ReturnAmount,
+		Description:  content,
+		Timestamp:    event.Timestamp,
+	}
+
+	if err := db.Transaction(func(tx *database.DB) error {
+		if err := tx.ActivityInfoDB.ActivityFinish(ActivityId, ReturnAmount, MinedAmount); err != nil {
+			return err
+		}
+
+		if err := tx.TokenReceivedDB.StoreTokenReceived(tokenReceived); err != nil {
+			return err
+		}
+
+		return nil
+	}); err != nil {
+		return err
+	}
+
+	return nil
+
 }
 
 func MintNft(event event.ContractEvent, db *database.DB) error {
@@ -116,15 +176,27 @@ func Drop(event event.ContractEvent, db *database.DB) error {
 		EventSignature:  event.EventSignature.String(),
 	}
 
+	tokenReceived := token_transfer.TokenReceived{
+		Address:      drop.Address,
+		TokenAddress: db.ActivityInfoDB.ActivityInfo(int(uEvent.ActivityId.Int64())).TokenContractAddr,
+		Amount:       uEvent.DropAmt,
+		Description:  db.ActivityInfoDB.ActivityInfo(int(uEvent.ActivityId.Int64())).ActivityContent,
+		Timestamp:    uint64(event.Timestamp),
+	}
+
 	if err := db.Transaction(func(tx *database.DB) error {
 		resultErr, exist := tx.DropInfoDB.IsExist(drop.TransactionHash, drop.EventSignature, drop.DropType)
 		if !exist && resultErr == nil {
 			if err := tx.DropInfoDB.StoreDropInfo(drop); err != nil {
 				return err
 			}
-			if err := tx.ActivityInfoDB.UpdateActivityInfo(uEvent.ActivityId.String()); err != nil {
+			if err := tx.TokenReceivedDB.StoreTokenReceived(tokenReceived); err != nil {
 				return err
 			}
+			// update activity info already drop number
+			if err := tx.ActivityInfoDB.UpdateActivityInfo(uEvent.ActivityId.String()); err != nil {
+				return err
+			} // 重复加了
 		} else {
 			return resultErr
 		}
@@ -140,4 +212,124 @@ func Drop(event event.ContractEvent, db *database.DB) error {
 		return err
 	}
 	return nil
+}
+
+// StakeHolderDepositStaking 事件解析与入库
+func StakeHolderDepositStaking(event event.ContractEvent, db *database.DB) error {
+	rlpLog := event.RLPLog
+	uEvent, unpackErr := StakingUnpack.ParseStakeHolderDepositStaking(*rlpLog)
+	if unpackErr != nil {
+		log.Error("unpack StakeHolderDepositStaking fail", "err", unpackErr)
+		return unpackErr
+	}
+
+	record := stake.StakeHolderStaking{
+		UserAddress:   uEvent.Staker, // msg.sender
+		Amount:        uEvent.Amount,
+		StakingType:   int16(uEvent.StakingType),
+		StartTime:     uEvent.StartStakingTime.Int64(),
+		EndTime:       uEvent.EndStakingTime.Int64(),
+		TokenID:       uEvent.BindingNft.Int64(),
+		NftApr:        uEvent.NftApr.Int64(),
+		IsAutoRenew:   uEvent.IsAutoRenew,
+		MessageNonce:  uEvent.MessageNonce.Int64(),
+		TxMessageHash: "",            // deposit 时没有交易哈希
+		StakingReward: big.NewInt(0), // 初始化 0
+		StakingStatus: 0,             // 质押中
+		CreateTime:    time.Now(),    // 当前时间
+	}
+
+	if err := db.StakingDB.InsertDepositRecord(record); err != nil {
+		log.Error("insert StakeHolderDepositStaking fail",
+			"user", uEvent.Staker.String(),
+			"nonce", uEvent.MessageNonce.Int64(),
+			"block", event.BlockNumber,
+			"err", err)
+		return err
+	}
+
+	// 成功日志
+	log.Info("✅ StakeHolderDepositStaking success",
+		"user", uEvent.Staker.String(),
+		"nonce", uEvent.MessageNonce.Int64(),
+		"amount", uEvent.Amount.String(),
+		"block", event.BlockNumber)
+
+	return nil
+}
+
+// StakeHolderWithdrawStaking 事件解析与更新
+func StakeHolderWithdrawStaking(event event.ContractEvent, db *database.DB) error {
+	rlpLog := event.RLPLog
+	uEvent, unpackErr := StakingUnpack.ParseStakeHolderWithdrawStaking(*rlpLog)
+	if unpackErr != nil {
+		log.Error("unpack StakeHolderWithdrawStaking fail", "err", unpackErr)
+		return unpackErr
+	}
+
+	userAddr := uEvent.Recipant.String()
+	messageNonce := uEvent.MessageNonce.Int64()
+	txHash := common.BytesToHash(uEvent.MessageHash[:]).Hex()
+	reward := uEvent.RewardAprFunding
+
+	if err := db.StakingDB.UpdateWithdrawRecord(userAddr, messageNonce, txHash, reward); err != nil {
+		log.Error("update StakeHolderWithdrawStaking fail",
+			"user", userAddr,
+			"nonce", messageNonce,
+			"block", event.BlockNumber,
+			"err", err)
+		return err
+	}
+
+	// 成功日志
+	log.Info("✅ StakeHolderWithdrawStaking success",
+		"user", userAddr,
+		"nonce", messageNonce,
+		"reward", reward.String(),
+		"block", event.BlockNumber)
+
+	return nil
+}
+
+// Transfer 事件解析与入库
+func Transfer(event event.ContractEvent, db *database.DB, address string) error {
+	rlpLog := event.RLPLog
+	from := rlpLog.Topics[1].Hex()
+	to := rlpLog.Topics[2].Hex()
+	value := new(big.Int).SetBytes(rlpLog.Data)
+
+	// 忽略给事件合约地址转账的记录，以及从事件合约地址转出的记录
+	if from == "0x2CAf752814f244b3778e30c27051cc6B45CB1fc9" || to == "0x2CAf752814f244b3778e30c27051cc6B45CB1fc9" {
+		return nil
+	}
+
+	tokenSent := token_transfer.TokenSent{
+		Address:      from,
+		TokenAddress: address,
+		Amount:       value,
+		Description:  "ERC20 Token Transfer Sent",
+		Timestamp:    uint64(event.Timestamp),
+	}
+
+	tokenReceived := token_transfer.TokenReceived{
+		Address:      to,
+		TokenAddress: address,
+		Amount:       value,
+		Description:  "ERC20 Token Transfer Received",
+		Timestamp:    uint64(event.Timestamp),
+	}
+
+	if err := db.Transaction(func(tx *database.DB) error {
+		if err := tx.TokenSentDB.StoreTokenSent(tokenSent); err != nil {
+			return err
+		}
+		if err := tx.TokenReceivedDB.StoreTokenReceived(tokenReceived); err != nil {
+			return err
+		}
+		return nil
+	}); err != nil {
+		return err
+	}
+	return nil
+
 }

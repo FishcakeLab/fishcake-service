@@ -49,6 +49,8 @@ type EthClient interface {
 	StorageHash(common.Address, *big.Int) (common.Hash, error)
 	FilterLogs(ethereum.FilterQuery) (Logs, error)
 
+	BlockByNumber(number *big.Int) (*types.Block, error)
+
 	// Close closes the underlying RPC connection.
 	// RPC close does not return any errors, but does shut down e.g. a websocket connection.
 	Close()
@@ -150,6 +152,36 @@ func (c *clnt) BlockHeaderByNumber(number *big.Int) (*types.Header, error) {
 	}
 
 	return header, nil
+}
+
+// BlockByNumber retrieves the block attributed to the supplied block number
+func (c *clnt) BlockByNumber(number *big.Int) (*types.Block, error) {
+	ctxwt, cancel := context.WithTimeout(context.Background(), defaultRequestTimeout)
+	defer cancel()
+
+	// 参数：区块号 → hex 字符串，如果 nil 表示 latest
+	var numArg string
+	if number == nil {
+		numArg = "latest"
+	} else {
+		numArg = hexutil.EncodeBig(number) // 0x-prefixed
+	}
+
+	var block *types.Block
+	err := c.rpc.CallContext(ctxwt, &block, "eth_getBlockByNumber", numArg, true)
+	if err != nil {
+		return nil, err
+	}
+	if block == nil {
+		return nil, ethereum.NotFound
+	}
+
+	// sanity check
+	if number != nil && block.Number().Cmp(number) != 0 {
+		return nil, errors.New("block number mismatch")
+	}
+
+	return block, nil
 }
 
 // BlockHeadersByRange will retrieve block headers within the specified range -- inclusive. No restrictions

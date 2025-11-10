@@ -7,8 +7,10 @@ http_port: 8189
 db_host: "postgresql.mainnet"
 db_port: 5432
 db_name: "fishcake"
+
 db_user: "bitadmin"
 db_password: "wZa9wHac"
+
 metrics_host:
 metrics_port:
 start_block: 67252625
@@ -16,6 +18,7 @@ eventStartBlock: 67252625
 contracts:
     - "0x6298f654b2862B0ED25336f21CA507d8fB8a0b08"
     - "0x2CAf752814f244b3778e30c27051cc6B45CB1fc9"
+    - "0x953E6DB14753552050B04a6393a827661bB4913a" # StakingManager Contract
 ali_config:
     region_id: "cn-hang"
     access_key: "LTAI5tQ5"

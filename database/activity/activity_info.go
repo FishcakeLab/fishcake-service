@@ -6,6 +6,7 @@ import (
 	"time"
 
 	"gorm.io/gorm"
+	"gorm.io/gorm/clause"
 
 	"github.com/ethereum/go-ethereum/log"
 
@@ -43,6 +44,7 @@ type ActivityInfo struct {
 	ProDeadline        uint64   `gorm:"pro_deadline" json:"proDeadline"`
 	ReturnAmount       *big.Int `gorm:"serializer:u256;column:return_amount" json:"returnAmount"`
 	MinedAmount        *big.Int `gorm:"serializer:u256;column:mined_amount" json:"minedAmount"`
+	IsExpired          bool     `gorm:"-" json:"isExpired"`
 }
 type WalletAddress struct {
 	ID        string `gorm:"column:id;primaryKey;default:replace((uuid_generate_v4())::text, '-'::text, ''::text)"`
@@ -51,6 +53,11 @@ type WalletAddress struct {
 	CreatedAt int64  `gorm:"column:created_at;not null"`
 	Status    int8   `gorm:"column:status;default:1"`
 	Remark    string `gorm:"column:remark"`
+}
+
+type BusinessRank struct {
+	BusinessAccount string `json:"businessAccount"`
+	TotalMined      string `json:"totalMined"`
 }
 
 func (ActivityInfo) TableName() string {
@@ -73,10 +80,32 @@ type ActivityInfoDB interface {
 	ActivityFinish(activityId string, ReturnAmount, MinedAmount *big.Int) error
 	UpdateActivityInfo(activityId string) error
 	MarkActivityParticipantAddressDropped(string) error
+	GetActivityRank(monthFilter bool) ([]BusinessRank, error)
 }
 
 type activityInfoDB struct {
 	db *gorm.DB
+}
+
+func (d activityInfoDB) GetActivityRank(monthFilter bool) ([]BusinessRank, error) {
+	db := d.db.Table("activity_info").
+		Select("business_account, SUM(mined_amount::numeric) as total_mined").
+		Where("activity_status = ?", 2).
+		Group("business_account").
+		Order("total_mined DESC")
+
+	if monthFilter {
+		// 当前时间戳减去 30 天
+		now := time.Now().Unix()
+		oneMonthAgo := now - 30*24*3600
+		db = db.Where("activity_deadline >= ?", oneMonthAgo)
+	}
+
+	var ranks []BusinessRank
+	if err := db.Scan(&ranks).Error; err != nil {
+		return nil, err
+	}
+	return ranks, nil
 }
 
 func (a activityInfoDB) UnDropActivityParticipantAddresses() []ActivityParticipantAddress {
@@ -100,7 +129,7 @@ func (a activityInfoDB) MarkActivityParticipantAddressDropped(address string) er
 
 // UpdateActivityInfo increments the already_drop_number for an activity
 func (a activityInfoDB) UpdateActivityInfo(activityId string) error {
-	sql := `update activity_info set already_drop_number = already_drop_number + 1 where activity_id = ?`
+	sql := `update activity_info set already_drop_number = already_drop_number + 1 where activity_id = ? AND already_drop_number < drop_number;`
 	err := a.db.Exec(sql, activityId).Error
 	return err
 }
@@ -134,17 +163,29 @@ func (a activityInfoDB) ActivityFinish(activityId string, ReturnAmount, MinedAmo
 
 func (a activityInfoDB) StoreActivityInfo(activityInfo ActivityInfo) error {
 	activityInfoRecord := new(ActivityInfo)
-	var exist ActivityInfo
-	err := a.db.Table(activityInfoRecord.TableName()).Where("activity_id = ?", activityInfo.ActivityId).Take(&exist).Error
+
+	err := a.db.Table(activityInfoRecord.TableName()).
+		Clauses(clause.OnConflict{
+			Columns:   []clause.Column{{Name: "activity_id"}},
+			DoNothing: true,
+		}).Omit("id, basic_deadline, pro_deadline").Create(&activityInfo).Error
 	if err != nil {
-		if errors.Is(err, gorm.ErrRecordNotFound) {
-			errCreate := a.db.Table(activityInfoRecord.TableName()).Omit("id, basic_deadline, pro_deadline").Create(&activityInfo).Error
-			if errCreate != nil {
-				log.Error("create activityInfo error", "err", errCreate)
-				return errCreate
-			}
-		}
+		log.Error("create activityInfo error", "err", err)
+		return err
 	}
+
+	// var exist ActivityInfo
+
+	// err := a.db.Table(activityInfoRecord.TableName()).Where("activity_id = ?", activityInfo.ActivityId).Take(&exist).Error
+	// if err != nil {
+	// 	if errors.Is(err, gorm.ErrRecordNotFound) {
+	// 		errCreate := a.db.Table(activityInfoRecord.TableName()).Omit("id, basic_deadline, pro_deadline").Create(&activityInfo).Error
+	// 		if errCreate != nil {
+	// 			log.Error("create activityInfo error", "err", errCreate)
+	// 			return errCreate
+	// 		}
+	// 	}
+	// }
 	var walletAddress WalletAddress
 	this := a.db.Table("wallet_addresses")
 	result := this.Where("address = ?", activityInfo.BusinessAccount).Take(&walletAddress)
@@ -175,15 +216,19 @@ func (a activityInfoDB) ActivityInfo(activityId int) ActivityInfo {
 	this := a.db.Table(ActivityInfo{}.TableName())
 	this = this.Joins("LEFT JOIN account_nft_info ON activity_info.business_account = account_nft_info.address")
 	this = this.Select("activity_info.*,account_nft_info.basic_deadline,account_nft_info.pro_deadline")
+
 	result := this.Where("activity_id = ?", activityId).Take(&activityInfo)
-	if result.Error == nil {
-		return activityInfo
-	} else if !errors.Is(result.Error, gorm.ErrRecordNotFound) {
-		errors_h.NewErrorByEnum(enum.DataErr)
-		return ActivityInfo{}
-	} else {
+	if result.Error != nil {
+		if !errors.Is(result.Error, gorm.ErrRecordNotFound) {
+			errors_h.NewErrorByEnum(enum.DataErr)
+		}
 		return ActivityInfo{}
 	}
+
+	// ====== 计算 isExpired 字段 ======
+	activityInfo.IsExpired = activityInfo.ActivityDeadline <= time.Now().Unix()
+
+	return activityInfo
 }
 
 /**
@@ -258,14 +303,20 @@ func (a activityInfoDB) ActivityInfoList(activityFilter, businessAccount, activi
 	this = this.Order("activity_create_time DESC, activity_status ASC").Select("activity_info.*,account_nft_info.basic_deadline,account_nft_info.pro_deadline")
 	result := this.Find(&activityInfo)
 
-	if result.Error == nil {
-		return activityInfo, int(count)
-	} else if !errors.Is(result.Error, gorm.ErrRecordNotFound) {
-		errors_h.NewErrorByEnum(enum.DataErr)
-		return nil, int(count)
-	} else {
+	if result.Error != nil {
+		if !errors.Is(result.Error, gorm.ErrRecordNotFound) {
+			errors_h.NewErrorByEnum(enum.DataErr)
+		}
 		return nil, int(count)
 	}
+
+	// ====== 计算 isExpired 字段 ======
+	now := time.Now().Unix()
+	for i := range activityInfo {
+		activityInfo[i].IsExpired = activityInfo[i].ActivityDeadline <= now
+	}
+
+	return activityInfo, int(count)
 }
 
 // NewActivityDB creates a new instance of ActivityInfoDB

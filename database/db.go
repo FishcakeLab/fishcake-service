@@ -17,7 +17,9 @@ import (
 	"github.com/FishcakeLab/fishcake-service/database/common"
 	"github.com/FishcakeLab/fishcake-service/database/drop"
 	"github.com/FishcakeLab/fishcake-service/database/event"
+	"github.com/FishcakeLab/fishcake-service/database/stake"
 	"github.com/FishcakeLab/fishcake-service/database/token_nft"
+	"github.com/FishcakeLab/fishcake-service/database/token_transfer"
 	"github.com/FishcakeLab/fishcake-service/database/wallet"
 	"github.com/FishcakeLab/fishcake-service/synchronizer/retry"
 )
@@ -35,6 +37,11 @@ type DB struct {
 	WalletInfoDB      wallet.WalletInfoDB
 	SystemDropInfoDB  drop.SystemDropInfoDB
 	QueueTxDB         wallet.QueueTxDB
+
+	StakingDB stake.StakeHolderStakingDB
+
+	TokenSentDB     token_transfer.TokenSentDB
+	TokenReceivedDB token_transfer.TokenReceivedDB
 }
 
 func NewDB(cfg *config.Config) (*DB, error) {
@@ -79,6 +86,11 @@ func NewDB(cfg *config.Config) (*DB, error) {
 		WalletInfoDB:      wallet.NewWalletInfoDB(gorm),
 		BlockListener:     block_listener.NewBlockListenerDB(gorm),
 		QueueTxDB:         wallet.NewQueueTxDB(gorm),
+
+		StakingDB: stake.NewStakeHolderStakingDB(gorm),
+
+		TokenSentDB:     token_transfer.NewTokenSentDB(gorm),
+		TokenReceivedDB: token_transfer.NewTokenReceivedDB(gorm),
 	}
 	return db, nil
 }
@@ -98,6 +110,9 @@ func (db *DB) Transaction(fn func(db *DB) error) error {
 			AccountNftInfoDB:  account_nft_info.NewAccountNftInfoDB(tx),
 			WalletInfoDB:      wallet.NewWalletInfoDB(tx),
 			QueueTxDB:         wallet.NewQueueTxDB(tx),
+			StakingDB:         stake.NewStakeHolderStakingDB(tx),
+			TokenSentDB:       token_transfer.NewTokenSentDB(tx),
+			TokenReceivedDB:   token_transfer.NewTokenReceivedDB(tx),
 		}
 		return fn(txDB)
 	})

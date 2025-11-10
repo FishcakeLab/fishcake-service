@@ -21,6 +21,11 @@ func (m *MockEthClient) TxReceiptByHash(hash common.Hash) (*types.Receipt, error
 	return args.Get(0).(*types.Receipt), args.Error(1)
 }
 
+func (m *MockEthClient) BlockByNumber(number *big.Int) (*types.Block, error) {
+	args := m.Called(number)
+	return args.Get(0).(*types.Block), args.Error(1)
+}
+
 func (m *MockEthClient) LatestSafeBlockHeader() (*types.Header, error) {
 	args := m.Called()
 	return args.Get(0).(*types.Header), args.Error(1)

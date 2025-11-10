@@ -2,11 +2,12 @@ package chain_info
 
 import (
 	"context"
-	"github.com/ethereum/go-ethereum/log"
-	"github.com/gin-gonic/gin"
 	"math/big"
 	"strconv"
 	"sync"
+
+	"github.com/ethereum/go-ethereum/log"
+	"github.com/gin-gonic/gin"
 
 	"github.com/FishcakeLab/fishcake-service/common/api_result"
 	"github.com/FishcakeLab/fishcake-service/common/enum"
