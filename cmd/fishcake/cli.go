@@ -4,6 +4,7 @@ import (
 	"context"
 
 	"fmt"
+
 	fishcake_service "github.com/FishcakeLab/fishcake-service"
 	"github.com/FishcakeLab/fishcake-service/common/cliapp"
 	"github.com/FishcakeLab/fishcake-service/common/opio"
@@ -21,6 +22,7 @@ func runIndexer(ctx *cli.Context, shutdown context.CancelCauseFunc) (cliapp.Life
 		log.Info("failed to load config", "err", err)
 		return nil, err
 	}
+	// log.Info("==========let me see config", "startheight", cfg.StartBlock)
 	db, err := database.NewDB(cfg)
 	if err != nil {
 		log.Error("failed to connect to database", "err", err)

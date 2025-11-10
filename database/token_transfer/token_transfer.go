@@ -11,7 +11,7 @@ type TokenSent struct {
 	Address      string   `json:"address" gorm:"address"`
 	TokenAddress string   `json:"token_address" gorm:"token_address"`
 	Description  string   `json:"description" gorm:"description"`
-	Amount       *big.Int `json:"dropAmount" gorm:"serializer:u256;column:drop_amount"`
+	Amount       *big.Int `json:"amount" gorm:"serializer:u256;column:amount"`
 	Timestamp    uint64   `json:"timestamp" gorm:"timestamp"`
 }
 
@@ -20,7 +20,7 @@ type TokenReceived struct {
 	Address      string   `json:"address" gorm:"address"`
 	TokenAddress string   `json:"token_address" gorm:"token_address"`
 	Description  string   `json:"description" gorm:"description"`
-	Amount       *big.Int `json:"dropAmount" gorm:"serializer:u256;column:drop_amount"`
+	Amount       *big.Int `json:"amount" gorm:"serializer:u256;column:amount"`
 	Timestamp    uint64   `json:"timestamp" gorm:"timestamp"`
 }
 

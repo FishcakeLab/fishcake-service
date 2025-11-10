@@ -102,11 +102,13 @@ func (d dropInfoDB) IsExist(transactionHash, eventSignature string, dropType int
 }
 
 func (d dropInfoDB) StoreDropInfo(drop DropInfo) error {
-	dropInfo := new(DropInfo)
+
 	var exist DropInfo
-	err := d.db.Table(dropInfo.TableName()).Where("transaction_hash = ? and event_signature = ? and drop_type = ?", drop.TransactionHash, drop.EventSignature, drop.DropType).Take(&exist).Error
+	err := d.db.Table(DropInfo{}.TableName()).Where("transaction_hash = ? and event_signature = ? and drop_type = ?", drop.TransactionHash, drop.EventSignature, drop.DropType).Take(&exist).Error
 	if err != nil && errors.Is(err, gorm.ErrRecordNotFound) {
-		errCreate := d.db.Table(dropInfo.TableName()).Omit("id, token_contract_addr, business_name, , mined_amount").Create(&drop).Error
+		errCreate := d.db.Table(DropInfo{}.TableName()).
+			Omit("id", "token_contract_addr", "business_name", "return_amount", "mined_amount").
+			Create(&drop).Error
 		if errCreate != nil {
 			log.Error("create drop fail", "err", errCreate)
 			return errCreate
@@ -115,6 +117,10 @@ func (d dropInfoDB) StoreDropInfo(drop DropInfo) error {
 
 	var walletAddress WalletAddress
 	this := d.db.Table("wallet_addresses")
+
+	if drop.Address == "" {
+		return nil
+	}
 	result := this.Where("address = ?", drop.Address).Take(&walletAddress)
 	if result.Error == nil {
 
