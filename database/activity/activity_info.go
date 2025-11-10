@@ -44,6 +44,7 @@ type ActivityInfo struct {
 	ProDeadline        uint64   `gorm:"pro_deadline" json:"proDeadline"`
 	ReturnAmount       *big.Int `gorm:"serializer:u256;column:return_amount" json:"returnAmount"`
 	MinedAmount        *big.Int `gorm:"serializer:u256;column:mined_amount" json:"minedAmount"`
+	IsExpired          bool     `gorm:"-" json:"isExpired"`
 }
 type WalletAddress struct {
 	ID        string `gorm:"column:id;primaryKey;default:replace((uuid_generate_v4())::text, '-'::text, ''::text)"`
@@ -215,15 +216,19 @@ func (a activityInfoDB) ActivityInfo(activityId int) ActivityInfo {
 	this := a.db.Table(ActivityInfo{}.TableName())
 	this = this.Joins("LEFT JOIN account_nft_info ON activity_info.business_account = account_nft_info.address")
 	this = this.Select("activity_info.*,account_nft_info.basic_deadline,account_nft_info.pro_deadline")
+
 	result := this.Where("activity_id = ?", activityId).Take(&activityInfo)
-	if result.Error == nil {
-		return activityInfo
-	} else if !errors.Is(result.Error, gorm.ErrRecordNotFound) {
-		errors_h.NewErrorByEnum(enum.DataErr)
-		return ActivityInfo{}
-	} else {
+	if result.Error != nil {
+		if !errors.Is(result.Error, gorm.ErrRecordNotFound) {
+			errors_h.NewErrorByEnum(enum.DataErr)
+		}
 		return ActivityInfo{}
 	}
+
+	// ====== 计算 isExpired 字段 ======
+	activityInfo.IsExpired = activityInfo.ActivityDeadline <= time.Now().Unix()
+
+	return activityInfo
 }
 
 /**
@@ -298,14 +303,20 @@ func (a activityInfoDB) ActivityInfoList(activityFilter, businessAccount, activi
 	this = this.Order("activity_create_time DESC, activity_status ASC").Select("activity_info.*,account_nft_info.basic_deadline,account_nft_info.pro_deadline")
 	result := this.Find(&activityInfo)
 
-	if result.Error == nil {
-		return activityInfo, int(count)
-	} else if !errors.Is(result.Error, gorm.ErrRecordNotFound) {
-		errors_h.NewErrorByEnum(enum.DataErr)
-		return nil, int(count)
-	} else {
+	if result.Error != nil {
+		if !errors.Is(result.Error, gorm.ErrRecordNotFound) {
+			errors_h.NewErrorByEnum(enum.DataErr)
+		}
 		return nil, int(count)
 	}
+
+	// ====== 计算 isExpired 字段 ======
+	now := time.Now().Unix()
+	for i := range activityInfo {
+		activityInfo[i].IsExpired = activityInfo[i].ActivityDeadline <= now
+	}
+
+	return activityInfo, int(count)
 }
 
 // NewActivityDB creates a new instance of ActivityInfoDB
