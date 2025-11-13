@@ -7,21 +7,23 @@ import (
 )
 
 type TokenSent struct {
-	Id           string   `json:"id" gorm:"id"`
-	Address      string   `json:"address" gorm:"address"`
-	TokenAddress string   `json:"token_address" gorm:"token_address"`
-	Description  string   `json:"description" gorm:"description"`
+
+	Id           string   `json:"id" gorm:"column:id"`
+	Address      string   `json:"address" gorm:"column:address"`
+	TokenAddress string   `json:"token_address" gorm:"column:token_address"`
+	Description  string   `json:"description" gorm:"column:description"`
 	Amount       *big.Int `json:"amount" gorm:"serializer:u256;column:amount"`
-	Timestamp    uint64   `json:"timestamp" gorm:"timestamp"`
+	Timestamp    uint64   `json:"timestamp" gorm:"column:timestamp"`
 }
 
 type TokenReceived struct {
-	Id           string   `json:"id" gorm:"id"`
-	Address      string   `json:"address" gorm:"address"`
-	TokenAddress string   `json:"token_address" gorm:"token_address"`
-	Description  string   `json:"description" gorm:"description"`
+	Id           string   `json:"id" gorm:"column:id"`
+	Address      string   `json:"address" gorm:"column:address"`
+	TokenAddress string   `json:"token_address" gorm:"column:token_address"`
+	Description  string   `json:"description" gorm:"column:description"`
 	Amount       *big.Int `json:"amount" gorm:"serializer:u256;column:amount"`
-	Timestamp    uint64   `json:"timestamp" gorm:"timestamp"`
+	Timestamp    uint64   `json:"timestamp" gorm:"column:timestamp"`
+
 }
 
 func (TokenSent) TableName() string {
@@ -70,12 +72,12 @@ func (ts tokenSentDB) List(address, tokenType string, lastTimestamp uint64, limi
 
 	// 查询比上次游标新的数据
 	if lastTimestamp > 0 {
-		query = query.Where("timestamp > ?", lastTimestamp)
+		query = query.Where("timestamp < ?", lastTimestamp)
 	}
 
-	// 返回最新数据，时间升序保证前端拼接顺序稳定
+	// 返回最新数据，时间降序保证前端拼接顺序稳定
 	err := query.
-		Order("timestamp asc").
+		Order("timestamp DESC").
 		Limit(limit).
 		Find(&records).Error
 
@@ -102,12 +104,12 @@ func (ts tokenReceivedDB) List(address, tokenType string, lastTimestamp uint64, 
 
 	// 查询比上次游标新的数据
 	if lastTimestamp > 0 {
-		query = query.Where("timestamp > ?", lastTimestamp)
+		query = query.Where("timestamp < ?", lastTimestamp)
 	}
 
-	// 返回最新数据，时间升序保证前端拼接顺序稳定
+	// 返回最新数据，时间降序保证前端拼接顺序稳定
 	err := query.
-		Order("timestamp asc").
+		Order("timestamp DESC").
 		Limit(limit).
 		Find(&records).Error
 

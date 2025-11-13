@@ -26,4 +26,6 @@ const ZeroAddress = "0x0000000000000000000000000000000000000000"
 
 const LogTimeFormat = "2006-01-02"
 
-const PolygonChainId = 0
+// const PolygonChainId = 0
+
+const PolygonChainId = 137
