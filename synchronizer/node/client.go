@@ -171,9 +171,11 @@ func (c *clnt) BlockByNumber(number *big.Int) (*types.Block, error) {
 	if err != nil {
 		return nil, fmt.Errorf("ethclient.BlockByNumber failed: %w", err)
 	}
+
 	if block == nil {
 		return nil, fmt.Errorf("ethclient returned nil block at number=%v", number)
 	}
+
 	return block, nil
 }
 
