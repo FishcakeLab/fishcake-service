@@ -23,6 +23,8 @@ import (
 	"github.com/FishcakeLab/fishcake-service/api/drop_info"
 	"github.com/FishcakeLab/fishcake-service/api/nft_info"
 	"github.com/FishcakeLab/fishcake-service/api/notification"
+	"github.com/FishcakeLab/fishcake-service/api/staking_info"
+	token_transfer "github.com/FishcakeLab/fishcake-service/api/token_transfer_info"
 	"github.com/FishcakeLab/fishcake-service/api/wallet_info"
 	"github.com/FishcakeLab/fishcake-service/common/errors_h"
 	"github.com/FishcakeLab/fishcake-service/common/middleware"
@@ -105,6 +107,9 @@ func (f *FishCake) newApi(cfg *config.Config, db *database.DB) error {
 	contract_info.ContractInfoApi(r)
 	wallet_info.WalletInfoApi(r)
 	notification.NotificationApi(r)
+	staking_info.StakingInfoApi(r)
+	token_transfer.TokenSentApi(r)
+	token_transfer.TokenReceivedApi(r)
 	port := fmt.Sprintf(":%d", cfg.HttpPort)
 
 	// ✅ 改成 http.Server
@@ -151,7 +156,7 @@ func (f *FishCake) newIndex(ctx *cli.Context, cfg *config.Config, db *database.D
 	chainId, _ := strconv.ParseUint(cfg.PolygonChainId, 10, 64)
 	syncConfig := &synchronizer.Config{
 		LoopIntervalMsec:  1,
-		HeaderBufferSize:  5,
+		HeaderBufferSize:  50, // 5
 		StartHeight:       new(big.Int).SetUint64(cfg.StartBlock),
 		ConfirmationDepth: big.NewInt(100),
 		ChainId:           uint(chainId),
@@ -194,7 +199,7 @@ func (f *FishCake) newIndex(ctx *cli.Context, cfg *config.Config, db *database.D
 func (f *FishCake) newEvent(ctx *cli.Context, cfg *config.Config, db *database.DB, shutdown context.CancelCauseFunc) error {
 
 	client, _ := node.DialEthClient(ctx.Context, cfg.PolygonRpc)
-	var epoch uint64 = 10_000
+	var epoch uint64 = 100_000 // 100
 	var loopInterval time.Duration = time.Second * 2
 	eventProcessor, _ := polygon.NewEventProcessor(db, cfg, client, loopInterval, epoch, shutdown)
 	err := eventProcessor.Start()

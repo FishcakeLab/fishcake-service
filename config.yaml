@@ -2,8 +2,8 @@ migrations: "./migrations"
 
 # Polygon RPC（用公共节点即可，读区块够用）
 polygon_rpc: "https://polygon-mainnet.g.alchemy.com/v2/Sr-jePEX8IwI4T--VH5xju9OEHopQfut"
-rpc_url: "http://127.0.0.1:8545"  # 若你本地没 geth，可随意填 http://127.0.0.1:8545
-polygon_chain_id: "80001"
+rpc_url: "tw-wallet-chain-account:80"  # 若你本地没 geth，可随意填 http://127.0.0.1:8545
+polygon_chain_id: "137"
 
 http_host: "127.0.0.1"
 http_port: 8189
@@ -18,8 +18,8 @@ metrics_host: "127.0.0.1"
 metrics_port: 9090
 
 # 同步起始区块
-start_block: 67252625
-eventStartBlock: 67252625
+start_block: 	78801000
+eventStartBlock: 	78801000
 
 # 三个合约地址（都用合法的格式即可）
 contracts:

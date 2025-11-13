@@ -84,10 +84,15 @@ func (w *queueTxDB) MarkedTxToSentOrSuccess(queueTxList []QueueTx) error {
 
 func (w queueTxDB) ExistQueueTx(rawTx string) bool {
 	var queueTx QueueTx
-	this := w.db.Table("queue_tx")
-	result := this.Where("raw_tx = ?", rawTx).Take(&queueTx)
-	if errors.Is(result.Error, gorm.ErrRecordNotFound) {
+	err := w.db.Table("queue_tx").Where("raw_tx = ?", rawTx).Take(&queueTx).Error
+
+	if err == nil {
 		return true
+	}
+	// 查不到时，并不保证返回 ErrRecordNotFound
+	// 有些 GORM 配置会 fallback 拿第一条记录
+	if errors.Is(err, gorm.ErrRecordNotFound) {
+		return false
 	}
 	return false
 }

@@ -262,7 +262,7 @@ func submitTx(c *gin.Context) {
 		return
 	}
 	exist := service.BaseService.WalletService.IsExistRawTx(txInfo.RawTx)
-	if !exist {
+	if exist {
 		api_result.NewApiResult(c).Error("400", "raw tx is already exist queue tx")
 		return
 	}
@@ -286,4 +286,5 @@ func TxnStatus(c *gin.Context) {
 		return
 	}
 	api_result.NewApiResult(c).Success(queueTx)
+
 }

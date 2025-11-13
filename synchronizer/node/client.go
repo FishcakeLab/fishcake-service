@@ -171,101 +171,275 @@ func (c *clnt) BlockByNumber(number *big.Int) (*types.Block, error) {
 	if err != nil {
 		return nil, fmt.Errorf("ethclient.BlockByNumber failed: %w", err)
 	}
+	if block == nil {
+		return nil, fmt.Errorf("ethclient returned nil block at number=%v", number)
+	}
 	return block, nil
 }
 
 // BlockHeadersByRange will retrieve block headers within the specified range -- inclusive. No restrictions
 // are placed on the range such as blocks in the "latest", "safe" or "finalized" states. If the specified
 // range is too large, `endHeight > latest`, the resulting list is truncated to the available headers
+// BlockHeadersByRange will retrieve block headers within the specified range -- inclusive.
+// No restrictions are placed on the range such as blocks in the "latest", "safe" or "finalized" states.
+// If the specified range is too large, `endHeight > latest`, the resulting list is truncated
+// to the available headers.
 func (c *clnt) BlockHeadersByRange(startHeight, endHeight *big.Int, chainId uint) ([]types.Header, error) {
-	// avoid the batch call if there's no range
+	// ---- 基础参数保护，防止奇怪输入导致 panic ----
+	if startHeight == nil || endHeight == nil {
+		return nil, fmt.Errorf("startHeight or endHeight is nil")
+	}
+	if startHeight.Cmp(endHeight) > 0 {
+		return nil, fmt.Errorf("startHeight (%v) > endHeight (%v)", startHeight, endHeight)
+	}
+
+	// 无范围的情况，直接单查
 	if startHeight.Cmp(endHeight) == 0 {
 		header, err := c.BlockHeaderByNumber(startHeight)
 		if err != nil {
 			return nil, err
 		}
+		if header == nil {
+			return nil, fmt.Errorf("no header found at %v", startHeight)
+		}
 		return []types.Header{*header}, nil
 	}
 
-	count := new(big.Int).Sub(endHeight, startHeight).Uint64() + 1
+	// 计算区块个数（end - start + 1）
+	diff := new(big.Int).Sub(endHeight, startHeight)
+	if !diff.IsUint64() {
+		return nil, fmt.Errorf("block range too large: [%v, %v]", startHeight, endHeight)
+	}
+	count := diff.Uint64() + 1
+	if count == 0 {
+		return nil, fmt.Errorf("block range size is zero")
+	}
+
+	// headers: 真正要返回的结果
 	headers := make([]types.Header, count)
+	// batchElems: 承载 RPC 调用的错误与原始返回
 	batchElems := make([]rpc.BatchElem, count)
 
+	// --------- 分链逻辑：非 Polygon 直接 BatchCall，Polygon 单 RPC 并发 ---------
+
 	if chainId != uint(global_const.PolygonChainId) {
+		//  非 Polygon：标准 batch 模式
 		for i := uint64(0); i < count; i++ {
 			height := new(big.Int).Add(startHeight, new(big.Int).SetUint64(i))
-			batchElems[i] = rpc.BatchElem{Method: "eth_getBlockByNumber", Args: []interface{}{toBlockNumArg(height), false}, Result: &headers[i]}
+			batchElems[i] = rpc.BatchElem{
+				Method: "eth_getBlockByNumber",
+				Args:   []interface{}{toBlockNumArg(height), false},
+				Result: &headers[i], // 结果直接填充到 headers[i]
+			}
 		}
 
-		ctxwt, cancel := context.WithTimeout(context.Background(), defaultRequestTimeout)
+		ctx, cancel := context.WithTimeout(context.Background(), defaultRequestTimeout)
 		defer cancel()
-		err := c.rpc.BatchCallContext(ctxwt, batchElems)
-		if err != nil {
+
+		if err := c.rpc.BatchCallContext(ctx, batchElems); err != nil {
 			return nil, err
 		}
 	} else {
-		groupSize := 100
-		var wg sync.WaitGroup
-		numGroups := (int(count)-1)/groupSize + 1
-		wg.Add(numGroups)
+		//  Polygon：分组 + goroutine 并发 + 单 RPC 调用
+		const groupSize = 100
 
-		for i := 0; i < int(count); i += groupSize {
-			start := i
-			end := i + groupSize - 1
+		var wg sync.WaitGroup
+		for start := 0; start < int(count); start += groupSize {
+			end := start + groupSize
 			if end > int(count) {
-				end = int(count) - 1
+				end = int(count)
 			}
+
+			wg.Add(1)
 			go func(start, end int) {
 				defer wg.Done()
-				for j := start; j <= end; j++ {
-					ctxwt, cancel := context.WithTimeout(context.Background(), defaultRequestTimeout)
-					defer cancel()
-					height := new(big.Int).Add(startHeight, new(big.Int).SetUint64(uint64(j)))
-					batchElems[j] = rpc.BatchElem{
-						Method: "eth_getBlockByNumber",
-						Result: new(types.Header),
-						Error:  nil,
+
+				for j := start; j < end; j++ {
+					// 每次请求一个独立 ctx，避免 defer 在 for 里堆积
+					ctx, cancel := context.WithTimeout(context.Background(), defaultRequestTimeout)
+
+					height := new(big.Int).Add(startHeight, big.NewInt(int64(j)))
+
+					var h types.Header
+					err := c.rpc.CallContext(ctx, &h, "eth_getBlockByNumber", toBlockNumArg(height), false)
+					cancel()
+
+					// 只写当前 j 下标，不会越界，也不会与其他 goroutine 冲突
+					batchElems[j].Method = "eth_getBlockByNumber"
+
+					if err != nil {
+						batchElems[j].Error = err
+						batchElems[j].Result = nil
+					} else {
+						headers[j] = h
+						batchElems[j].Result = &headers[j]
+						batchElems[j].Error = nil
 					}
-					header := new(types.Header)
-					batchElems[j].Error = c.rpc.CallContext(ctxwt, header, batchElems[j].Method, toBlockNumArg(height), false)
-					batchElems[j].Result = header
 				}
 			}(start, end)
 		}
 
 		wg.Wait()
 	}
-	// Parse the headers.
-	//  - Ensure integrity that they build on top of each other
-	//  - Truncate out headers that do not exist (endHeight > "latest")
+
+	// ---------- 统一解析阶段：处理错误 / 截断 / 连续性检查 ----------
+
 	size := 0
-	for i, batchElem := range batchElems {
-		//if batchElem.Error != nil {
-		//	if size == 0 {
-		//		return nil, batchElem.Error
-		//	} else {
-		//		break // try return whatever headers are available
-		//	}
-		//} else if batchElem.Result == nil {
-		//	break
-		//}
-		header, ok := batchElem.Result.(*types.Header)
-		if !ok {
-			return nil, fmt.Errorf("unable to transform rpc response %v into utils.Header", batchElem.Result)
+	var firstErr error
+
+	for i := 0; i < int(count); i++ {
+		be := batchElems[i]
+
+		// 1) RPC 层错误处理
+		if be.Error != nil {
+			if firstErr == nil {
+				firstErr = be.Error
+			}
+			// 如果一条都没拿到就报错 -> 直接 return
+			if size == 0 {
+				return nil, be.Error
+			}
+			// 已经拿到部分 header，再遇到错误 -> 截断返回已有部分
+			break
 		}
 
-		headers[i] = *header
+		// 2) RPC 层无结果（通常是范围超过最新区块，返回 null）
+		if be.Result == nil {
+			if size == 0 {
+				// 第一条就没有结果，说明这个高度压根不存在
+				return nil, fmt.Errorf("no header returned for block %v",
+					new(big.Int).Add(startHeight, big.NewInt(int64(i))))
+			}
+			// 已经拿到部分，再遇到 nil -> 截断即可
+			break
+		}
 
-		//if i > 0 && headers[i].ParentHash != headers[i-1].Hash() {
-		//	return nil, fmt.Errorf("queried header %s does not follow parent %s", headers[i].Hash(), headers[i-1].Hash())
-		//}
+		// 3) 类型断言保护，防止 RPC 返回奇怪类型导致 panic
+		header, ok := be.Result.(*types.Header)
+		if !ok || header == nil {
+			if size == 0 {
+				return nil, fmt.Errorf("unexpected RPC result type %T at index %d", be.Result, i)
+			}
+			// 后面就当作链尾截断
+			break
+		}
 
-		size = size + 1
+		// 4) 写入连续的 headers[size]（注意是 size，而不是 i）
+		headers[size] = *header
+
+		// 5) 可选：区块连续性校验（如果你业务不强制要求，可以注释掉）
+		if size > 0 {
+			if headers[size].ParentHash != headers[size-1].Hash() {
+				return nil, fmt.Errorf(
+					"non-contiguous headers: header %s does not follow parent %s",
+					headers[size].Hash(), headers[size-1].Hash(),
+				)
+			}
+		}
+
+		size++
 	}
-	headers = headers[:size]
 
-	return headers, nil
+	if size == 0 {
+		// 保险兜底：完全没拿到 header
+		if firstErr != nil {
+			return nil, firstErr
+		}
+		return nil, fmt.Errorf("no headers returned in range [%v, %v]", startHeight, endHeight)
+	}
+
+	return headers[:size], nil
 }
+
+// func (c *clnt) BlockHeadersByRange(startHeight, endHeight *big.Int, chainId uint) ([]types.Header, error) {
+// 	// avoid the batch call if there's no range
+// 	if startHeight.Cmp(endHeight) == 0 {
+// 		header, err := c.BlockHeaderByNumber(startHeight)
+// 		if err != nil {
+// 			return nil, err
+// 		}
+// 		return []types.Header{*header}, nil
+// 	}
+
+// 	count := new(big.Int).Sub(endHeight, startHeight).Uint64() + 1
+// 	headers := make([]types.Header, count)
+// 	batchElems := make([]rpc.BatchElem, count)
+
+// 	if chainId != uint(global_const.PolygonChainId) {
+// 		for i := uint64(0); i < count; i++ {
+// 			height := new(big.Int).Add(startHeight, new(big.Int).SetUint64(i))
+// 			batchElems[i] = rpc.BatchElem{Method: "eth_getBlockByNumber", Args: []interface{}{toBlockNumArg(height), false}, Result: &headers[i]}
+// 		}
+
+// 		ctxwt, cancel := context.WithTimeout(context.Background(), defaultRequestTimeout)
+// 		defer cancel()
+// 		err := c.rpc.BatchCallContext(ctxwt, batchElems)
+// 		if err != nil {
+// 			return nil, err
+// 		}
+// 	} else {
+// 		groupSize := 100
+// 		var wg sync.WaitGroup
+// 		numGroups := (int(count)-1)/groupSize + 1
+// 		wg.Add(numGroups)
+
+// 		for i := 0; i < int(count); i += groupSize {
+// 			start := i
+// 			end := i + groupSize - 1
+// 			if end > int(count) {
+// 				end = int(count) - 1
+// 			}
+// 			go func(start, end int) {
+// 				defer wg.Done()
+// 				for j := start; j <= end; j++ {
+// 					ctxwt, cancel := context.WithTimeout(context.Background(), defaultRequestTimeout)
+// 					defer cancel()
+// 					height := new(big.Int).Add(startHeight, new(big.Int).SetUint64(uint64(j)))
+// 					batchElems[j] = rpc.BatchElem{
+// 						Method: "eth_getBlockByNumber",
+// 						Result: new(types.Header),
+// 						Error:  nil,
+// 					}
+// 					header := new(types.Header)
+// 					batchElems[j].Error = c.rpc.CallContext(ctxwt, header, batchElems[j].Method, toBlockNumArg(height), false)
+// 					batchElems[j].Result = header
+// 				}
+// 			}(start, end)
+// 		}
+
+// 		wg.Wait()
+// 	}
+// 	// Parse the headers.
+// 	//  - Ensure integrity that they build on top of each other
+// 	//  - Truncate out headers that do not exist (endHeight > "latest")
+// 	size := 0
+// 	for i, batchElem := range batchElems {
+// 		//if batchElem.Error != nil {
+// 		//	if size == 0 {
+// 		//		return nil, batchElem.Error
+// 		//	} else {
+// 		//		break // try return whatever headers are available
+// 		//	}
+// 		//} else if batchElem.Result == nil {
+// 		//	break
+// 		//}
+// 		header, ok := batchElem.Result.(*types.Header)
+// 		if !ok {
+// 			return nil, fmt.Errorf("unable to transform rpc response %v into utils.Header", batchElem.Result)
+// 		}
+
+// 		headers[i] = *header
+
+// 		//if i > 0 && headers[i].ParentHash != headers[i-1].Hash() {
+// 		//	return nil, fmt.Errorf("queried header %s does not follow parent %s", headers[i].Hash(), headers[i-1].Hash())
+// 		//}
+
+// 		size = size + 1
+// 	}
+// 	headers = headers[:size]
+
+// 	return headers, nil
+// }
 
 func (c *clnt) TxByHash(hash common.Hash) (*types.Transaction, error) {
 	ctxwt, cancel := context.WithTimeout(context.Background(), defaultRequestTimeout)

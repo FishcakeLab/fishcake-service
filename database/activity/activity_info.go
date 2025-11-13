@@ -284,11 +284,17 @@ func (a activityInfoDB) ActivityInfoList(activityFilter, businessAccount, activi
 	if activityId > 0 {
 		this = this.Where("activity_id = ?", activityId)
 	}
+
 	if latitude != "" && longitude != "" {
 		this = this.Where("ST_DWithin(ST_SetSRID(ST_MakePoint("+
 			"CAST(SPLIT_PART(latitude_longitude, ',', 1) AS numeric), "+
 			"CAST(SPLIT_PART(latitude_longitude, ',', 2) AS numeric)), 4326),ST_SetSRID(ST_MakePoint(?, ?), 4326),?)", latitude, longitude, scope)
 	}
+
+	//【修复点 1】必须先 JOIN，再加 account_nft_info 的筛选条件
+	// 否则 WHERE 右表字段会让 LEFT JOIN 退化成 INNER JOIN
+	this = this.Joins("LEFT JOIN account_nft_info ON activity_info.business_account = account_nft_info.address")
+
 	if activityFilter == "1" {
 		this = this.Where("account_nft_info.pro_deadline >= ?", time.Now().Unix())
 	}
@@ -296,8 +302,12 @@ func (a activityInfoDB) ActivityInfoList(activityFilter, businessAccount, activi
 		this = this.Where("account_nft_info.basic_deadline >= ?", time.Now().Unix())
 	}
 
-	// Join with account_nft_info table
-	this = this.Joins("LEFT JOIN account_nft_info ON activity_info.business_account = account_nft_info.address")
+	//【修复点 2】Count 需要单独 query，不能和 Limit/Offset/Order 混在一起
+	// 且分页逻辑要放在 count 之后，不影响总数计算
+	countQuery := this.Session(&gorm.Session{})
+	if err := countQuery.Debug().Count(&count).Error; err != nil {
+		log.Error("count query failed", "err", err)
+	}
 
 	// Apply pagination
 	if pageNum > 0 && pageSize > 0 {
@@ -305,9 +315,9 @@ func (a activityInfoDB) ActivityInfoList(activityFilter, businessAccount, activi
 	}
 
 	// Get total count and results
-	this = this.Count(&count)
+	// this = this.Count(&count)
 	this = this.Order("activity_create_time DESC, activity_status ASC").Select("activity_info.*,account_nft_info.basic_deadline,account_nft_info.pro_deadline")
-	result := this.Find(&activityInfo)
+	result := this.Debug().Find(&activityInfo)
 
 	if result.Error != nil {
 		if !errors.Is(result.Error, gorm.ErrRecordNotFound) {
