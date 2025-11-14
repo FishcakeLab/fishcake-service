@@ -4,6 +4,7 @@ import (
 	"context"
 	"math/big"
 	"strconv"
+	"strings"
 	"sync"
 
 	"github.com/ethereum/go-ethereum/log"
@@ -179,6 +180,7 @@ func balance(c *gin.Context) {
 }
 
 func signInfo(c *gin.Context) {
+
 	address := c.Query("address")
 	reqAccount := &account.AccountRequest{
 		Chain:   "Polygon",
@@ -191,29 +193,67 @@ func signInfo(c *gin.Context) {
 		return
 	}
 
-	reqFee := &account.FeeRequest{
-		Chain:   "Polygon",
-		Network: "mainnet",
+	const blockCount = 4
+	percentiles := []int{70, 95}
+
+	var feeHist struct {
+		OldestBlock   string     `json:"oldestBlock"`
+		BaseFeePerGas []string   `json:"baseFeePerGas"`
+		GasUsedRatio  []float64  `json:"gasUsedRatio"`
+		Reward        [][]string `json:"reward"`
 	}
-	responseFee, _ := service.BaseService.RpcService.GetFee(context.Background(), reqFee)
-	if responseFee.Code == account.ReturnCode_ERROR {
-		api_result.NewApiResult(c).Error(enum.GrpcErr.Code, responseFee.Msg)
+
+	err := service.BaseService.Client.CallContext(
+		context.Background(),
+		&feeHist,
+		"eth_feeHistory",
+		blockCount,
+		"latest",
+		percentiles,
+	)
+	if err != nil {
+		api_result.NewApiResult(c).Error(enum.GrpcErr.Code, err.Error())
 		return
 	}
 
-	bigIntValue := new(big.Int)
-	_, _ = bigIntValue.SetString(responseFee.Eip1559Wallet.MaxFeePerGas, 10)
+	if len(feeHist.BaseFeePerGas) == 0 {
+		api_result.NewApiResult(c).Error(enum.GrpcErr.Code, "invalid baseFee data")
+		return
+	}
+	latestBaseFeeHex := feeHist.BaseFeePerGas[len(feeHist.BaseFeePerGas)-1]
+	latestBaseFee, _ := new(big.Int).SetString(strings.TrimPrefix(latestBaseFeeHex, "0x"), 16)
+
+	if len(feeHist.Reward) == 0 {
+		api_result.NewApiResult(c).Error(enum.GrpcErr.Code, "invalid reward data")
+		return
+	}
+	lastReward := feeHist.Reward[len(feeHist.Reward)-1]
+
+	if len(lastReward) < 2 {
+		api_result.NewApiResult(c).Error(enum.GrpcErr.Code, "reward percentile missing")
+		return
+	}
+	tip70Hex := lastReward[0]
+	tip70, _ := new(big.Int).SetString(strings.TrimPrefix(tip70Hex, "0x"), 16)
+
+	tip95Hex := lastReward[1]
+	tip95, _ := new(big.Int).SetString(strings.TrimPrefix(tip95Hex, "0x"), 16)
+
+	slow := new(big.Int).Add(latestBaseFee, tip70)
+	normal := new(big.Int).Add(latestBaseFee, tip95)
 
 	retValue := SignReturnValue{
 		Nonce:                responseAccount.Sequence,
 		NativeTokenGasLimit:  "21000",
 		Erc20TokenGasLimit:   "150000",
-		MaxFeePerGas:         bigIntValue.String(),
-		MaxPriorityFeePerGas: "30000000000",
-		GasPrice:             bigIntValue.String(),
+		MaxFeePerGas:         normal.String(),
+		MaxPriorityFeePerGas: tip95.String(),
+		GasPrice:             slow.String(),
 	}
+
 	api_result.NewApiResult(c).Success(retValue)
 	return
+
 }
 
 func sentRawTransaction(c *gin.Context) {
