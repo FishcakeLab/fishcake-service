@@ -7,6 +7,7 @@ import (
 )
 
 type TokenSent struct {
+
 	Id           string   `json:"id" gorm:"column:id"`
 	Address      string   `json:"address" gorm:"column:address"`
 	TokenAddress string   `json:"token_address" gorm:"column:token_address"`
@@ -22,6 +23,7 @@ type TokenReceived struct {
 	Description  string   `json:"description" gorm:"column:description"`
 	Amount       *big.Int `json:"amount" gorm:"serializer:u256;column:amount"`
 	Timestamp    uint64   `json:"timestamp" gorm:"column:timestamp"`
+
 }
 
 func (TokenSent) TableName() string {
