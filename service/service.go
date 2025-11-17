@@ -1,6 +1,8 @@
 package service
 
 import (
+	"context"
+
 	"github.com/FishcakeLab/fishcake-service/config"
 	"github.com/FishcakeLab/fishcake-service/database"
 	"github.com/FishcakeLab/fishcake-service/service/activity_service"
@@ -17,6 +19,7 @@ import (
 
 	"github.com/FishcakeLab/fishcake-service/service/wallet_service"
 	"github.com/ethereum/go-ethereum/log"
+	"github.com/ethereum/go-ethereum/rpc"
 )
 
 var BaseService *Service
@@ -24,6 +27,7 @@ var BaseService *Service
 type Service struct {
 	Db                     *database.DB
 	Cfg                    *config.Config
+	Client                 *rpc.Client
 	ActivityInfoService    activity_service.ActivityInfoService
 	ActivityInfoExtService activity_service.ActivityInfoExtService
 	RpcService             rpc_service.RpcService
@@ -45,9 +49,16 @@ func NewBaseService(db *database.DB, cfg *config.Config) *Service {
 		log.Error("new dappplink service fail", "err", err)
 		return nil
 	}
+
+	client, err := rpc.DialContext(context.Background(), cfg.PolygonRpc)
+	if err != nil {
+		log.Error("rpc dial fail", "err", err)
+		return nil
+	}
 	return &Service{
 		Db:                     db,
 		Cfg:                    cfg,
+		Client:                 client,
 		ActivityInfoService:    activity_service.NewActivityInfoService(db),
 		ActivityInfoExtService: activity_service.NewActivityInfoExtService(db),
 		RpcService:             rpc_service.NewRpcService(cfg.RpcUrl),
