@@ -50,6 +50,9 @@ func (w queueTxDB) QueryRawTxInfoByStatus(status int8) ([]QueueTx, error) {
 	var queueTxList []QueueTx
 	err := w.db.Table("queue_tx").Where("status = ?", status).Find(&queueTxList).Error
 	if err != nil {
+		if errors.Is(err, gorm.ErrRecordNotFound) {
+			return queueTxList, nil
+		}
 		log.Error("get unhandled tx fail", "err", err)
 		return nil, err
 	}
