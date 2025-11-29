@@ -46,6 +46,7 @@ type StakeHolderStakingView interface {
 	GetStakeRank(monthFilter bool) ([]StakeRank, error)
 	GetClaimedRank(monthFilter bool) ([]ClaimedRank, error)
 	GetTotalRewardRank(monthFilter bool) ([]TotalRewardRank, error)
+	GetUserStakingInfo(address string, statusFilter *int, pageNum, pageSize int) ([]StakeHolderStaking, int64, error)
 }
 
 // StakeHolderStakingDB defines full DB operations
@@ -77,6 +78,47 @@ type TotalRewardRank struct {
 // Implementation
 type stakeHolderStakingDB struct {
 	db *gorm.DB
+}
+
+// GetUserStakingInfo — paginated list of user staking records
+func (d stakeHolderStakingDB) GetUserStakingInfo(
+	address string,
+	status *int,
+	page, size int,
+) ([]StakeHolderStaking, int64, error) {
+
+	table := StakeHolderStaking{}.TableName()
+
+	query := d.db.Table(table).
+		Where("user_address = ?", address)
+
+	if status != nil {
+		query = query.Where("staking_status = ?", *status)
+	}
+
+	// Count total
+	var total int64
+	if err := query.Count(&total).Error; err != nil {
+		log.Error("Count user staking records fail", "err", err)
+		return nil, 0, err
+	}
+
+	// Pagination
+	offset := (page - 1) * size
+
+	var records []StakeHolderStaking
+	err := query.
+		Order("start_time DESC").
+		Limit(size).
+		Offset(offset).
+		Find(&records).Error
+
+	if err != nil {
+		log.Error("Query user staking records fail", "err", err)
+		return nil, 0, err
+	}
+
+	return records, total, nil
 }
 
 // InsertDepositRecord — triggered by StakeHolderDepositStaking event

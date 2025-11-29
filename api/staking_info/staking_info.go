@@ -22,6 +22,55 @@ func StakingInfoApi(rg *gin.Engine) {
 
 	// 已领取 + 未领取（status = 0）的总奖励排行
 	r.GET("totalRewardRank", totalRewardRank)
+
+	r.GET("stakingInfo", getUserStakingInfo)
+}
+
+// GET /v1/staking/stakingInfo?address=0x123&page=1&size=10&status=0
+// status = 0（质押中）/ 1（已结束）/ 不传表示全部
+func getUserStakingInfo(c *gin.Context) {
+	address := c.Query("address")
+	if address == "" {
+		api_result.NewApiResult(c).Error(enum.ParamErr.Code, "address is required")
+		return
+	}
+
+	statusStr := c.Query("status")
+	var statusFilter *int
+	if statusStr != "" {
+		s := bigint.StringToInt(statusStr)
+		statusFilter = &s
+	}
+
+	// 分页参数
+	page := bigint.StringToInt(c.DefaultQuery("page", "1"))
+	size := bigint.StringToInt(c.DefaultQuery("size", "10"))
+	if page < 1 {
+		page = 1
+	}
+	if size < 1 || size > 100 {
+		size = 10
+	}
+
+	log.Info(">>> getUserStakingInfo API called",
+		"address", address,
+		"status", statusFilter,
+		"page", page,
+		"size", size,
+	)
+
+	records, total, err := service.BaseService.StakingInfoService.GetUserStakingInfo(address, statusFilter, page, size)
+	if err != nil {
+		api_result.NewApiResult(c).Error(enum.DataErr.Code, err.Error())
+		return
+	}
+
+	api_result.NewApiResult(c).Success(gin.H{
+		"list":  records,
+		"total": total,
+		"page":  page,
+		"size":  size,
+	})
 }
 
 // /v1/staking/stakeRank?month=1
