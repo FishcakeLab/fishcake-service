@@ -11,6 +11,7 @@ type ActivityInfoService interface {
 		pageNum, pageSize int) ([]activity.ActivityInfo, int)
 	ActivityInfo(activityId int) activity.ActivityInfo
 	GetActivityRank(monthFilter bool) ([]MiningRankResponse, error)
+	GetUserMinedAmount(address string, month bool) (*UserMinedAmountResponse, error)
 }
 
 type activityInfoService struct {
@@ -23,6 +24,12 @@ type MiningRankResponse struct {
 	BusinessAccount string `json:"businessAccount"` // 商家账户地址
 	TotalMined      string `json:"totalMined"`      // 累计挖矿产出（单位：Wei）
 	Month           bool   `json:"month"`           // 是否为月榜 (true=本月, false=总榜)
+}
+
+type UserMinedAmountResponse struct {
+	UserAddress string `json:"userAddress"`
+	TotalMined  string `json:"totalMined"`
+	Month       bool   `json:"month"`
 }
 
 func NewActivityInfoService(db *database.DB) ActivityInfoService {
@@ -54,4 +61,17 @@ func (s *activityInfoService) GetActivityRank(monthFilter bool) ([]MiningRankRes
 		})
 	}
 	return res, nil
+}
+
+func (s *activityInfoService) GetUserMinedAmount(address string, month bool) (*UserMinedAmountResponse, error) {
+	mined, err := s.Db.ActivityInfoDB.GetUserMinedAmount(address, month)
+	if err != nil {
+		return nil, err
+	}
+
+	return &UserMinedAmountResponse{
+		UserAddress: address,
+		TotalMined:  mined.String(),
+		Month:       month,
+	}, nil
 }

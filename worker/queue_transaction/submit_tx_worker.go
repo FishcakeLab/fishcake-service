@@ -103,13 +103,16 @@ func (qt *QueueTxProcessor) ProcessSendQueueTx() error {
 			log.Error("RPC send tx error", "err", errSentTx)
 			unhandledTx.Result = fmt.Sprintf("RPC send tx error: %v", errSentTx)
 			unhandledTx.Status = 3
-		}
-		if sendTx != nil {
+		} else if sendTx != nil {
 			log.Info("send tx success", "txHash", sendTx.TxHash)
 			unhandledTx.TransactionHash = sendTx.TxHash
 			unhandledTx.Timestamp = uint64(time.Now().Unix())
 			unhandledTx.Result = "success to send tx"
 			unhandledTx.Status = 1
+		} else {
+			log.Error("RPC returned nil tx and nil error — unexpected state")
+			unhandledTx.Result = "unexpected RPC return: nil tx, nil err"
+			unhandledTx.Status = 3
 		}
 		handledTxList = append(handledTxList, unhandledTx)
 	}

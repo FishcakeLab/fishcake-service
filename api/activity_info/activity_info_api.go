@@ -15,6 +15,31 @@ func ActivityInfoApi(rg *gin.Engine) {
 	r.GET("list", list)
 	r.GET("info", info)
 	r.GET("miningRank", rank) // router for mining rank
+	r.GET("minedAmount", getUserMinedAmount)
+}
+
+func getUserMinedAmount(c *gin.Context) {
+	address := c.Query("address")
+	if address == "" {
+		api_result.NewApiResult(c).Error(enum.ParamErr.Code, "address is required")
+		return
+	}
+
+	monthStr := c.Query("month")
+	var monthFilter bool
+	if monthStr != "" && bigint.StringToInt(monthStr) == 1 {
+		monthFilter = true
+	}
+
+	log.Info(">>> getUserMinedAmount", "address", address, "monthFilter", monthFilter)
+
+	res, err := service.BaseService.ActivityInfoService.GetUserMinedAmount(address, monthFilter)
+	if err != nil {
+		api_result.NewApiResult(c).Error(enum.DataErr.Code, err.Error())
+		return
+	}
+
+	api_result.NewApiResult(c).Success(res)
 }
 
 func list(c *gin.Context) {

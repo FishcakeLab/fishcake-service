@@ -16,6 +16,12 @@ type StakingInfoService interface {
 
 	// 获取总奖励排行榜（status = 0 + status = 1）
 	GetTotalRewardRank(monthFilter bool) ([]TotalRewardRankResponse, error)
+
+	GetUserStakingInfo(
+		address string,
+		status *int,
+		page, size int,
+	) ([]UserStakingInfoResponse, int64, error)
 }
 
 // stakeInfoService 结构体实现
@@ -49,6 +55,22 @@ type TotalRewardRankResponse struct {
 	Month       bool     `json:"month"`       // 是否为月度排行
 }
 
+// UserStakingInfoResponse 用户质押信息响应结构体
+type UserStakingInfoResponse struct {
+	TokenId       int64  `json:"tokenId"`
+	Amount        string `json:"amount"`
+	StakingType   int16  `json:"stakingType"`
+	StartTime     int64  `json:"startTime"`
+	EndTime       int64  `json:"endTime"`
+	NftApr        int64  `json:"nftApr"`
+	IsAutoRenew   bool   `json:"isAutoRenew"`
+	MessageNonce  int64  `json:"messageNonce"`
+	TxMessageHash string `json:"txMessageHash"`
+	StakingReward string `json:"stakingReward"`
+	StakingStatus int16  `json:"stakingStatus"`
+	CreateTime    int64  `json:"createTime"`
+}
+
 // NewStakingInfoService 创建新的实例
 func NewStakingInfoService(db *database.DB) StakingInfoService {
 	return &stakeInfoService{Db: db}
@@ -70,6 +92,41 @@ func (s *stakeInfoService) GetStakeRank(monthFilter bool) ([]StakeRankResponse, 
 		})
 	}
 	return res, nil
+}
+
+// GetUserStakingInfo 查询用户质押记录
+func (s *stakeInfoService) GetUserStakingInfo(
+	address string,
+	status *int,
+	page, size int,
+) ([]UserStakingInfoResponse, int64, error) {
+
+	// === 1. 调用 DAO 层 ===
+	stakingList, total, err := s.Db.StakingDB.GetUserStakingInfo(address, status, page, size)
+	if err != nil {
+		return nil, 0, err
+	}
+
+	// === 2. 组装 service 层 Response ===
+	var resp []UserStakingInfoResponse
+	for _, item := range stakingList {
+		resp = append(resp, UserStakingInfoResponse{
+			TokenId:       item.TokenID,
+			Amount:        item.Amount.String(),
+			StakingType:   item.StakingType,
+			StartTime:     item.StartTime,
+			EndTime:       item.EndTime,
+			NftApr:        item.NftApr,
+			IsAutoRenew:   item.IsAutoRenew,
+			MessageNonce:  item.MessageNonce,
+			TxMessageHash: item.TxMessageHash,
+			StakingReward: item.StakingReward.String(),
+			StakingStatus: item.StakingStatus,
+			CreateTime:    item.CreateTime.Unix(),
+		})
+	}
+
+	return resp, total, nil
 }
 
 // GetClaimedRank 查询已领取奖励排名（status = 1）

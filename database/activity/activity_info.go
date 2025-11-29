@@ -71,6 +71,7 @@ type ActivityInfoView interface {
 		pageNum, pageSize int) ([]ActivityInfo, int)
 	ActivityInfo(activityId int) ActivityInfo
 	UnDropActivityParticipantAddresses() []ActivityParticipantAddress
+	GetUserMinedAmount(address string, monthFilter bool) (*big.Int, error)
 }
 
 // ActivityInfoDB defines the interface for activity database operations
@@ -85,6 +86,34 @@ type ActivityInfoDB interface {
 
 type activityInfoDB struct {
 	db *gorm.DB
+}
+
+// GetUserMinedAmount 查询某个地址的累计挖矿数量（可选按月）
+func (d activityInfoDB) GetUserMinedAmount(address string, monthFilter bool) (*big.Int, error) {
+	db := d.db.Table("activity_info").
+		Select("SUM(mined_amount::numeric) as total_mined").
+		Where("business_account = ? AND activity_status = 2", address)
+
+	if monthFilter {
+		now := time.Now().Unix()
+		oneMonthAgo := now - 30*24*3600
+		db = db.Where("activity_deadline >= ?", oneMonthAgo)
+	}
+
+	var result struct {
+		TotalMined *big.Int `gorm:"column:total_mined"`
+	}
+
+	if err := db.Scan(&result).Error; err != nil {
+		return nil, err
+	}
+
+	// 没数据时为 nil → 返回 0
+	if result.TotalMined == nil {
+		return big.NewInt(0), nil
+	}
+
+	return result.TotalMined, nil
 }
 
 func (d activityInfoDB) GetActivityRank(monthFilter bool) ([]BusinessRank, error) {
