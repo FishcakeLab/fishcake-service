@@ -3,6 +3,7 @@ package wallet
 import (
 	"github.com/pkg/errors"
 	"gorm.io/gorm"
+	"time"
 
 	"github.com/ethereum/go-ethereum/log"
 )
@@ -38,7 +39,7 @@ func (w queueTxDB) StoreRawTx(rawTx string, txHash string) error {
 		Result:          "receive transaction from frontend",
 		TransactionHash: txHash,
 		Status:          0,
-		Timestamp:       0,
+		Timestamp:       uint64(time.Now().Unix()),
 	}
 	if err := w.db.Table("queue_tx").Create(&queueTx).Error; err != nil {
 		return err
