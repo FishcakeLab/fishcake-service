@@ -6,7 +6,6 @@ import (
 	"sort"
 	"time"
 
-	"github.com/ethereum/go-ethereum/common"
 	"github.com/ethereum/go-ethereum/log"
 	"gorm.io/gorm"
 	"gorm.io/gorm/clause"
@@ -18,20 +17,20 @@ import (
 
 // StakeHolderStaking represents the on-chain staking record for each holder
 type StakeHolderStaking struct {
-	ID            string         `gorm:"column:id;primaryKey;default:replace((uuid_generate_v4())::text, '-'::text, ''::text)" json:"id"`
-	UserAddress   common.Address `gorm:"column:user_address" json:"userAddress"`
-	Amount        *big.Int       `gorm:"serializer:u256;column:amount" json:"amount"`
-	StakingType   int16          `gorm:"column:staking_type" json:"stakingType"`
-	StartTime     int64          `gorm:"column:start_time" json:"startTime"`
-	EndTime       int64          `gorm:"column:end_time" json:"endTime"`
-	TokenID       int64          `gorm:"column:token_id" json:"tokenId"`
-	NftApr        int64          `gorm:"column:nft_apr" json:"nftApr"`
-	IsAutoRenew   bool           `gorm:"column:is_auto_renew" json:"isAutoRenew"`
-	MessageNonce  int64          `gorm:"column:message_nonce" json:"messageNonce"`
-	TxMessageHash string         `gorm:"column:tx_message_hash" json:"txMessageHash"`
-	StakingReward *big.Int       `gorm:"serializer:u256;column:staking_reward" json:"stakingReward"`
-	StakingStatus int16          `gorm:"column:staking_status;default:0" json:"stakingStatus"` // 0=staking, 1=ended
-	CreateTime    time.Time      `gorm:"column:create_time;default:CURRENT_TIMESTAMP" json:"createTime"`
+	ID            string    `gorm:"column:id;primaryKey;default:replace((uuid_generate_v4())::text, '-'::text, ''::text)" json:"id"`
+	UserAddress   string    `gorm:"column:user_address" json:"userAddress"`
+	Amount        *big.Int  `gorm:"serializer:u256;column:amount" json:"amount"`
+	StakingType   int16     `gorm:"column:staking_type" json:"stakingType"`
+	StartTime     int64     `gorm:"column:start_time" json:"startTime"`
+	EndTime       int64     `gorm:"column:end_time" json:"endTime"`
+	TokenID       int64     `gorm:"column:token_id" json:"tokenId"`
+	NftApr        int64     `gorm:"column:nft_apr" json:"nftApr"`
+	IsAutoRenew   bool      `gorm:"column:is_auto_renew" json:"isAutoRenew"`
+	MessageNonce  int64     `gorm:"column:message_nonce" json:"messageNonce"`
+	TxMessageHash string    `gorm:"column:tx_message_hash" json:"txMessageHash"`
+	StakingReward *big.Int  `gorm:"serializer:u256;column:staking_reward" json:"stakingReward"`
+	StakingStatus int16     `gorm:"column:staking_status;default:0" json:"stakingStatus"` // 0=staking, 1=ended
+	CreateTime    time.Time `gorm:"column:create_time;default:CURRENT_TIMESTAMP" json:"createTime"`
 }
 
 func (StakeHolderStaking) TableName() string {

@@ -224,7 +224,7 @@ func StakeHolderDepositStaking(event event.ContractEvent, db *database.DB) error
 	}
 
 	record := stake.StakeHolderStaking{
-		UserAddress:   uEvent.Staker, // msg.sender
+		UserAddress:   uEvent.Staker.Hex(), // msg.sender
 		Amount:        uEvent.Amount,
 		StakingType:   int16(uEvent.StakingType),
 		StartTime:     uEvent.StartStakingTime.Int64(),
@@ -249,7 +249,7 @@ func StakeHolderDepositStaking(event event.ContractEvent, db *database.DB) error
 	}
 
 	// 成功日志
-	log.Info("✅ StakeHolderDepositStaking success",
+	log.Info("StakeHolderDepositStaking success",
 		"user", uEvent.Staker.String(),
 		"nonce", uEvent.MessageNonce.Int64(),
 		"amount", uEvent.Amount.String(),
