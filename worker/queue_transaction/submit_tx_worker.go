@@ -147,18 +147,24 @@ func (qt *QueueTxProcessor) AfterSentQueueTx() error {
 
 	var handledTxList []wallet.QueueTx
 	for _, unhandledTx := range unhandledTxList {
-		log.Error("unhandled transaction", "txHash", unhandledTx.TransactionHash, "blockNumber", unhandledTx.Status)
+		log.Info("unhandled transaction", "txHash", unhandledTx.TransactionHash, "blockNumber", unhandledTx.Status)
 		fetchTx, errFetchTx := qt.ethClient.TxReceiptByHash(common.HexToHash(unhandledTx.TransactionHash))
 		if errFetchTx != nil {
-			log.Error("fetch tx receipt error: %v", errFetchTx)
+			log.Error("fetch tx receipt error: %v", errFetchTx.Error())
 			unhandledTx.Result = errFetchTx.Error()
 			unhandledTx.Status = 1
-		} else if fetchTx == nil {
-			log.Info("receipt not found yet", "txHash", unhandledTx.TransactionHash)
 		}
-		if fetchTx != nil {
+
+		if fetchTx == nil {
+			log.Warn(
+				"receipt not found yet, it will be handle later",
+				"txHash",
+				unhandledTx.TransactionHash,
+			)
+		} else if fetchTx != nil {
 			if fetchTx.Status == 1 {
 				unhandledTx.Status = 2
+				unhandledTx.Result = "success to send"
 			}
 			if fetchTx.Status == 0 {
 				unhandledTx.Result = "transaction exec fail on chain"
