@@ -1,15 +1,18 @@
 package unpack
 
 import (
+	"math/big"
+	"time"
+
 	"github.com/ethereum/go-ethereum/common"
 	"github.com/ethereum/go-ethereum/log"
-	"math/big"
 
 	"github.com/FishcakeLab/fishcake-service/database"
 	"github.com/FishcakeLab/fishcake-service/database/account_nft_info"
 	"github.com/FishcakeLab/fishcake-service/database/activity"
 	"github.com/FishcakeLab/fishcake-service/database/drop"
 	"github.com/FishcakeLab/fishcake-service/database/event"
+	"github.com/FishcakeLab/fishcake-service/database/stake"
 	"github.com/FishcakeLab/fishcake-service/database/token_nft"
 	"github.com/FishcakeLab/fishcake-service/database/token_transfer"
 	"github.com/FishcakeLab/fishcake-service/event/polygon/abi"
@@ -220,33 +223,33 @@ func StakeHolderDepositStaking(event event.ContractEvent, db *database.DB) error
 		return unpackErr
 	}
 
-	//record := stake.StakeHolderStaking{
-	//	UserAddress:   uEvent.Staker, // msg.sender
-	//	Amount:        uEvent.Amount,
-	//	StakingType:   int16(uEvent.StakingType),
-	//	StartTime:     uEvent.StartStakingTime.Int64(),
-	//	EndTime:       uEvent.EndStakingTime.Int64(),
-	//	TokenID:       uEvent.BindingNft.Int64(),
-	//	NftApr:        uEvent.NftApr.Int64(),
-	//	IsAutoRenew:   uEvent.IsAutoRenew,
-	//	MessageNonce:  uEvent.MessageNonce.Int64(),
-	//	TxMessageHash: "",            // deposit 时没有交易哈希
-	//	StakingReward: big.NewInt(0), // 初始化 0
-	//	StakingStatus: 0,             // 质押中
-	//	CreateTime:    time.Now(),    // 当前时间
-	//}
+	record := stake.StakeHolderStaking{
+		UserAddress:   uEvent.Staker.Hex(), // msg.sender
+		Amount:        uEvent.Amount,
+		StakingType:   int16(uEvent.StakingType),
+		StartTime:     uEvent.StartStakingTime.Int64(),
+		EndTime:       uEvent.EndStakingTime.Int64(),
+		TokenID:       uEvent.BindingNft.Int64(),
+		NftApr:        uEvent.NftApr.Int64(),
+		IsAutoRenew:   uEvent.IsAutoRenew,
+		MessageNonce:  uEvent.MessageNonce.Int64(),
+		TxMessageHash: "",            // deposit 时没有交易哈希
+		StakingReward: big.NewInt(0), // 初始化 0
+		StakingStatus: 0,             // 质押中
+		CreateTime:    time.Now(),    // 当前时间
+	}
 
-	//if err := db.StakingDB.InsertDepositRecord(record); err != nil {
-	//	log.Error("insert StakeHolderDepositStaking fail",
-	//		"user", uEvent.Staker.String(),
-	//		"nonce", uEvent.MessageNonce.Int64(),
-	//		"block", event.BlockNumber,
-	//		"err", err)
-	//	return err
-	//}
+	if err := db.StakingDB.InsertDepositRecord(record); err != nil {
+		log.Error("insert StakeHolderDepositStaking fail",
+			"user", uEvent.Staker.String(),
+			"nonce", uEvent.MessageNonce.Int64(),
+			"block", event.BlockNumber,
+			"err", err)
+		return err
+	}
 
 	// 成功日志
-	log.Info("✅ StakeHolderDepositStaking success",
+	log.Info("StakeHolderDepositStaking success",
 		"user", uEvent.Staker.String(),
 		"nonce", uEvent.MessageNonce.Int64(),
 		"amount", uEvent.Amount.String(),
