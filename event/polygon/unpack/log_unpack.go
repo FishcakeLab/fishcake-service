@@ -2,7 +2,9 @@ package unpack
 
 import (
 	"math/big"
+
 	"strings"
+
 	"time"
 
 	"github.com/ethereum/go-ethereum/common"
@@ -281,6 +283,7 @@ func StakeHolderDepositStaking(event event.ContractEvent, db *database.DB) error
 			return err
 		}
 
+
 		record := stake.StakeHolderStaking{
 			UserAddress:   uEvent.Staker.Hex(),
 			Amount:        uEvent.Amount,
@@ -306,6 +309,7 @@ func StakeHolderDepositStaking(event event.ContractEvent, db *database.DB) error
 				"err", err)
 			return err
 		}
+
 
 		// 2. 标记 Booster NFT 为 used（nft_type + 10）
 		tokenId := uEvent.BindingNft.Int64()
