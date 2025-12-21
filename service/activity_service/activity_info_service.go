@@ -12,6 +12,7 @@ type ActivityInfoService interface {
 	ActivityInfo(activityId int) activity.ActivityInfo
 	GetActivityRank(monthFilter bool) ([]MiningRankResponse, error)
 	GetUserMinedAmount(address string, month bool) (*UserMinedAmountResponse, error)
+	GetUserMiningInfo(address string) (*activity.MiningInfo, error)
 }
 
 type activityInfoService struct {
@@ -74,4 +75,12 @@ func (s *activityInfoService) GetUserMinedAmount(address string, month bool) (*U
 		TotalMined:  mined.String(),
 		Month:       month,
 	}, nil
+}
+
+func (s *activityInfoService) GetUserMiningInfo(address string) (*activity.MiningInfo, error) {
+	info, err := s.Db.MiningInfoDB.GetByAddress(address)
+	if err != nil {
+		return nil, err
+	}
+	return info, nil
 }

@@ -41,6 +41,7 @@ type Service struct {
 	StakingInfoService staking_service.StakingInfoService
 
 	TokenTransferService token_transfer_service.TokenTransferService
+	BoosterService       nft_service.BoosterService
 }
 
 func NewBaseService(db *database.DB, cfg *config.Config) *Service {
@@ -70,6 +71,7 @@ func NewBaseService(db *database.DB, cfg *config.Config) *Service {
 		DappLinkService:        *dapplinkService,
 		StakingInfoService:     staking_service.NewStakingInfoService(db),
 		TokenTransferService:   token_transfer_service.NewTokenTransferService(db),
+		BoosterService:         nft_service.NewBoosterService(db),
 	}
 }
 

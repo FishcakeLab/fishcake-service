@@ -25,7 +25,7 @@ test:
 lint:
 	golangci-lint run ./...
 
-bindings: binding-event binding-nft
+bindings: binding-event binding-nft binding-staking
 
 binding-event:
 	$(eval temp := $(shell mktemp))

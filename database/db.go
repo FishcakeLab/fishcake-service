@@ -42,6 +42,7 @@ type DB struct {
 
 	TokenSentDB     token_transfer.TokenSentDB
 	TokenReceivedDB token_transfer.TokenReceivedDB
+	MiningInfoDB    activity.MiningInfoDB
 }
 
 func NewDB(cfg *config.Config) (*DB, error) {
@@ -91,6 +92,7 @@ func NewDB(cfg *config.Config) (*DB, error) {
 
 		TokenSentDB:     token_transfer.NewTokenSentDB(gorm),
 		TokenReceivedDB: token_transfer.NewTokenReceivedDB(gorm),
+		MiningInfoDB:    activity.NewMiningInfoDB(gorm),
 	}
 	return db, nil
 }
@@ -117,7 +119,6 @@ func (db *DB) Transaction(fn func(db *DB) error) error {
 		return fn(txDB)
 	})
 }
-
 
 func (db *DB) Close() (err error) {
 	defer func() {

@@ -2,6 +2,7 @@ package activity
 
 import (
 	"errors"
+	"fmt"
 	"math/big"
 	"time"
 
@@ -60,8 +61,20 @@ type BusinessRank struct {
 	TotalMined      string `json:"totalMined"`
 }
 
+type MiningInfo struct {
+	Id                 string   `gorm:"column:id" json:"id"`
+	Address            string   `gorm:"column:address" json:"address"`
+	MinedAmount        *big.Int `gorm:"serializer:u256;column:mined_amount" json:"minedAmount"`
+	MinedFishCakePower *big.Int `gorm:"serializer:u256;column:mined_fishcake_power" json:"minedFishCakePower"`
+	LastMintTime       *big.Int `gorm:"serializer:u256;column:last_mint_time" json:"lastMintTime"`
+}
+
 func (ActivityInfo) TableName() string {
 	return "activity_info"
+}
+
+func (MiningInfo) TableName() string {
+	return "mining_info"
 }
 
 // ActivityInfoView defines the interface for viewing activity information
@@ -84,7 +97,20 @@ type ActivityInfoDB interface {
 	GetActivityRank(monthFilter bool) ([]BusinessRank, error)
 }
 
+type MiningInfoDB interface {
+	Create(info *MiningInfo) error
+	GetByAddress(address string) (*MiningInfo, error)
+	GetByAddressForUpdate(address string) (*MiningInfo, error)
+	Update(info *MiningInfo) error
+	Upsert(info *MiningInfo) error
+	ListAll() ([]MiningInfo, error)
+}
+
 type activityInfoDB struct {
+	db *gorm.DB
+}
+
+type miningInfoDB struct {
 	db *gorm.DB
 }
 
@@ -172,10 +198,80 @@ func (a activityInfoDB) UpdateActivityInfo(activityId string) error {
 // }
 
 // ActivityFinish updates activity status and amounts when activity is finished
-func (a activityInfoDB) ActivityFinish(activityId string, ReturnAmount, MinedAmount *big.Int) error {
-	finishSql := `update activity_info set activity_status = 2, return_amount = ?, mined_amount = ? where activity_id = ?`
-	err := a.db.Exec(finishSql, ReturnAmount, MinedAmount, activityId).Error
-	return err
+func (a activityInfoDB) ActivityFinish(activityId string, returnAmount, minedAmount *big.Int) error {
+
+	tx := a.db.Begin()
+	if tx.Error != nil {
+		return tx.Error
+	}
+
+	// 1. 更新 activity_info
+	finishSql := `UPDATE activity_info 
+				  SET activity_status = 2, return_amount = ?, mined_amount = ? 
+				  WHERE activity_id = ?`
+	if err := tx.Exec(finishSql, returnAmount, minedAmount, activityId).Error; err != nil {
+		tx.Rollback()
+		return err
+	}
+
+	// 2. 读取 business_account（因为 mining_info 需要 address）
+	var address string
+	if err := tx.Table("activity_info").
+		Select("business_account").
+		Where("activity_id = ?", activityId).
+		Scan(&address).Error; err != nil {
+		tx.Rollback()
+		return err
+	}
+
+	// address 非空检查
+	if len(address) == 0 {
+		tx.Rollback()
+		return fmt.Errorf("empty business_account for activity_id %s", activityId)
+	}
+
+	// 3. 查询 mining_info 里是否已有记录
+	var mi MiningInfo
+	err := tx.Where(`address = ?`, address).First(&mi).Error
+
+	// 3.1 如果不存在，插入一条新的
+	if errors.Is(err, gorm.ErrRecordNotFound) {
+
+		newInfo := MiningInfo{
+			Address:            address,
+			MinedAmount:        new(big.Int).Set(minedAmount), // 初始挖矿量
+			MinedFishCakePower: new(big.Int).Set(minedAmount), // 初始power = 挖矿量
+		}
+
+		if err := tx.Create(&newInfo).Error; err != nil {
+			tx.Rollback()
+			return err
+		}
+
+		return tx.Commit().Error
+	}
+
+	// 3.2 如果存在，则累加
+	if err != nil {
+		tx.Rollback()
+		return err
+	}
+
+	mi.MinedAmount = new(big.Int).Add(mi.MinedAmount, minedAmount)
+	mi.MinedFishCakePower = new(big.Int).Add(mi.MinedFishCakePower, minedAmount)
+
+	if err := tx.Model(&MiningInfo{}).
+		Where(`address = ?`, address).
+		Updates(map[string]interface{}{
+			"mined_amount":         mi.MinedAmount,
+			"mined_fishcake_power": mi.MinedFishCakePower,
+		}).Error; err != nil {
+
+		tx.Rollback()
+		return err
+	}
+
+	return tx.Commit().Error
 }
 
 // optional: use Model and Updates replace SQL
@@ -364,7 +460,65 @@ func (a activityInfoDB) ActivityInfoList(activityFilter, businessAccount, activi
 	return activityInfo, int(count)
 }
 
+func (m *miningInfoDB) Create(info *MiningInfo) error {
+	return m.db.Create(info).Error
+}
+
+func (m *miningInfoDB) GetByAddress(address string) (*MiningInfo, error) {
+	var info MiningInfo
+	err := m.db.Where("address = ?", address).First(&info).Error
+	if err != nil {
+		return nil, err
+	}
+	return &info, nil
+}
+func (m *miningInfoDB) GetByAddressForUpdate(address string) (*MiningInfo, error) {
+	var info MiningInfo
+	err := m.db.
+		Clauses(clause.Locking{Strength: "UPDATE"}).
+		Where("address = ?", address).
+		Take(&info).Error
+	return &info, err
+}
+
+func (m *miningInfoDB) Update(info *MiningInfo) error {
+	return m.db.Model(&MiningInfo{}).
+		Where("address = ?", info.Address).
+		Updates(map[string]interface{}{
+			"mined_amount":         info.MinedAmount,
+			"mined_fishcake_power": info.MinedFishCakePower,
+			"last_mint_time":       info.LastMintTime,
+		}).Error
+}
+
+func (m *miningInfoDB) Upsert(info *MiningInfo) error {
+	var existing MiningInfo
+	err := m.db.Where("address = ?", info.Address).First(&existing).Error
+
+	if err != nil {
+		if errors.Is(err, gorm.ErrRecordNotFound) {
+			// 插入
+			return m.Create(info)
+		}
+		return err
+	}
+
+	// 更新
+	info.Id = existing.Id // 保留原 id
+	return m.Update(info)
+}
+
+func (m *miningInfoDB) ListAll() ([]MiningInfo, error) {
+	var list []MiningInfo
+	err := m.db.Find(&list).Error
+	return list, err
+}
+
 // NewActivityDB creates a new instance of ActivityInfoDB
 func NewActivityDB(db *gorm.DB) ActivityInfoDB {
 	return &activityInfoDB{db: db}
+}
+
+func NewMiningInfoDB(db *gorm.DB) MiningInfoDB {
+	return &miningInfoDB{db: db}
 }

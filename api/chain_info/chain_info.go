@@ -263,6 +263,11 @@ func sentRawTransaction(c *gin.Context) {
 		Network: "mainnet",
 		RawTx:   rawTx,
 	}
+	exist := service.BaseService.WalletService.IsExistRawTx(rawTx)
+	if exist {
+		api_result.NewApiResult(c).Error("400", "raw tx is already exist queue tx")
+		return
+	}
 	response, _ := service.BaseService.RpcService.SendTx(context.Background(), req)
 	if response == nil {
 		api_result.NewApiResult(c).Error(enum.GrpcErr.Code, "send tx fail, please try again later")

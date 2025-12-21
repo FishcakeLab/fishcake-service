@@ -16,6 +16,7 @@ func ActivityInfoApi(rg *gin.Engine) {
 	r.GET("info", info)
 	r.GET("miningRank", rank) // router for mining rank
 	r.GET("minedAmount", getUserMinedAmount)
+	r.GET("miningInfo", getUserMiningInfo)
 }
 
 func getUserMinedAmount(c *gin.Context) {
@@ -89,4 +90,21 @@ func rank(c *gin.Context) {
 	}
 
 	api_result.NewApiResult(c).Success(ranks)
+}
+
+func getUserMiningInfo(c *gin.Context) {
+	address := c.Query("address")
+	if address == "" {
+		api_result.NewApiResult(c).Error(enum.ParamErr.Code, "address is required")
+		return
+	}
+
+	log.Info(">>> getUserMiningInfo", "address", address)
+	res, err := service.BaseService.ActivityInfoService.GetUserMiningInfo(address)
+	if err != nil {
+		api_result.NewApiResult(c).Error(enum.DataErr.Code, err.Error())
+		return
+	}
+
+	api_result.NewApiResult(c).Success(res)
 }
