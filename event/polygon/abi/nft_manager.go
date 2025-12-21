@@ -31,7 +31,7 @@ var (
 
 // NftManagerMetaData contains all meta data concerning the NftManager contract.
 var NftManagerMetaData = &bind.MetaData{
-	ABI: "[{\"type\":\"constructor\",\"inputs\":[{\"name\":\"_fccTokenAddr\",\"type\":\"address\",\"internalType\":\"address\"},{\"name\":\"_tokenUsdtAddr\",\"type\":\"address\",\"internalType\":\"address\"},{\"name\":\"_redemptionPoolAddress\",\"type\":\"address\",\"internalType\":\"address\"}],\"stateMutability\":\"nonpayable\"},{\"type\":\"receive\",\"stateMutability\":\"payable\"},{\"type\":\"function\",\"name\":\"_nextTokenId\",\"inputs\":[],\"outputs\":[{\"name\":\"\",\"type\":\"uint256\",\"internalType\":\"uint256\"}],\"stateMutability\":\"view\"},{\"type\":\"function\",\"name\":\"approve\",\"inputs\":[{\"name\":\"to\",\"type\":\"address\",\"internalType\":\"address\"},{\"name\":\"tokenId\",\"type\":\"uint256\",\"internalType\":\"uint256\"}],\"outputs\":[],\"stateMutability\":\"nonpayable\"},{\"type\":\"function\",\"name\":\"balanceOf\",\"inputs\":[{\"name\":\"owner\",\"type\":\"address\",\"internalType\":\"address\"}],\"outputs\":[{\"name\":\"\",\"type\":\"uint256\",\"internalType\":\"uint256\"}],\"stateMutability\":\"view\"},{\"type\":\"function\",\"name\":\"basicMineAmt\",\"inputs\":[],\"outputs\":[{\"name\":\"\",\"type\":\"uint256\",\"internalType\":\"uint256\"}],\"stateMutability\":\"view\"},{\"type\":\"function\",\"name\":\"createNFT\",\"inputs\":[{\"name\":\"_businessName\",\"type\":\"string\",\"internalType\":\"string\"},{\"name\":\"_description\",\"type\":\"string\",\"internalType\":\"string\"},{\"name\":\"_imgUrl\",\"type\":\"string\",\"internalType\":\"string\"},{\"name\":\"_businessAddress\",\"type\":\"string\",\"internalType\":\"string\"},{\"name\":\"_website\",\"type\":\"string\",\"internalType\":\"string\"},{\"name\":\"_social\",\"type\":\"string\",\"internalType\":\"string\"},{\"name\":\"_type\",\"type\":\"uint8\",\"internalType\":\"uint8\"}],\"outputs\":[{\"name\":\"\",\"type\":\"bool\",\"internalType\":\"bool\"},{\"name\":\"\",\"type\":\"uint256\",\"internalType\":\"uint256\"}],\"stateMutability\":\"nonpayable\"},{\"type\":\"function\",\"name\":\"fccTokenAddr\",\"inputs\":[],\"outputs\":[{\"name\":\"\",\"type\":\"address\",\"internalType\":\"contractIERC20\"}],\"stateMutability\":\"view\"},{\"type\":\"function\",\"name\":\"getApproved\",\"inputs\":[{\"name\":\"tokenId\",\"type\":\"uint256\",\"internalType\":\"uint256\"}],\"outputs\":[{\"name\":\"\",\"type\":\"address\",\"internalType\":\"address\"}],\"stateMutability\":\"view\"},{\"type\":\"function\",\"name\":\"getMerchantNTFDeadline\",\"inputs\":[{\"name\":\"_account\",\"type\":\"address\",\"internalType\":\"address\"}],\"outputs\":[{\"name\":\"\",\"type\":\"uint256\",\"internalType\":\"uint256\"}],\"stateMutability\":\"view\"},{\"type\":\"function\",\"name\":\"getTokenBalance\",\"inputs\":[{\"name\":\"tokenAddress\",\"type\":\"address\",\"internalType\":\"address\"}],\"outputs\":[{\"name\":\"\",\"type\":\"uint256\",\"internalType\":\"uint256\"}],\"stateMutability\":\"view\"},{\"type\":\"function\",\"name\":\"getUserNTFDeadline\",\"inputs\":[{\"name\":\"_account\",\"type\":\"address\",\"internalType\":\"address\"}],\"outputs\":[{\"name\":\"\",\"type\":\"uint256\",\"internalType\":\"uint256\"}],\"stateMutability\":\"view\"},{\"type\":\"function\",\"name\":\"initialize\",\"inputs\":[{\"name\":\"_initialOwner\",\"type\":\"address\",\"internalType\":\"address\"}],\"outputs\":[],\"stateMutability\":\"nonpayable\"},{\"type\":\"function\",\"name\":\"isApprovedForAll\",\"inputs\":[{\"name\":\"owner\",\"type\":\"address\",\"internalType\":\"address\"},{\"name\":\"operator\",\"type\":\"address\",\"internalType\":\"address\"}],\"outputs\":[{\"name\":\"\",\"type\":\"bool\",\"internalType\":\"bool\"}],\"stateMutability\":\"view\"},{\"type\":\"function\",\"name\":\"merchantNftDeadline\",\"inputs\":[{\"name\":\"\",\"type\":\"address\",\"internalType\":\"address\"}],\"outputs\":[{\"name\":\"\",\"type\":\"uint256\",\"internalType\":\"uint256\"}],\"stateMutability\":\"view\"},{\"type\":\"function\",\"name\":\"merchantValue\",\"inputs\":[],\"outputs\":[{\"name\":\"\",\"type\":\"uint256\",\"internalType\":\"uint256\"}],\"stateMutability\":\"view\"},{\"type\":\"function\",\"name\":\"minedAmt\",\"inputs\":[],\"outputs\":[{\"name\":\"\",\"type\":\"uint256\",\"internalType\":\"uint256\"}],\"stateMutability\":\"view\"},{\"type\":\"function\",\"name\":\"name\",\"inputs\":[],\"outputs\":[{\"name\":\"\",\"type\":\"string\",\"internalType\":\"string\"}],\"stateMutability\":\"view\"},{\"type\":\"function\",\"name\":\"nftMintType\",\"inputs\":[{\"name\":\"\",\"type\":\"uint256\",\"internalType\":\"uint256\"}],\"outputs\":[{\"name\":\"\",\"type\":\"uint8\",\"internalType\":\"uint8\"}],\"stateMutability\":\"view\"},{\"type\":\"function\",\"name\":\"owner\",\"inputs\":[],\"outputs\":[{\"name\":\"\",\"type\":\"address\",\"internalType\":\"address\"}],\"stateMutability\":\"view\"},{\"type\":\"function\",\"name\":\"ownerOf\",\"inputs\":[{\"name\":\"tokenId\",\"type\":\"uint256\",\"internalType\":\"uint256\"}],\"outputs\":[{\"name\":\"\",\"type\":\"address\",\"internalType\":\"address\"}],\"stateMutability\":\"view\"},{\"type\":\"function\",\"name\":\"proMineAmt\",\"inputs\":[],\"outputs\":[{\"name\":\"\",\"type\":\"uint256\",\"internalType\":\"uint256\"}],\"stateMutability\":\"view\"},{\"type\":\"function\",\"name\":\"redemptionPoolAddress\",\"inputs\":[],\"outputs\":[{\"name\":\"\",\"type\":\"address\",\"internalType\":\"contractIRedemptionPool\"}],\"stateMutability\":\"view\"},{\"type\":\"function\",\"name\":\"renounceOwnership\",\"inputs\":[],\"outputs\":[],\"stateMutability\":\"nonpayable\"},{\"type\":\"function\",\"name\":\"safeTransferFrom\",\"inputs\":[{\"name\":\"from\",\"type\":\"address\",\"internalType\":\"address\"},{\"name\":\"to\",\"type\":\"address\",\"internalType\":\"address\"},{\"name\":\"tokenId\",\"type\":\"uint256\",\"internalType\":\"uint256\"}],\"outputs\":[],\"stateMutability\":\"nonpayable\"},{\"type\":\"function\",\"name\":\"safeTransferFrom\",\"inputs\":[{\"name\":\"from\",\"type\":\"address\",\"internalType\":\"address\"},{\"name\":\"to\",\"type\":\"address\",\"internalType\":\"address\"},{\"name\":\"tokenId\",\"type\":\"uint256\",\"internalType\":\"uint256\"},{\"name\":\"data\",\"type\":\"bytes\",\"internalType\":\"bytes\"}],\"outputs\":[],\"stateMutability\":\"nonpayable\"},{\"type\":\"function\",\"name\":\"setApprovalForAll\",\"inputs\":[{\"name\":\"operator\",\"type\":\"address\",\"internalType\":\"address\"},{\"name\":\"approved\",\"type\":\"bool\",\"internalType\":\"bool\"}],\"outputs\":[],\"stateMutability\":\"nonpayable\"},{\"type\":\"function\",\"name\":\"setUriPrefix\",\"inputs\":[{\"name\":\"_uriPrefix\",\"type\":\"string\",\"internalType\":\"string\"}],\"outputs\":[],\"stateMutability\":\"nonpayable\"},{\"type\":\"function\",\"name\":\"setValues\",\"inputs\":[{\"name\":\"_merchantValue\",\"type\":\"uint256\",\"internalType\":\"uint256\"},{\"name\":\"_userValue\",\"type\":\"uint256\",\"internalType\":\"uint256\"}],\"outputs\":[],\"stateMutability\":\"nonpayable\"},{\"type\":\"function\",\"name\":\"supportsInterface\",\"inputs\":[{\"name\":\"interfaceId\",\"type\":\"bytes4\",\"internalType\":\"bytes4\"}],\"outputs\":[{\"name\":\"\",\"type\":\"bool\",\"internalType\":\"bool\"}],\"stateMutability\":\"view\"},{\"type\":\"function\",\"name\":\"symbol\",\"inputs\":[],\"outputs\":[{\"name\":\"\",\"type\":\"string\",\"internalType\":\"string\"}],\"stateMutability\":\"view\"},{\"type\":\"function\",\"name\":\"tokenURI\",\"inputs\":[{\"name\":\"tokenId\",\"type\":\"uint256\",\"internalType\":\"uint256\"}],\"outputs\":[{\"name\":\"\",\"type\":\"string\",\"internalType\":\"string\"}],\"stateMutability\":\"view\"},{\"type\":\"function\",\"name\":\"tokenUsdtAddr\",\"inputs\":[],\"outputs\":[{\"name\":\"\",\"type\":\"address\",\"internalType\":\"contractIERC20\"}],\"stateMutability\":\"view\"},{\"type\":\"function\",\"name\":\"totalMineAmt\",\"inputs\":[],\"outputs\":[{\"name\":\"\",\"type\":\"uint256\",\"internalType\":\"uint256\"}],\"stateMutability\":\"view\"},{\"type\":\"function\",\"name\":\"transferFrom\",\"inputs\":[{\"name\":\"from\",\"type\":\"address\",\"internalType\":\"address\"},{\"name\":\"to\",\"type\":\"address\",\"internalType\":\"address\"},{\"name\":\"tokenId\",\"type\":\"uint256\",\"internalType\":\"uint256\"}],\"outputs\":[],\"stateMutability\":\"nonpayable\"},{\"type\":\"function\",\"name\":\"transferOwnership\",\"inputs\":[{\"name\":\"newOwner\",\"type\":\"address\",\"internalType\":\"address\"}],\"outputs\":[],\"stateMutability\":\"nonpayable\"},{\"type\":\"function\",\"name\":\"uri\",\"inputs\":[{\"name\":\"uri_\",\"type\":\"uint256\",\"internalType\":\"uint256\"}],\"outputs\":[{\"name\":\"\",\"type\":\"string\",\"internalType\":\"string\"}],\"stateMutability\":\"view\"},{\"type\":\"function\",\"name\":\"uriPrefix\",\"inputs\":[],\"outputs\":[{\"name\":\"\",\"type\":\"string\",\"internalType\":\"string\"}],\"stateMutability\":\"view\"},{\"type\":\"function\",\"name\":\"userNftDeadline\",\"inputs\":[{\"name\":\"\",\"type\":\"address\",\"internalType\":\"address\"}],\"outputs\":[{\"name\":\"\",\"type\":\"uint256\",\"internalType\":\"uint256\"}],\"stateMutability\":\"view\"},{\"type\":\"function\",\"name\":\"userValue\",\"inputs\":[],\"outputs\":[{\"name\":\"\",\"type\":\"uint256\",\"internalType\":\"uint256\"}],\"stateMutability\":\"view\"},{\"type\":\"function\",\"name\":\"validTime\",\"inputs\":[],\"outputs\":[{\"name\":\"\",\"type\":\"uint256\",\"internalType\":\"uint256\"}],\"stateMutability\":\"view\"},{\"type\":\"function\",\"name\":\"withdrawNativeToken\",\"inputs\":[{\"name\":\"_recipient\",\"type\":\"address\",\"internalType\":\"addresspayable\"},{\"name\":\"_amount\",\"type\":\"uint256\",\"internalType\":\"uint256\"}],\"outputs\":[{\"name\":\"\",\"type\":\"bool\",\"internalType\":\"bool\"}],\"stateMutability\":\"nonpayable\"},{\"type\":\"function\",\"name\":\"withdrawToken\",\"inputs\":[{\"name\":\"_tokenAddr\",\"type\":\"address\",\"internalType\":\"address\"},{\"name\":\"_account\",\"type\":\"address\",\"internalType\":\"address\"},{\"name\":\"_value\",\"type\":\"uint256\",\"internalType\":\"uint256\"}],\"outputs\":[{\"name\":\"\",\"type\":\"bool\",\"internalType\":\"bool\"}],\"stateMutability\":\"nonpayable\"},{\"type\":\"event\",\"name\":\"Approval\",\"inputs\":[{\"name\":\"owner\",\"type\":\"address\",\"indexed\":true,\"internalType\":\"address\"},{\"name\":\"approved\",\"type\":\"address\",\"indexed\":true,\"internalType\":\"address\"},{\"name\":\"tokenId\",\"type\":\"uint256\",\"indexed\":true,\"internalType\":\"uint256\"}],\"anonymous\":false},{\"type\":\"event\",\"name\":\"ApprovalForAll\",\"inputs\":[{\"name\":\"owner\",\"type\":\"address\",\"indexed\":true,\"internalType\":\"address\"},{\"name\":\"operator\",\"type\":\"address\",\"indexed\":true,\"internalType\":\"address\"},{\"name\":\"approved\",\"type\":\"bool\",\"indexed\":false,\"internalType\":\"bool\"}],\"anonymous\":false},{\"type\":\"event\",\"name\":\"BatchMetadataUpdate\",\"inputs\":[{\"name\":\"_fromTokenId\",\"type\":\"uint256\",\"indexed\":false,\"internalType\":\"uint256\"},{\"name\":\"_toTokenId\",\"type\":\"uint256\",\"indexed\":false,\"internalType\":\"uint256\"}],\"anonymous\":false},{\"type\":\"event\",\"name\":\"CreateNFT\",\"inputs\":[{\"name\":\"creator\",\"type\":\"address\",\"indexed\":true,\"internalType\":\"address\"},{\"name\":\"_tokenId\",\"type\":\"uint256\",\"indexed\":false,\"internalType\":\"uint256\"},{\"name\":\"_businessName\",\"type\":\"string\",\"indexed\":false,\"internalType\":\"string\"},{\"name\":\"_description\",\"type\":\"string\",\"indexed\":false,\"internalType\":\"string\"},{\"name\":\"_imgUrl\",\"type\":\"string\",\"indexed\":false,\"internalType\":\"string\"},{\"name\":\"_businessAddress\",\"type\":\"string\",\"indexed\":false,\"internalType\":\"string\"},{\"name\":\"_webSite\",\"type\":\"string\",\"indexed\":false,\"internalType\":\"string\"},{\"name\":\"_social\",\"type\":\"string\",\"indexed\":false,\"internalType\":\"string\"},{\"name\":\"_value\",\"type\":\"uint256\",\"indexed\":false,\"internalType\":\"uint256\"},{\"name\":\"_deadline\",\"type\":\"uint256\",\"indexed\":false,\"internalType\":\"uint256\"},{\"name\":\"_type\",\"type\":\"uint8\",\"indexed\":false,\"internalType\":\"uint8\"}],\"anonymous\":false},{\"type\":\"event\",\"name\":\"Initialized\",\"inputs\":[{\"name\":\"version\",\"type\":\"uint64\",\"indexed\":false,\"internalType\":\"uint64\"}],\"anonymous\":false},{\"type\":\"event\",\"name\":\"MetadataUpdate\",\"inputs\":[{\"name\":\"_tokenId\",\"type\":\"uint256\",\"indexed\":false,\"internalType\":\"uint256\"}],\"anonymous\":false},{\"type\":\"event\",\"name\":\"OwnershipTransferred\",\"inputs\":[{\"name\":\"previousOwner\",\"type\":\"address\",\"indexed\":true,\"internalType\":\"address\"},{\"name\":\"newOwner\",\"type\":\"address\",\"indexed\":true,\"internalType\":\"address\"}],\"anonymous\":false},{\"type\":\"event\",\"name\":\"Received\",\"inputs\":[{\"name\":\"receiver\",\"type\":\"address\",\"indexed\":true,\"internalType\":\"address\"},{\"name\":\"_value\",\"type\":\"uint256\",\"indexed\":false,\"internalType\":\"uint256\"}],\"anonymous\":false},{\"type\":\"event\",\"name\":\"SetValidTime\",\"inputs\":[{\"name\":\"setter\",\"type\":\"address\",\"indexed\":true,\"internalType\":\"address\"},{\"name\":\"_time\",\"type\":\"uint256\",\"indexed\":false,\"internalType\":\"uint256\"}],\"anonymous\":false},{\"type\":\"event\",\"name\":\"SetValues\",\"inputs\":[{\"name\":\"_setterAddress\",\"type\":\"address\",\"indexed\":true,\"internalType\":\"address\"},{\"name\":\"_merchantValue\",\"type\":\"uint256\",\"indexed\":false,\"internalType\":\"uint256\"},{\"name\":\"_userValue\",\"type\":\"uint256\",\"indexed\":false,\"internalType\":\"uint256\"}],\"anonymous\":false},{\"type\":\"event\",\"name\":\"Transfer\",\"inputs\":[{\"name\":\"from\",\"type\":\"address\",\"indexed\":true,\"internalType\":\"address\"},{\"name\":\"to\",\"type\":\"address\",\"indexed\":true,\"internalType\":\"address\"},{\"name\":\"tokenId\",\"type\":\"uint256\",\"indexed\":true,\"internalType\":\"uint256\"}],\"anonymous\":false},{\"type\":\"event\",\"name\":\"UriPrefixSet\",\"inputs\":[{\"name\":\"setterAddress\",\"type\":\"address\",\"indexed\":true,\"internalType\":\"address\"},{\"name\":\"urlPrefix\",\"type\":\"string\",\"indexed\":false,\"internalType\":\"string\"}],\"anonymous\":false},{\"type\":\"event\",\"name\":\"Withdraw\",\"inputs\":[{\"name\":\"withdrawer\",\"type\":\"address\",\"indexed\":true,\"internalType\":\"address\"},{\"name\":\"_amount\",\"type\":\"uint256\",\"indexed\":false,\"internalType\":\"uint256\"}],\"anonymous\":false},{\"type\":\"event\",\"name\":\"WithdrawUToken\",\"inputs\":[{\"name\":\"withdrawer\",\"type\":\"address\",\"indexed\":true,\"internalType\":\"address\"},{\"name\":\"_tokenAddr\",\"type\":\"address\",\"indexed\":true,\"internalType\":\"address\"},{\"name\":\"_account\",\"type\":\"address\",\"indexed\":true,\"internalType\":\"address\"},{\"name\":\"_value\",\"type\":\"uint256\",\"indexed\":false,\"internalType\":\"uint256\"}],\"anonymous\":false},{\"type\":\"error\",\"name\":\"ERC721IncorrectOwner\",\"inputs\":[{\"name\":\"sender\",\"type\":\"address\",\"internalType\":\"address\"},{\"name\":\"tokenId\",\"type\":\"uint256\",\"internalType\":\"uint256\"},{\"name\":\"owner\",\"type\":\"address\",\"internalType\":\"address\"}]},{\"type\":\"error\",\"name\":\"ERC721InsufficientApproval\",\"inputs\":[{\"name\":\"operator\",\"type\":\"address\",\"internalType\":\"address\"},{\"name\":\"tokenId\",\"type\":\"uint256\",\"internalType\":\"uint256\"}]},{\"type\":\"error\",\"name\":\"ERC721InvalidApprover\",\"inputs\":[{\"name\":\"approver\",\"type\":\"address\",\"internalType\":\"address\"}]},{\"type\":\"error\",\"name\":\"ERC721InvalidOperator\",\"inputs\":[{\"name\":\"operator\",\"type\":\"address\",\"internalType\":\"address\"}]},{\"type\":\"error\",\"name\":\"ERC721InvalidOwner\",\"inputs\":[{\"name\":\"owner\",\"type\":\"address\",\"internalType\":\"address\"}]},{\"type\":\"error\",\"name\":\"ERC721InvalidReceiver\",\"inputs\":[{\"name\":\"receiver\",\"type\":\"address\",\"internalType\":\"address\"}]},{\"type\":\"error\",\"name\":\"ERC721InvalidSender\",\"inputs\":[{\"name\":\"sender\",\"type\":\"address\",\"internalType\":\"address\"}]},{\"type\":\"error\",\"name\":\"ERC721NonexistentToken\",\"inputs\":[{\"name\":\"tokenId\",\"type\":\"uint256\",\"internalType\":\"uint256\"}]},{\"type\":\"error\",\"name\":\"InvalidInitialization\",\"inputs\":[]},{\"type\":\"error\",\"name\":\"NotInitializing\",\"inputs\":[]},{\"type\":\"error\",\"name\":\"OwnableInvalidOwner\",\"inputs\":[{\"name\":\"owner\",\"type\":\"address\",\"internalType\":\"address\"}]},{\"type\":\"error\",\"name\":\"OwnableUnauthorizedAccount\",\"inputs\":[{\"name\":\"account\",\"type\":\"address\",\"internalType\":\"address\"}]},{\"type\":\"error\",\"name\":\"ReentrancyGuardReentrantCall\",\"inputs\":[]}]",
+	ABI: "[{\"type\":\"constructor\",\"inputs\":[],\"stateMutability\":\"nonpayable\"},{\"type\":\"receive\",\"stateMutability\":\"payable\"},{\"type\":\"function\",\"name\":\"_customName\",\"inputs\":[],\"outputs\":[{\"name\":\"\",\"type\":\"string\",\"internalType\":\"string\"}],\"stateMutability\":\"view\"},{\"type\":\"function\",\"name\":\"_customSymbol\",\"inputs\":[],\"outputs\":[{\"name\":\"\",\"type\":\"string\",\"internalType\":\"string\"}],\"stateMutability\":\"view\"},{\"type\":\"function\",\"name\":\"_nextTokenId\",\"inputs\":[],\"outputs\":[{\"name\":\"\",\"type\":\"uint256\",\"internalType\":\"uint256\"}],\"stateMutability\":\"view\"},{\"type\":\"function\",\"name\":\"approve\",\"inputs\":[{\"name\":\"to\",\"type\":\"address\",\"internalType\":\"address\"},{\"name\":\"tokenId\",\"type\":\"uint256\",\"internalType\":\"uint256\"}],\"outputs\":[],\"stateMutability\":\"nonpayable\"},{\"type\":\"function\",\"name\":\"balanceOf\",\"inputs\":[{\"name\":\"owner\",\"type\":\"address\",\"internalType\":\"address\"}],\"outputs\":[{\"name\":\"\",\"type\":\"uint256\",\"internalType\":\"uint256\"}],\"stateMutability\":\"view\"},{\"type\":\"function\",\"name\":\"basicMineAmt\",\"inputs\":[],\"outputs\":[{\"name\":\"\",\"type\":\"uint256\",\"internalType\":\"uint256\"}],\"stateMutability\":\"view\"},{\"type\":\"function\",\"name\":\"basicNftJson\",\"inputs\":[],\"outputs\":[{\"name\":\"\",\"type\":\"string\",\"internalType\":\"string\"}],\"stateMutability\":\"view\"},{\"type\":\"function\",\"name\":\"boosterAddress\",\"inputs\":[],\"outputs\":[{\"name\":\"\",\"type\":\"address\",\"internalType\":\"address\"}],\"stateMutability\":\"view\"},{\"type\":\"function\",\"name\":\"createNFT\",\"inputs\":[{\"name\":\"_businessName\",\"type\":\"string\",\"internalType\":\"string\"},{\"name\":\"_description\",\"type\":\"string\",\"internalType\":\"string\"},{\"name\":\"_imgUrl\",\"type\":\"string\",\"internalType\":\"string\"},{\"name\":\"_businessAddress\",\"type\":\"string\",\"internalType\":\"string\"},{\"name\":\"_website\",\"type\":\"string\",\"internalType\":\"string\"},{\"name\":\"_social\",\"type\":\"string\",\"internalType\":\"string\"},{\"name\":\"_type\",\"type\":\"uint8\",\"internalType\":\"uint8\"}],\"outputs\":[{\"name\":\"\",\"type\":\"bool\",\"internalType\":\"bool\"},{\"name\":\"\",\"type\":\"uint256\",\"internalType\":\"uint256\"}],\"stateMutability\":\"nonpayable\"},{\"type\":\"function\",\"name\":\"epicSalmonNftJson\",\"inputs\":[],\"outputs\":[{\"name\":\"\",\"type\":\"string\",\"internalType\":\"string\"}],\"stateMutability\":\"view\"},{\"type\":\"function\",\"name\":\"epicSalmonNftJson_Used\",\"inputs\":[],\"outputs\":[{\"name\":\"\",\"type\":\"string\",\"internalType\":\"string\"}],\"stateMutability\":\"view\"},{\"type\":\"function\",\"name\":\"fccTokenAddr\",\"inputs\":[],\"outputs\":[{\"name\":\"\",\"type\":\"address\",\"internalType\":\"contractIERC20\"}],\"stateMutability\":\"view\"},{\"type\":\"function\",\"name\":\"feManagerAddress\",\"inputs\":[],\"outputs\":[{\"name\":\"\",\"type\":\"address\",\"internalType\":\"contractIFishcakeEventManager\"}],\"stateMutability\":\"view\"},{\"type\":\"function\",\"name\":\"getActiveMinerBoosterNft\",\"inputs\":[{\"name\":\"_miner\",\"type\":\"address\",\"internalType\":\"address\"}],\"outputs\":[{\"name\":\"\",\"type\":\"uint256\",\"internalType\":\"uint256\"}],\"stateMutability\":\"view\"},{\"type\":\"function\",\"name\":\"getApproved\",\"inputs\":[{\"name\":\"tokenId\",\"type\":\"uint256\",\"internalType\":\"uint256\"}],\"outputs\":[{\"name\":\"\",\"type\":\"address\",\"internalType\":\"address\"}],\"stateMutability\":\"view\"},{\"type\":\"function\",\"name\":\"getMerchantNTFDeadline\",\"inputs\":[{\"name\":\"_account\",\"type\":\"address\",\"internalType\":\"address\"}],\"outputs\":[{\"name\":\"\",\"type\":\"uint256\",\"internalType\":\"uint256\"}],\"stateMutability\":\"view\"},{\"type\":\"function\",\"name\":\"getMinerBoosterNftType\",\"inputs\":[{\"name\":\"tokenId\",\"type\":\"uint256\",\"internalType\":\"uint256\"}],\"outputs\":[{\"name\":\"\",\"type\":\"uint8\",\"internalType\":\"uint8\"}],\"stateMutability\":\"view\"},{\"type\":\"function\",\"name\":\"getTokenBalance\",\"inputs\":[{\"name\":\"tokenAddress\",\"type\":\"address\",\"internalType\":\"address\"}],\"outputs\":[{\"name\":\"\",\"type\":\"uint256\",\"internalType\":\"uint256\"}],\"stateMutability\":\"view\"},{\"type\":\"function\",\"name\":\"getUserNTFDeadline\",\"inputs\":[{\"name\":\"_account\",\"type\":\"address\",\"internalType\":\"address\"}],\"outputs\":[{\"name\":\"\",\"type\":\"uint256\",\"internalType\":\"uint256\"}],\"stateMutability\":\"view\"},{\"type\":\"function\",\"name\":\"inActiveMinerBoosterNft\",\"inputs\":[{\"name\":\"_miner\",\"type\":\"address\",\"internalType\":\"address\"},{\"name\":\"tokenId\",\"type\":\"uint256\",\"internalType\":\"uint256\"}],\"outputs\":[],\"stateMutability\":\"nonpayable\"},{\"type\":\"function\",\"name\":\"initialize\",\"inputs\":[{\"name\":\"_initialOwner\",\"type\":\"address\",\"internalType\":\"address\"},{\"name\":\"_fccTokenAddr\",\"type\":\"address\",\"internalType\":\"address\"},{\"name\":\"_tokenUsdtAddr\",\"type\":\"address\",\"internalType\":\"address\"},{\"name\":\"_redemptionPoolAddress\",\"type\":\"address\",\"internalType\":\"address\"}],\"outputs\":[],\"stateMutability\":\"nonpayable\"},{\"type\":\"function\",\"name\":\"initializeV5\",\"inputs\":[{\"name\":\"_stakingManagerAddress\",\"type\":\"address\",\"internalType\":\"address\"}],\"outputs\":[],\"stateMutability\":\"nonpayable\"},{\"type\":\"function\",\"name\":\"isApprovedForAll\",\"inputs\":[{\"name\":\"owner\",\"type\":\"address\",\"internalType\":\"address\"},{\"name\":\"operator\",\"type\":\"address\",\"internalType\":\"address\"}],\"outputs\":[{\"name\":\"\",\"type\":\"bool\",\"internalType\":\"bool\"}],\"stateMutability\":\"view\"},{\"type\":\"function\",\"name\":\"legendaryTunaNftJson\",\"inputs\":[],\"outputs\":[{\"name\":\"\",\"type\":\"string\",\"internalType\":\"string\"}],\"stateMutability\":\"view\"},{\"type\":\"function\",\"name\":\"legendaryTunaNftJson_Used\",\"inputs\":[],\"outputs\":[{\"name\":\"\",\"type\":\"string\",\"internalType\":\"string\"}],\"stateMutability\":\"view\"},{\"type\":\"function\",\"name\":\"merchantNftDeadline\",\"inputs\":[{\"name\":\"\",\"type\":\"address\",\"internalType\":\"address\"}],\"outputs\":[{\"name\":\"\",\"type\":\"uint256\",\"internalType\":\"uint256\"}],\"stateMutability\":\"view\"},{\"type\":\"function\",\"name\":\"merchantValue\",\"inputs\":[],\"outputs\":[{\"name\":\"\",\"type\":\"uint256\",\"internalType\":\"uint256\"}],\"stateMutability\":\"view\"},{\"type\":\"function\",\"name\":\"minedAmt\",\"inputs\":[],\"outputs\":[{\"name\":\"\",\"type\":\"uint256\",\"internalType\":\"uint256\"}],\"stateMutability\":\"view\"},{\"type\":\"function\",\"name\":\"minerActiveNft\",\"inputs\":[{\"name\":\"\",\"type\":\"address\",\"internalType\":\"address\"}],\"outputs\":[{\"name\":\"\",\"type\":\"uint256\",\"internalType\":\"uint256\"}],\"stateMutability\":\"view\"},{\"type\":\"function\",\"name\":\"minerHistoryBoosterNft\",\"inputs\":[{\"name\":\"\",\"type\":\"address\",\"internalType\":\"address\"},{\"name\":\"\",\"type\":\"uint256\",\"internalType\":\"uint256\"}],\"outputs\":[{\"name\":\"\",\"type\":\"uint256\",\"internalType\":\"uint256\"}],\"stateMutability\":\"view\"},{\"type\":\"function\",\"name\":\"mintBoosterNFT\",\"inputs\":[{\"name\":\"nft_type\",\"type\":\"uint8\",\"internalType\":\"uint8\"}],\"outputs\":[{\"name\":\"\",\"type\":\"bool\",\"internalType\":\"bool\"},{\"name\":\"\",\"type\":\"uint256\",\"internalType\":\"uint256\"}],\"stateMutability\":\"nonpayable\"},{\"type\":\"function\",\"name\":\"name\",\"inputs\":[],\"outputs\":[{\"name\":\"\",\"type\":\"string\",\"internalType\":\"string\"}],\"stateMutability\":\"view\"},{\"type\":\"function\",\"name\":\"nftMintType\",\"inputs\":[{\"name\":\"\",\"type\":\"uint256\",\"internalType\":\"uint256\"}],\"outputs\":[{\"name\":\"\",\"type\":\"uint8\",\"internalType\":\"uint8\"}],\"stateMutability\":\"view\"},{\"type\":\"function\",\"name\":\"nftOwner\",\"inputs\":[{\"name\":\"\",\"type\":\"uint256\",\"internalType\":\"uint256\"}],\"outputs\":[{\"name\":\"\",\"type\":\"address\",\"internalType\":\"address\"}],\"stateMutability\":\"view\"},{\"type\":\"function\",\"name\":\"nftUpgradeInit\",\"inputs\":[{\"name\":\"_feManagerAddress\",\"type\":\"address\",\"internalType\":\"address\"},{\"name\":\"_boosterAddress\",\"type\":\"address\",\"internalType\":\"address\"},{\"name\":\"_stakingManagerAddress\",\"type\":\"address\",\"internalType\":\"address\"}],\"outputs\":[],\"stateMutability\":\"nonpayable\"},{\"type\":\"function\",\"name\":\"owner\",\"inputs\":[],\"outputs\":[{\"name\":\"\",\"type\":\"address\",\"internalType\":\"address\"}],\"stateMutability\":\"view\"},{\"type\":\"function\",\"name\":\"ownerOf\",\"inputs\":[{\"name\":\"tokenId\",\"type\":\"uint256\",\"internalType\":\"uint256\"}],\"outputs\":[{\"name\":\"\",\"type\":\"address\",\"internalType\":\"address\"}],\"stateMutability\":\"view\"},{\"type\":\"function\",\"name\":\"proMineAmt\",\"inputs\":[],\"outputs\":[{\"name\":\"\",\"type\":\"uint256\",\"internalType\":\"uint256\"}],\"stateMutability\":\"view\"},{\"type\":\"function\",\"name\":\"proNftJson\",\"inputs\":[],\"outputs\":[{\"name\":\"\",\"type\":\"string\",\"internalType\":\"string\"}],\"stateMutability\":\"view\"},{\"type\":\"function\",\"name\":\"rareShrimpNftJson\",\"inputs\":[],\"outputs\":[{\"name\":\"\",\"type\":\"string\",\"internalType\":\"string\"}],\"stateMutability\":\"view\"},{\"type\":\"function\",\"name\":\"rareShrimpNftJson_Used\",\"inputs\":[],\"outputs\":[{\"name\":\"\",\"type\":\"string\",\"internalType\":\"string\"}],\"stateMutability\":\"view\"},{\"type\":\"function\",\"name\":\"redemptionPoolAddress\",\"inputs\":[],\"outputs\":[{\"name\":\"\",\"type\":\"address\",\"internalType\":\"contractIRedemptionPool\"}],\"stateMutability\":\"view\"},{\"type\":\"function\",\"name\":\"renounceOwnership\",\"inputs\":[],\"outputs\":[],\"stateMutability\":\"nonpayable\"},{\"type\":\"function\",\"name\":\"safeTransferFrom\",\"inputs\":[{\"name\":\"from\",\"type\":\"address\",\"internalType\":\"address\"},{\"name\":\"to\",\"type\":\"address\",\"internalType\":\"address\"},{\"name\":\"tokenId\",\"type\":\"uint256\",\"internalType\":\"uint256\"}],\"outputs\":[],\"stateMutability\":\"nonpayable\"},{\"type\":\"function\",\"name\":\"safeTransferFrom\",\"inputs\":[{\"name\":\"from\",\"type\":\"address\",\"internalType\":\"address\"},{\"name\":\"to\",\"type\":\"address\",\"internalType\":\"address\"},{\"name\":\"tokenId\",\"type\":\"uint256\",\"internalType\":\"uint256\"},{\"name\":\"data\",\"type\":\"bytes\",\"internalType\":\"bytes\"}],\"outputs\":[],\"stateMutability\":\"nonpayable\"},{\"type\":\"function\",\"name\":\"setApprovalForAll\",\"inputs\":[{\"name\":\"operator\",\"type\":\"address\",\"internalType\":\"address\"},{\"name\":\"approved\",\"type\":\"bool\",\"internalType\":\"bool\"}],\"outputs\":[],\"stateMutability\":\"nonpayable\"},{\"type\":\"function\",\"name\":\"setUriPrefix\",\"inputs\":[{\"name\":\"_uriPrefix\",\"type\":\"string\",\"internalType\":\"string\"}],\"outputs\":[],\"stateMutability\":\"nonpayable\"},{\"type\":\"function\",\"name\":\"setValues\",\"inputs\":[{\"name\":\"_merchantValue\",\"type\":\"uint256\",\"internalType\":\"uint256\"},{\"name\":\"_userValue\",\"type\":\"uint256\",\"internalType\":\"uint256\"}],\"outputs\":[],\"stateMutability\":\"nonpayable\"},{\"type\":\"function\",\"name\":\"stakingManagerAddress\",\"inputs\":[],\"outputs\":[{\"name\":\"\",\"type\":\"address\",\"internalType\":\"contractIStakingManager\"}],\"stateMutability\":\"view\"},{\"type\":\"function\",\"name\":\"supportsInterface\",\"inputs\":[{\"name\":\"interfaceId\",\"type\":\"bytes4\",\"internalType\":\"bytes4\"}],\"outputs\":[{\"name\":\"\",\"type\":\"bool\",\"internalType\":\"bool\"}],\"stateMutability\":\"view\"},{\"type\":\"function\",\"name\":\"symbol\",\"inputs\":[],\"outputs\":[{\"name\":\"\",\"type\":\"string\",\"internalType\":\"string\"}],\"stateMutability\":\"view\"},{\"type\":\"function\",\"name\":\"tokenURI\",\"inputs\":[{\"name\":\"tokenId\",\"type\":\"uint256\",\"internalType\":\"uint256\"}],\"outputs\":[{\"name\":\"\",\"type\":\"string\",\"internalType\":\"string\"}],\"stateMutability\":\"view\"},{\"type\":\"function\",\"name\":\"tokenUsdtAddr\",\"inputs\":[],\"outputs\":[{\"name\":\"\",\"type\":\"address\",\"internalType\":\"contractIERC20\"}],\"stateMutability\":\"view\"},{\"type\":\"function\",\"name\":\"totalMineAmt\",\"inputs\":[],\"outputs\":[{\"name\":\"\",\"type\":\"uint256\",\"internalType\":\"uint256\"}],\"stateMutability\":\"view\"},{\"type\":\"function\",\"name\":\"transferFrom\",\"inputs\":[{\"name\":\"from\",\"type\":\"address\",\"internalType\":\"address\"},{\"name\":\"to\",\"type\":\"address\",\"internalType\":\"address\"},{\"name\":\"tokenId\",\"type\":\"uint256\",\"internalType\":\"uint256\"}],\"outputs\":[],\"stateMutability\":\"nonpayable\"},{\"type\":\"function\",\"name\":\"transferOwnership\",\"inputs\":[{\"name\":\"newOwner\",\"type\":\"address\",\"internalType\":\"address\"}],\"outputs\":[],\"stateMutability\":\"nonpayable\"},{\"type\":\"function\",\"name\":\"uncommonFishcakeNftJson\",\"inputs\":[],\"outputs\":[{\"name\":\"\",\"type\":\"string\",\"internalType\":\"string\"}],\"stateMutability\":\"view\"},{\"type\":\"function\",\"name\":\"uncommonFishcakeNftJson_Used\",\"inputs\":[],\"outputs\":[{\"name\":\"\",\"type\":\"string\",\"internalType\":\"string\"}],\"stateMutability\":\"view\"},{\"type\":\"function\",\"name\":\"updateNameAndSymbol\",\"inputs\":[{\"name\":\"newName\",\"type\":\"string\",\"internalType\":\"string\"},{\"name\":\"newSymbol\",\"type\":\"string\",\"internalType\":\"string\"}],\"outputs\":[],\"stateMutability\":\"nonpayable\"},{\"type\":\"function\",\"name\":\"updateNftJson\",\"inputs\":[{\"name\":\"_type\",\"type\":\"uint8\",\"internalType\":\"uint8\"},{\"name\":\"_newJsonUrl\",\"type\":\"string\",\"internalType\":\"string\"}],\"outputs\":[],\"stateMutability\":\"nonpayable\"},{\"type\":\"function\",\"name\":\"uri\",\"inputs\":[{\"name\":\"inputTokenId\",\"type\":\"uint256\",\"internalType\":\"uint256\"}],\"outputs\":[{\"name\":\"\",\"type\":\"string\",\"internalType\":\"string\"}],\"stateMutability\":\"view\"},{\"type\":\"function\",\"name\":\"uriPrefix\",\"inputs\":[],\"outputs\":[{\"name\":\"\",\"type\":\"string\",\"internalType\":\"string\"}],\"stateMutability\":\"view\"},{\"type\":\"function\",\"name\":\"userNftDeadline\",\"inputs\":[{\"name\":\"\",\"type\":\"address\",\"internalType\":\"address\"}],\"outputs\":[{\"name\":\"\",\"type\":\"uint256\",\"internalType\":\"uint256\"}],\"stateMutability\":\"view\"},{\"type\":\"function\",\"name\":\"userValue\",\"inputs\":[],\"outputs\":[{\"name\":\"\",\"type\":\"uint256\",\"internalType\":\"uint256\"}],\"stateMutability\":\"view\"},{\"type\":\"function\",\"name\":\"validTime\",\"inputs\":[],\"outputs\":[{\"name\":\"\",\"type\":\"uint256\",\"internalType\":\"uint256\"}],\"stateMutability\":\"view\"},{\"type\":\"function\",\"name\":\"withdrawNativeToken\",\"inputs\":[{\"name\":\"_recipient\",\"type\":\"address\",\"internalType\":\"addresspayable\"},{\"name\":\"_amount\",\"type\":\"uint256\",\"internalType\":\"uint256\"}],\"outputs\":[{\"name\":\"\",\"type\":\"bool\",\"internalType\":\"bool\"}],\"stateMutability\":\"nonpayable\"},{\"type\":\"function\",\"name\":\"withdrawToken\",\"inputs\":[{\"name\":\"_tokenAddr\",\"type\":\"address\",\"internalType\":\"address\"},{\"name\":\"_account\",\"type\":\"address\",\"internalType\":\"address\"},{\"name\":\"_value\",\"type\":\"uint256\",\"internalType\":\"uint256\"}],\"outputs\":[{\"name\":\"\",\"type\":\"bool\",\"internalType\":\"bool\"}],\"stateMutability\":\"nonpayable\"},{\"type\":\"event\",\"name\":\"Approval\",\"inputs\":[{\"name\":\"owner\",\"type\":\"address\",\"indexed\":true,\"internalType\":\"address\"},{\"name\":\"approved\",\"type\":\"address\",\"indexed\":true,\"internalType\":\"address\"},{\"name\":\"tokenId\",\"type\":\"uint256\",\"indexed\":true,\"internalType\":\"uint256\"}],\"anonymous\":false},{\"type\":\"event\",\"name\":\"ApprovalForAll\",\"inputs\":[{\"name\":\"owner\",\"type\":\"address\",\"indexed\":true,\"internalType\":\"address\"},{\"name\":\"operator\",\"type\":\"address\",\"indexed\":true,\"internalType\":\"address\"},{\"name\":\"approved\",\"type\":\"bool\",\"indexed\":false,\"internalType\":\"bool\"}],\"anonymous\":false},{\"type\":\"event\",\"name\":\"BatchMetadataUpdate\",\"inputs\":[{\"name\":\"_fromTokenId\",\"type\":\"uint256\",\"indexed\":false,\"internalType\":\"uint256\"},{\"name\":\"_toTokenId\",\"type\":\"uint256\",\"indexed\":false,\"internalType\":\"uint256\"}],\"anonymous\":false},{\"type\":\"event\",\"name\":\"CreateNFT\",\"inputs\":[{\"name\":\"creator\",\"type\":\"address\",\"indexed\":true,\"internalType\":\"address\"},{\"name\":\"_tokenId\",\"type\":\"uint256\",\"indexed\":false,\"internalType\":\"uint256\"},{\"name\":\"_businessName\",\"type\":\"string\",\"indexed\":false,\"internalType\":\"string\"},{\"name\":\"_description\",\"type\":\"string\",\"indexed\":false,\"internalType\":\"string\"},{\"name\":\"_imgUrl\",\"type\":\"string\",\"indexed\":false,\"internalType\":\"string\"},{\"name\":\"_businessAddress\",\"type\":\"string\",\"indexed\":false,\"internalType\":\"string\"},{\"name\":\"_webSite\",\"type\":\"string\",\"indexed\":false,\"internalType\":\"string\"},{\"name\":\"_social\",\"type\":\"string\",\"indexed\":false,\"internalType\":\"string\"},{\"name\":\"_value\",\"type\":\"uint256\",\"indexed\":false,\"internalType\":\"uint256\"},{\"name\":\"_deadline\",\"type\":\"uint256\",\"indexed\":false,\"internalType\":\"uint256\"},{\"name\":\"_type\",\"type\":\"uint8\",\"indexed\":false,\"internalType\":\"uint8\"}],\"anonymous\":false},{\"type\":\"event\",\"name\":\"Initialized\",\"inputs\":[{\"name\":\"version\",\"type\":\"uint64\",\"indexed\":false,\"internalType\":\"uint64\"}],\"anonymous\":false},{\"type\":\"event\",\"name\":\"MetadataUpdate\",\"inputs\":[{\"name\":\"_tokenId\",\"type\":\"uint256\",\"indexed\":false,\"internalType\":\"uint256\"}],\"anonymous\":false},{\"type\":\"event\",\"name\":\"MintBoosterNFT\",\"inputs\":[{\"name\":\"miner\",\"type\":\"address\",\"indexed\":true,\"internalType\":\"address\"},{\"name\":\"tokenId\",\"type\":\"uint256\",\"indexed\":true,\"internalType\":\"uint256\"},{\"name\":\"nftType\",\"type\":\"uint8\",\"indexed\":false,\"internalType\":\"uint8\"},{\"name\":\"usedFishCakePower\",\"type\":\"uint256\",\"indexed\":false,\"internalType\":\"uint256\"},{\"name\":\"mintTime\",\"type\":\"uint256\",\"indexed\":false,\"internalType\":\"uint256\"}],\"anonymous\":false},{\"type\":\"event\",\"name\":\"NameSymbolUpdated\",\"inputs\":[{\"name\":\"newName\",\"type\":\"string\",\"indexed\":false,\"internalType\":\"string\"},{\"name\":\"newSymbol\",\"type\":\"string\",\"indexed\":false,\"internalType\":\"string\"}],\"anonymous\":false},{\"type\":\"event\",\"name\":\"OwnershipTransferred\",\"inputs\":[{\"name\":\"previousOwner\",\"type\":\"address\",\"indexed\":true,\"internalType\":\"address\"},{\"name\":\"newOwner\",\"type\":\"address\",\"indexed\":true,\"internalType\":\"address\"}],\"anonymous\":false},{\"type\":\"event\",\"name\":\"Received\",\"inputs\":[{\"name\":\"receiver\",\"type\":\"address\",\"indexed\":true,\"internalType\":\"address\"},{\"name\":\"_value\",\"type\":\"uint256\",\"indexed\":false,\"internalType\":\"uint256\"}],\"anonymous\":false},{\"type\":\"event\",\"name\":\"SetValidTime\",\"inputs\":[{\"name\":\"setter\",\"type\":\"address\",\"indexed\":true,\"internalType\":\"address\"},{\"name\":\"_time\",\"type\":\"uint256\",\"indexed\":false,\"internalType\":\"uint256\"}],\"anonymous\":false},{\"type\":\"event\",\"name\":\"SetValues\",\"inputs\":[{\"name\":\"_setterAddress\",\"type\":\"address\",\"indexed\":true,\"internalType\":\"address\"},{\"name\":\"_merchantValue\",\"type\":\"uint256\",\"indexed\":false,\"internalType\":\"uint256\"},{\"name\":\"_userValue\",\"type\":\"uint256\",\"indexed\":false,\"internalType\":\"uint256\"}],\"anonymous\":false},{\"type\":\"event\",\"name\":\"Transfer\",\"inputs\":[{\"name\":\"from\",\"type\":\"address\",\"indexed\":true,\"internalType\":\"address\"},{\"name\":\"to\",\"type\":\"address\",\"indexed\":true,\"internalType\":\"address\"},{\"name\":\"tokenId\",\"type\":\"uint256\",\"indexed\":true,\"internalType\":\"uint256\"}],\"anonymous\":false},{\"type\":\"event\",\"name\":\"UpdatedNftJson\",\"inputs\":[{\"name\":\"creator\",\"type\":\"address\",\"indexed\":true,\"internalType\":\"address\"},{\"name\":\"nftType\",\"type\":\"uint8\",\"indexed\":false,\"internalType\":\"uint8\"},{\"name\":\"newJsonUrl\",\"type\":\"string\",\"indexed\":false,\"internalType\":\"string\"}],\"anonymous\":false},{\"type\":\"event\",\"name\":\"UriPrefixSet\",\"inputs\":[{\"name\":\"setterAddress\",\"type\":\"address\",\"indexed\":true,\"internalType\":\"address\"},{\"name\":\"urlPrefix\",\"type\":\"string\",\"indexed\":false,\"internalType\":\"string\"}],\"anonymous\":false},{\"type\":\"event\",\"name\":\"Withdraw\",\"inputs\":[{\"name\":\"withdrawer\",\"type\":\"address\",\"indexed\":true,\"internalType\":\"address\"},{\"name\":\"_amount\",\"type\":\"uint256\",\"indexed\":false,\"internalType\":\"uint256\"}],\"anonymous\":false},{\"type\":\"event\",\"name\":\"WithdrawUToken\",\"inputs\":[{\"name\":\"withdrawer\",\"type\":\"address\",\"indexed\":true,\"internalType\":\"address\"},{\"name\":\"_tokenAddr\",\"type\":\"address\",\"indexed\":true,\"internalType\":\"address\"},{\"name\":\"_account\",\"type\":\"address\",\"indexed\":true,\"internalType\":\"address\"},{\"name\":\"_value\",\"type\":\"uint256\",\"indexed\":false,\"internalType\":\"uint256\"}],\"anonymous\":false},{\"type\":\"error\",\"name\":\"AddressEmptyCode\",\"inputs\":[{\"name\":\"target\",\"type\":\"address\",\"internalType\":\"address\"}]},{\"type\":\"error\",\"name\":\"AddressInsufficientBalance\",\"inputs\":[{\"name\":\"account\",\"type\":\"address\",\"internalType\":\"address\"}]},{\"type\":\"error\",\"name\":\"ERC721IncorrectOwner\",\"inputs\":[{\"name\":\"sender\",\"type\":\"address\",\"internalType\":\"address\"},{\"name\":\"tokenId\",\"type\":\"uint256\",\"internalType\":\"uint256\"},{\"name\":\"owner\",\"type\":\"address\",\"internalType\":\"address\"}]},{\"type\":\"error\",\"name\":\"ERC721InsufficientApproval\",\"inputs\":[{\"name\":\"operator\",\"type\":\"address\",\"internalType\":\"address\"},{\"name\":\"tokenId\",\"type\":\"uint256\",\"internalType\":\"uint256\"}]},{\"type\":\"error\",\"name\":\"ERC721InvalidApprover\",\"inputs\":[{\"name\":\"approver\",\"type\":\"address\",\"internalType\":\"address\"}]},{\"type\":\"error\",\"name\":\"ERC721InvalidOperator\",\"inputs\":[{\"name\":\"operator\",\"type\":\"address\",\"internalType\":\"address\"}]},{\"type\":\"error\",\"name\":\"ERC721InvalidOwner\",\"inputs\":[{\"name\":\"owner\",\"type\":\"address\",\"internalType\":\"address\"}]},{\"type\":\"error\",\"name\":\"ERC721InvalidReceiver\",\"inputs\":[{\"name\":\"receiver\",\"type\":\"address\",\"internalType\":\"address\"}]},{\"type\":\"error\",\"name\":\"ERC721InvalidSender\",\"inputs\":[{\"name\":\"sender\",\"type\":\"address\",\"internalType\":\"address\"}]},{\"type\":\"error\",\"name\":\"ERC721NonexistentToken\",\"inputs\":[{\"name\":\"tokenId\",\"type\":\"uint256\",\"internalType\":\"uint256\"}]},{\"type\":\"error\",\"name\":\"FailedInnerCall\",\"inputs\":[]},{\"type\":\"error\",\"name\":\"InvalidInitialization\",\"inputs\":[]},{\"type\":\"error\",\"name\":\"MineAmountNotEnough\",\"inputs\":[{\"name\":\"amount\",\"type\":\"uint256\",\"internalType\":\"uint256\"}]},{\"type\":\"error\",\"name\":\"NotInitializing\",\"inputs\":[]},{\"type\":\"error\",\"name\":\"OwnableInvalidOwner\",\"inputs\":[{\"name\":\"owner\",\"type\":\"address\",\"internalType\":\"address\"}]},{\"type\":\"error\",\"name\":\"OwnableUnauthorizedAccount\",\"inputs\":[{\"name\":\"account\",\"type\":\"address\",\"internalType\":\"address\"}]},{\"type\":\"error\",\"name\":\"ReentrancyGuardReentrantCall\",\"inputs\":[]},{\"type\":\"error\",\"name\":\"SafeERC20FailedOperation\",\"inputs\":[{\"name\":\"token\",\"type\":\"address\",\"internalType\":\"address\"}]}]",
 }
 
 // NftManagerABI is the input ABI used to generate the binding from.
@@ -180,6 +180,68 @@ func (_NftManager *NftManagerTransactorRaw) Transact(opts *bind.TransactOpts, me
 	return _NftManager.Contract.contract.Transact(opts, method, params...)
 }
 
+// CustomName is a free data retrieval call binding the contract method 0xe97c46b2.
+//
+// Solidity: function _customName() view returns(string)
+func (_NftManager *NftManagerCaller) CustomName(opts *bind.CallOpts) (string, error) {
+	var out []interface{}
+	err := _NftManager.contract.Call(opts, &out, "_customName")
+
+	if err != nil {
+		return *new(string), err
+	}
+
+	out0 := *abi.ConvertType(out[0], new(string)).(*string)
+
+	return out0, err
+
+}
+
+// CustomName is a free data retrieval call binding the contract method 0xe97c46b2.
+//
+// Solidity: function _customName() view returns(string)
+func (_NftManager *NftManagerSession) CustomName() (string, error) {
+	return _NftManager.Contract.CustomName(&_NftManager.CallOpts)
+}
+
+// CustomName is a free data retrieval call binding the contract method 0xe97c46b2.
+//
+// Solidity: function _customName() view returns(string)
+func (_NftManager *NftManagerCallerSession) CustomName() (string, error) {
+	return _NftManager.Contract.CustomName(&_NftManager.CallOpts)
+}
+
+// CustomSymbol is a free data retrieval call binding the contract method 0x0b8e58c9.
+//
+// Solidity: function _customSymbol() view returns(string)
+func (_NftManager *NftManagerCaller) CustomSymbol(opts *bind.CallOpts) (string, error) {
+	var out []interface{}
+	err := _NftManager.contract.Call(opts, &out, "_customSymbol")
+
+	if err != nil {
+		return *new(string), err
+	}
+
+	out0 := *abi.ConvertType(out[0], new(string)).(*string)
+
+	return out0, err
+
+}
+
+// CustomSymbol is a free data retrieval call binding the contract method 0x0b8e58c9.
+//
+// Solidity: function _customSymbol() view returns(string)
+func (_NftManager *NftManagerSession) CustomSymbol() (string, error) {
+	return _NftManager.Contract.CustomSymbol(&_NftManager.CallOpts)
+}
+
+// CustomSymbol is a free data retrieval call binding the contract method 0x0b8e58c9.
+//
+// Solidity: function _customSymbol() view returns(string)
+func (_NftManager *NftManagerCallerSession) CustomSymbol() (string, error) {
+	return _NftManager.Contract.CustomSymbol(&_NftManager.CallOpts)
+}
+
 // NextTokenId is a free data retrieval call binding the contract method 0x4a60f620.
 //
 // Solidity: function _nextTokenId() view returns(uint256)
@@ -273,6 +335,130 @@ func (_NftManager *NftManagerCallerSession) BasicMineAmt() (*big.Int, error) {
 	return _NftManager.Contract.BasicMineAmt(&_NftManager.CallOpts)
 }
 
+// BasicNftJson is a free data retrieval call binding the contract method 0xd1c64640.
+//
+// Solidity: function basicNftJson() view returns(string)
+func (_NftManager *NftManagerCaller) BasicNftJson(opts *bind.CallOpts) (string, error) {
+	var out []interface{}
+	err := _NftManager.contract.Call(opts, &out, "basicNftJson")
+
+	if err != nil {
+		return *new(string), err
+	}
+
+	out0 := *abi.ConvertType(out[0], new(string)).(*string)
+
+	return out0, err
+
+}
+
+// BasicNftJson is a free data retrieval call binding the contract method 0xd1c64640.
+//
+// Solidity: function basicNftJson() view returns(string)
+func (_NftManager *NftManagerSession) BasicNftJson() (string, error) {
+	return _NftManager.Contract.BasicNftJson(&_NftManager.CallOpts)
+}
+
+// BasicNftJson is a free data retrieval call binding the contract method 0xd1c64640.
+//
+// Solidity: function basicNftJson() view returns(string)
+func (_NftManager *NftManagerCallerSession) BasicNftJson() (string, error) {
+	return _NftManager.Contract.BasicNftJson(&_NftManager.CallOpts)
+}
+
+// BoosterAddress is a free data retrieval call binding the contract method 0xa99c308b.
+//
+// Solidity: function boosterAddress() view returns(address)
+func (_NftManager *NftManagerCaller) BoosterAddress(opts *bind.CallOpts) (common.Address, error) {
+	var out []interface{}
+	err := _NftManager.contract.Call(opts, &out, "boosterAddress")
+
+	if err != nil {
+		return *new(common.Address), err
+	}
+
+	out0 := *abi.ConvertType(out[0], new(common.Address)).(*common.Address)
+
+	return out0, err
+
+}
+
+// BoosterAddress is a free data retrieval call binding the contract method 0xa99c308b.
+//
+// Solidity: function boosterAddress() view returns(address)
+func (_NftManager *NftManagerSession) BoosterAddress() (common.Address, error) {
+	return _NftManager.Contract.BoosterAddress(&_NftManager.CallOpts)
+}
+
+// BoosterAddress is a free data retrieval call binding the contract method 0xa99c308b.
+//
+// Solidity: function boosterAddress() view returns(address)
+func (_NftManager *NftManagerCallerSession) BoosterAddress() (common.Address, error) {
+	return _NftManager.Contract.BoosterAddress(&_NftManager.CallOpts)
+}
+
+// EpicSalmonNftJson is a free data retrieval call binding the contract method 0x8a1899c9.
+//
+// Solidity: function epicSalmonNftJson() view returns(string)
+func (_NftManager *NftManagerCaller) EpicSalmonNftJson(opts *bind.CallOpts) (string, error) {
+	var out []interface{}
+	err := _NftManager.contract.Call(opts, &out, "epicSalmonNftJson")
+
+	if err != nil {
+		return *new(string), err
+	}
+
+	out0 := *abi.ConvertType(out[0], new(string)).(*string)
+
+	return out0, err
+
+}
+
+// EpicSalmonNftJson is a free data retrieval call binding the contract method 0x8a1899c9.
+//
+// Solidity: function epicSalmonNftJson() view returns(string)
+func (_NftManager *NftManagerSession) EpicSalmonNftJson() (string, error) {
+	return _NftManager.Contract.EpicSalmonNftJson(&_NftManager.CallOpts)
+}
+
+// EpicSalmonNftJson is a free data retrieval call binding the contract method 0x8a1899c9.
+//
+// Solidity: function epicSalmonNftJson() view returns(string)
+func (_NftManager *NftManagerCallerSession) EpicSalmonNftJson() (string, error) {
+	return _NftManager.Contract.EpicSalmonNftJson(&_NftManager.CallOpts)
+}
+
+// EpicSalmonNftJsonUsed is a free data retrieval call binding the contract method 0x1db1c6e6.
+//
+// Solidity: function epicSalmonNftJson_Used() view returns(string)
+func (_NftManager *NftManagerCaller) EpicSalmonNftJsonUsed(opts *bind.CallOpts) (string, error) {
+	var out []interface{}
+	err := _NftManager.contract.Call(opts, &out, "epicSalmonNftJson_Used")
+
+	if err != nil {
+		return *new(string), err
+	}
+
+	out0 := *abi.ConvertType(out[0], new(string)).(*string)
+
+	return out0, err
+
+}
+
+// EpicSalmonNftJsonUsed is a free data retrieval call binding the contract method 0x1db1c6e6.
+//
+// Solidity: function epicSalmonNftJson_Used() view returns(string)
+func (_NftManager *NftManagerSession) EpicSalmonNftJsonUsed() (string, error) {
+	return _NftManager.Contract.EpicSalmonNftJsonUsed(&_NftManager.CallOpts)
+}
+
+// EpicSalmonNftJsonUsed is a free data retrieval call binding the contract method 0x1db1c6e6.
+//
+// Solidity: function epicSalmonNftJson_Used() view returns(string)
+func (_NftManager *NftManagerCallerSession) EpicSalmonNftJsonUsed() (string, error) {
+	return _NftManager.Contract.EpicSalmonNftJsonUsed(&_NftManager.CallOpts)
+}
+
 // FccTokenAddr is a free data retrieval call binding the contract method 0xa73dd74c.
 //
 // Solidity: function fccTokenAddr() view returns(address)
@@ -302,6 +488,68 @@ func (_NftManager *NftManagerSession) FccTokenAddr() (common.Address, error) {
 // Solidity: function fccTokenAddr() view returns(address)
 func (_NftManager *NftManagerCallerSession) FccTokenAddr() (common.Address, error) {
 	return _NftManager.Contract.FccTokenAddr(&_NftManager.CallOpts)
+}
+
+// FeManagerAddress is a free data retrieval call binding the contract method 0xee653473.
+//
+// Solidity: function feManagerAddress() view returns(address)
+func (_NftManager *NftManagerCaller) FeManagerAddress(opts *bind.CallOpts) (common.Address, error) {
+	var out []interface{}
+	err := _NftManager.contract.Call(opts, &out, "feManagerAddress")
+
+	if err != nil {
+		return *new(common.Address), err
+	}
+
+	out0 := *abi.ConvertType(out[0], new(common.Address)).(*common.Address)
+
+	return out0, err
+
+}
+
+// FeManagerAddress is a free data retrieval call binding the contract method 0xee653473.
+//
+// Solidity: function feManagerAddress() view returns(address)
+func (_NftManager *NftManagerSession) FeManagerAddress() (common.Address, error) {
+	return _NftManager.Contract.FeManagerAddress(&_NftManager.CallOpts)
+}
+
+// FeManagerAddress is a free data retrieval call binding the contract method 0xee653473.
+//
+// Solidity: function feManagerAddress() view returns(address)
+func (_NftManager *NftManagerCallerSession) FeManagerAddress() (common.Address, error) {
+	return _NftManager.Contract.FeManagerAddress(&_NftManager.CallOpts)
+}
+
+// GetActiveMinerBoosterNft is a free data retrieval call binding the contract method 0x47586b9c.
+//
+// Solidity: function getActiveMinerBoosterNft(address _miner) view returns(uint256)
+func (_NftManager *NftManagerCaller) GetActiveMinerBoosterNft(opts *bind.CallOpts, _miner common.Address) (*big.Int, error) {
+	var out []interface{}
+	err := _NftManager.contract.Call(opts, &out, "getActiveMinerBoosterNft", _miner)
+
+	if err != nil {
+		return *new(*big.Int), err
+	}
+
+	out0 := *abi.ConvertType(out[0], new(*big.Int)).(**big.Int)
+
+	return out0, err
+
+}
+
+// GetActiveMinerBoosterNft is a free data retrieval call binding the contract method 0x47586b9c.
+//
+// Solidity: function getActiveMinerBoosterNft(address _miner) view returns(uint256)
+func (_NftManager *NftManagerSession) GetActiveMinerBoosterNft(_miner common.Address) (*big.Int, error) {
+	return _NftManager.Contract.GetActiveMinerBoosterNft(&_NftManager.CallOpts, _miner)
+}
+
+// GetActiveMinerBoosterNft is a free data retrieval call binding the contract method 0x47586b9c.
+//
+// Solidity: function getActiveMinerBoosterNft(address _miner) view returns(uint256)
+func (_NftManager *NftManagerCallerSession) GetActiveMinerBoosterNft(_miner common.Address) (*big.Int, error) {
+	return _NftManager.Contract.GetActiveMinerBoosterNft(&_NftManager.CallOpts, _miner)
 }
 
 // GetApproved is a free data retrieval call binding the contract method 0x081812fc.
@@ -364,6 +612,37 @@ func (_NftManager *NftManagerSession) GetMerchantNTFDeadline(_account common.Add
 // Solidity: function getMerchantNTFDeadline(address _account) view returns(uint256)
 func (_NftManager *NftManagerCallerSession) GetMerchantNTFDeadline(_account common.Address) (*big.Int, error) {
 	return _NftManager.Contract.GetMerchantNTFDeadline(&_NftManager.CallOpts, _account)
+}
+
+// GetMinerBoosterNftType is a free data retrieval call binding the contract method 0x1510f4f7.
+//
+// Solidity: function getMinerBoosterNftType(uint256 tokenId) view returns(uint8)
+func (_NftManager *NftManagerCaller) GetMinerBoosterNftType(opts *bind.CallOpts, tokenId *big.Int) (uint8, error) {
+	var out []interface{}
+	err := _NftManager.contract.Call(opts, &out, "getMinerBoosterNftType", tokenId)
+
+	if err != nil {
+		return *new(uint8), err
+	}
+
+	out0 := *abi.ConvertType(out[0], new(uint8)).(*uint8)
+
+	return out0, err
+
+}
+
+// GetMinerBoosterNftType is a free data retrieval call binding the contract method 0x1510f4f7.
+//
+// Solidity: function getMinerBoosterNftType(uint256 tokenId) view returns(uint8)
+func (_NftManager *NftManagerSession) GetMinerBoosterNftType(tokenId *big.Int) (uint8, error) {
+	return _NftManager.Contract.GetMinerBoosterNftType(&_NftManager.CallOpts, tokenId)
+}
+
+// GetMinerBoosterNftType is a free data retrieval call binding the contract method 0x1510f4f7.
+//
+// Solidity: function getMinerBoosterNftType(uint256 tokenId) view returns(uint8)
+func (_NftManager *NftManagerCallerSession) GetMinerBoosterNftType(tokenId *big.Int) (uint8, error) {
+	return _NftManager.Contract.GetMinerBoosterNftType(&_NftManager.CallOpts, tokenId)
 }
 
 // GetTokenBalance is a free data retrieval call binding the contract method 0x3aecd0e3.
@@ -459,6 +738,68 @@ func (_NftManager *NftManagerCallerSession) IsApprovedForAll(owner common.Addres
 	return _NftManager.Contract.IsApprovedForAll(&_NftManager.CallOpts, owner, operator)
 }
 
+// LegendaryTunaNftJson is a free data retrieval call binding the contract method 0xb98191fa.
+//
+// Solidity: function legendaryTunaNftJson() view returns(string)
+func (_NftManager *NftManagerCaller) LegendaryTunaNftJson(opts *bind.CallOpts) (string, error) {
+	var out []interface{}
+	err := _NftManager.contract.Call(opts, &out, "legendaryTunaNftJson")
+
+	if err != nil {
+		return *new(string), err
+	}
+
+	out0 := *abi.ConvertType(out[0], new(string)).(*string)
+
+	return out0, err
+
+}
+
+// LegendaryTunaNftJson is a free data retrieval call binding the contract method 0xb98191fa.
+//
+// Solidity: function legendaryTunaNftJson() view returns(string)
+func (_NftManager *NftManagerSession) LegendaryTunaNftJson() (string, error) {
+	return _NftManager.Contract.LegendaryTunaNftJson(&_NftManager.CallOpts)
+}
+
+// LegendaryTunaNftJson is a free data retrieval call binding the contract method 0xb98191fa.
+//
+// Solidity: function legendaryTunaNftJson() view returns(string)
+func (_NftManager *NftManagerCallerSession) LegendaryTunaNftJson() (string, error) {
+	return _NftManager.Contract.LegendaryTunaNftJson(&_NftManager.CallOpts)
+}
+
+// LegendaryTunaNftJsonUsed is a free data retrieval call binding the contract method 0x492bcb68.
+//
+// Solidity: function legendaryTunaNftJson_Used() view returns(string)
+func (_NftManager *NftManagerCaller) LegendaryTunaNftJsonUsed(opts *bind.CallOpts) (string, error) {
+	var out []interface{}
+	err := _NftManager.contract.Call(opts, &out, "legendaryTunaNftJson_Used")
+
+	if err != nil {
+		return *new(string), err
+	}
+
+	out0 := *abi.ConvertType(out[0], new(string)).(*string)
+
+	return out0, err
+
+}
+
+// LegendaryTunaNftJsonUsed is a free data retrieval call binding the contract method 0x492bcb68.
+//
+// Solidity: function legendaryTunaNftJson_Used() view returns(string)
+func (_NftManager *NftManagerSession) LegendaryTunaNftJsonUsed() (string, error) {
+	return _NftManager.Contract.LegendaryTunaNftJsonUsed(&_NftManager.CallOpts)
+}
+
+// LegendaryTunaNftJsonUsed is a free data retrieval call binding the contract method 0x492bcb68.
+//
+// Solidity: function legendaryTunaNftJson_Used() view returns(string)
+func (_NftManager *NftManagerCallerSession) LegendaryTunaNftJsonUsed() (string, error) {
+	return _NftManager.Contract.LegendaryTunaNftJsonUsed(&_NftManager.CallOpts)
+}
+
 // MerchantNftDeadline is a free data retrieval call binding the contract method 0x1c2347a8.
 //
 // Solidity: function merchantNftDeadline(address ) view returns(uint256)
@@ -552,6 +893,68 @@ func (_NftManager *NftManagerCallerSession) MinedAmt() (*big.Int, error) {
 	return _NftManager.Contract.MinedAmt(&_NftManager.CallOpts)
 }
 
+// MinerActiveNft is a free data retrieval call binding the contract method 0x07053663.
+//
+// Solidity: function minerActiveNft(address ) view returns(uint256)
+func (_NftManager *NftManagerCaller) MinerActiveNft(opts *bind.CallOpts, arg0 common.Address) (*big.Int, error) {
+	var out []interface{}
+	err := _NftManager.contract.Call(opts, &out, "minerActiveNft", arg0)
+
+	if err != nil {
+		return *new(*big.Int), err
+	}
+
+	out0 := *abi.ConvertType(out[0], new(*big.Int)).(**big.Int)
+
+	return out0, err
+
+}
+
+// MinerActiveNft is a free data retrieval call binding the contract method 0x07053663.
+//
+// Solidity: function minerActiveNft(address ) view returns(uint256)
+func (_NftManager *NftManagerSession) MinerActiveNft(arg0 common.Address) (*big.Int, error) {
+	return _NftManager.Contract.MinerActiveNft(&_NftManager.CallOpts, arg0)
+}
+
+// MinerActiveNft is a free data retrieval call binding the contract method 0x07053663.
+//
+// Solidity: function minerActiveNft(address ) view returns(uint256)
+func (_NftManager *NftManagerCallerSession) MinerActiveNft(arg0 common.Address) (*big.Int, error) {
+	return _NftManager.Contract.MinerActiveNft(&_NftManager.CallOpts, arg0)
+}
+
+// MinerHistoryBoosterNft is a free data retrieval call binding the contract method 0xccc885fd.
+//
+// Solidity: function minerHistoryBoosterNft(address , uint256 ) view returns(uint256)
+func (_NftManager *NftManagerCaller) MinerHistoryBoosterNft(opts *bind.CallOpts, arg0 common.Address, arg1 *big.Int) (*big.Int, error) {
+	var out []interface{}
+	err := _NftManager.contract.Call(opts, &out, "minerHistoryBoosterNft", arg0, arg1)
+
+	if err != nil {
+		return *new(*big.Int), err
+	}
+
+	out0 := *abi.ConvertType(out[0], new(*big.Int)).(**big.Int)
+
+	return out0, err
+
+}
+
+// MinerHistoryBoosterNft is a free data retrieval call binding the contract method 0xccc885fd.
+//
+// Solidity: function minerHistoryBoosterNft(address , uint256 ) view returns(uint256)
+func (_NftManager *NftManagerSession) MinerHistoryBoosterNft(arg0 common.Address, arg1 *big.Int) (*big.Int, error) {
+	return _NftManager.Contract.MinerHistoryBoosterNft(&_NftManager.CallOpts, arg0, arg1)
+}
+
+// MinerHistoryBoosterNft is a free data retrieval call binding the contract method 0xccc885fd.
+//
+// Solidity: function minerHistoryBoosterNft(address , uint256 ) view returns(uint256)
+func (_NftManager *NftManagerCallerSession) MinerHistoryBoosterNft(arg0 common.Address, arg1 *big.Int) (*big.Int, error) {
+	return _NftManager.Contract.MinerHistoryBoosterNft(&_NftManager.CallOpts, arg0, arg1)
+}
+
 // Name is a free data retrieval call binding the contract method 0x06fdde03.
 //
 // Solidity: function name() view returns(string)
@@ -612,6 +1015,37 @@ func (_NftManager *NftManagerSession) NftMintType(arg0 *big.Int) (uint8, error) 
 // Solidity: function nftMintType(uint256 ) view returns(uint8)
 func (_NftManager *NftManagerCallerSession) NftMintType(arg0 *big.Int) (uint8, error) {
 	return _NftManager.Contract.NftMintType(&_NftManager.CallOpts, arg0)
+}
+
+// NftOwner is a free data retrieval call binding the contract method 0xfd731837.
+//
+// Solidity: function nftOwner(uint256 ) view returns(address)
+func (_NftManager *NftManagerCaller) NftOwner(opts *bind.CallOpts, arg0 *big.Int) (common.Address, error) {
+	var out []interface{}
+	err := _NftManager.contract.Call(opts, &out, "nftOwner", arg0)
+
+	if err != nil {
+		return *new(common.Address), err
+	}
+
+	out0 := *abi.ConvertType(out[0], new(common.Address)).(*common.Address)
+
+	return out0, err
+
+}
+
+// NftOwner is a free data retrieval call binding the contract method 0xfd731837.
+//
+// Solidity: function nftOwner(uint256 ) view returns(address)
+func (_NftManager *NftManagerSession) NftOwner(arg0 *big.Int) (common.Address, error) {
+	return _NftManager.Contract.NftOwner(&_NftManager.CallOpts, arg0)
+}
+
+// NftOwner is a free data retrieval call binding the contract method 0xfd731837.
+//
+// Solidity: function nftOwner(uint256 ) view returns(address)
+func (_NftManager *NftManagerCallerSession) NftOwner(arg0 *big.Int) (common.Address, error) {
+	return _NftManager.Contract.NftOwner(&_NftManager.CallOpts, arg0)
 }
 
 // Owner is a free data retrieval call binding the contract method 0x8da5cb5b.
@@ -707,6 +1141,99 @@ func (_NftManager *NftManagerCallerSession) ProMineAmt() (*big.Int, error) {
 	return _NftManager.Contract.ProMineAmt(&_NftManager.CallOpts)
 }
 
+// ProNftJson is a free data retrieval call binding the contract method 0x680d737f.
+//
+// Solidity: function proNftJson() view returns(string)
+func (_NftManager *NftManagerCaller) ProNftJson(opts *bind.CallOpts) (string, error) {
+	var out []interface{}
+	err := _NftManager.contract.Call(opts, &out, "proNftJson")
+
+	if err != nil {
+		return *new(string), err
+	}
+
+	out0 := *abi.ConvertType(out[0], new(string)).(*string)
+
+	return out0, err
+
+}
+
+// ProNftJson is a free data retrieval call binding the contract method 0x680d737f.
+//
+// Solidity: function proNftJson() view returns(string)
+func (_NftManager *NftManagerSession) ProNftJson() (string, error) {
+	return _NftManager.Contract.ProNftJson(&_NftManager.CallOpts)
+}
+
+// ProNftJson is a free data retrieval call binding the contract method 0x680d737f.
+//
+// Solidity: function proNftJson() view returns(string)
+func (_NftManager *NftManagerCallerSession) ProNftJson() (string, error) {
+	return _NftManager.Contract.ProNftJson(&_NftManager.CallOpts)
+}
+
+// RareShrimpNftJson is a free data retrieval call binding the contract method 0x8eb7fb32.
+//
+// Solidity: function rareShrimpNftJson() view returns(string)
+func (_NftManager *NftManagerCaller) RareShrimpNftJson(opts *bind.CallOpts) (string, error) {
+	var out []interface{}
+	err := _NftManager.contract.Call(opts, &out, "rareShrimpNftJson")
+
+	if err != nil {
+		return *new(string), err
+	}
+
+	out0 := *abi.ConvertType(out[0], new(string)).(*string)
+
+	return out0, err
+
+}
+
+// RareShrimpNftJson is a free data retrieval call binding the contract method 0x8eb7fb32.
+//
+// Solidity: function rareShrimpNftJson() view returns(string)
+func (_NftManager *NftManagerSession) RareShrimpNftJson() (string, error) {
+	return _NftManager.Contract.RareShrimpNftJson(&_NftManager.CallOpts)
+}
+
+// RareShrimpNftJson is a free data retrieval call binding the contract method 0x8eb7fb32.
+//
+// Solidity: function rareShrimpNftJson() view returns(string)
+func (_NftManager *NftManagerCallerSession) RareShrimpNftJson() (string, error) {
+	return _NftManager.Contract.RareShrimpNftJson(&_NftManager.CallOpts)
+}
+
+// RareShrimpNftJsonUsed is a free data retrieval call binding the contract method 0xc57aa7d7.
+//
+// Solidity: function rareShrimpNftJson_Used() view returns(string)
+func (_NftManager *NftManagerCaller) RareShrimpNftJsonUsed(opts *bind.CallOpts) (string, error) {
+	var out []interface{}
+	err := _NftManager.contract.Call(opts, &out, "rareShrimpNftJson_Used")
+
+	if err != nil {
+		return *new(string), err
+	}
+
+	out0 := *abi.ConvertType(out[0], new(string)).(*string)
+
+	return out0, err
+
+}
+
+// RareShrimpNftJsonUsed is a free data retrieval call binding the contract method 0xc57aa7d7.
+//
+// Solidity: function rareShrimpNftJson_Used() view returns(string)
+func (_NftManager *NftManagerSession) RareShrimpNftJsonUsed() (string, error) {
+	return _NftManager.Contract.RareShrimpNftJsonUsed(&_NftManager.CallOpts)
+}
+
+// RareShrimpNftJsonUsed is a free data retrieval call binding the contract method 0xc57aa7d7.
+//
+// Solidity: function rareShrimpNftJson_Used() view returns(string)
+func (_NftManager *NftManagerCallerSession) RareShrimpNftJsonUsed() (string, error) {
+	return _NftManager.Contract.RareShrimpNftJsonUsed(&_NftManager.CallOpts)
+}
+
 // RedemptionPoolAddress is a free data retrieval call binding the contract method 0xb6648e47.
 //
 // Solidity: function redemptionPoolAddress() view returns(address)
@@ -736,6 +1263,37 @@ func (_NftManager *NftManagerSession) RedemptionPoolAddress() (common.Address, e
 // Solidity: function redemptionPoolAddress() view returns(address)
 func (_NftManager *NftManagerCallerSession) RedemptionPoolAddress() (common.Address, error) {
 	return _NftManager.Contract.RedemptionPoolAddress(&_NftManager.CallOpts)
+}
+
+// StakingManagerAddress is a free data retrieval call binding the contract method 0xea7da6ea.
+//
+// Solidity: function stakingManagerAddress() view returns(address)
+func (_NftManager *NftManagerCaller) StakingManagerAddress(opts *bind.CallOpts) (common.Address, error) {
+	var out []interface{}
+	err := _NftManager.contract.Call(opts, &out, "stakingManagerAddress")
+
+	if err != nil {
+		return *new(common.Address), err
+	}
+
+	out0 := *abi.ConvertType(out[0], new(common.Address)).(*common.Address)
+
+	return out0, err
+
+}
+
+// StakingManagerAddress is a free data retrieval call binding the contract method 0xea7da6ea.
+//
+// Solidity: function stakingManagerAddress() view returns(address)
+func (_NftManager *NftManagerSession) StakingManagerAddress() (common.Address, error) {
+	return _NftManager.Contract.StakingManagerAddress(&_NftManager.CallOpts)
+}
+
+// StakingManagerAddress is a free data retrieval call binding the contract method 0xea7da6ea.
+//
+// Solidity: function stakingManagerAddress() view returns(address)
+func (_NftManager *NftManagerCallerSession) StakingManagerAddress() (common.Address, error) {
+	return _NftManager.Contract.StakingManagerAddress(&_NftManager.CallOpts)
 }
 
 // SupportsInterface is a free data retrieval call binding the contract method 0x01ffc9a7.
@@ -893,12 +1451,74 @@ func (_NftManager *NftManagerCallerSession) TotalMineAmt() (*big.Int, error) {
 	return _NftManager.Contract.TotalMineAmt(&_NftManager.CallOpts)
 }
 
+// UncommonFishcakeNftJson is a free data retrieval call binding the contract method 0xbc757ceb.
+//
+// Solidity: function uncommonFishcakeNftJson() view returns(string)
+func (_NftManager *NftManagerCaller) UncommonFishcakeNftJson(opts *bind.CallOpts) (string, error) {
+	var out []interface{}
+	err := _NftManager.contract.Call(opts, &out, "uncommonFishcakeNftJson")
+
+	if err != nil {
+		return *new(string), err
+	}
+
+	out0 := *abi.ConvertType(out[0], new(string)).(*string)
+
+	return out0, err
+
+}
+
+// UncommonFishcakeNftJson is a free data retrieval call binding the contract method 0xbc757ceb.
+//
+// Solidity: function uncommonFishcakeNftJson() view returns(string)
+func (_NftManager *NftManagerSession) UncommonFishcakeNftJson() (string, error) {
+	return _NftManager.Contract.UncommonFishcakeNftJson(&_NftManager.CallOpts)
+}
+
+// UncommonFishcakeNftJson is a free data retrieval call binding the contract method 0xbc757ceb.
+//
+// Solidity: function uncommonFishcakeNftJson() view returns(string)
+func (_NftManager *NftManagerCallerSession) UncommonFishcakeNftJson() (string, error) {
+	return _NftManager.Contract.UncommonFishcakeNftJson(&_NftManager.CallOpts)
+}
+
+// UncommonFishcakeNftJsonUsed is a free data retrieval call binding the contract method 0xd13aaedc.
+//
+// Solidity: function uncommonFishcakeNftJson_Used() view returns(string)
+func (_NftManager *NftManagerCaller) UncommonFishcakeNftJsonUsed(opts *bind.CallOpts) (string, error) {
+	var out []interface{}
+	err := _NftManager.contract.Call(opts, &out, "uncommonFishcakeNftJson_Used")
+
+	if err != nil {
+		return *new(string), err
+	}
+
+	out0 := *abi.ConvertType(out[0], new(string)).(*string)
+
+	return out0, err
+
+}
+
+// UncommonFishcakeNftJsonUsed is a free data retrieval call binding the contract method 0xd13aaedc.
+//
+// Solidity: function uncommonFishcakeNftJson_Used() view returns(string)
+func (_NftManager *NftManagerSession) UncommonFishcakeNftJsonUsed() (string, error) {
+	return _NftManager.Contract.UncommonFishcakeNftJsonUsed(&_NftManager.CallOpts)
+}
+
+// UncommonFishcakeNftJsonUsed is a free data retrieval call binding the contract method 0xd13aaedc.
+//
+// Solidity: function uncommonFishcakeNftJson_Used() view returns(string)
+func (_NftManager *NftManagerCallerSession) UncommonFishcakeNftJsonUsed() (string, error) {
+	return _NftManager.Contract.UncommonFishcakeNftJsonUsed(&_NftManager.CallOpts)
+}
+
 // Uri is a free data retrieval call binding the contract method 0x0e89341c.
 //
-// Solidity: function uri(uint256 uri_) view returns(string)
-func (_NftManager *NftManagerCaller) Uri(opts *bind.CallOpts, uri_ *big.Int) (string, error) {
+// Solidity: function uri(uint256 inputTokenId) view returns(string)
+func (_NftManager *NftManagerCaller) Uri(opts *bind.CallOpts, inputTokenId *big.Int) (string, error) {
 	var out []interface{}
-	err := _NftManager.contract.Call(opts, &out, "uri", uri_)
+	err := _NftManager.contract.Call(opts, &out, "uri", inputTokenId)
 
 	if err != nil {
 		return *new(string), err
@@ -912,16 +1532,16 @@ func (_NftManager *NftManagerCaller) Uri(opts *bind.CallOpts, uri_ *big.Int) (st
 
 // Uri is a free data retrieval call binding the contract method 0x0e89341c.
 //
-// Solidity: function uri(uint256 uri_) view returns(string)
-func (_NftManager *NftManagerSession) Uri(uri_ *big.Int) (string, error) {
-	return _NftManager.Contract.Uri(&_NftManager.CallOpts, uri_)
+// Solidity: function uri(uint256 inputTokenId) view returns(string)
+func (_NftManager *NftManagerSession) Uri(inputTokenId *big.Int) (string, error) {
+	return _NftManager.Contract.Uri(&_NftManager.CallOpts, inputTokenId)
 }
 
 // Uri is a free data retrieval call binding the contract method 0x0e89341c.
 //
-// Solidity: function uri(uint256 uri_) view returns(string)
-func (_NftManager *NftManagerCallerSession) Uri(uri_ *big.Int) (string, error) {
-	return _NftManager.Contract.Uri(&_NftManager.CallOpts, uri_)
+// Solidity: function uri(uint256 inputTokenId) view returns(string)
+func (_NftManager *NftManagerCallerSession) Uri(inputTokenId *big.Int) (string, error) {
+	return _NftManager.Contract.Uri(&_NftManager.CallOpts, inputTokenId)
 }
 
 // UriPrefix is a free data retrieval call binding the contract method 0x62b99ad4.
@@ -1090,25 +1710,109 @@ func (_NftManager *NftManagerTransactorSession) CreateNFT(_businessName string, 
 	return _NftManager.Contract.CreateNFT(&_NftManager.TransactOpts, _businessName, _description, _imgUrl, _businessAddress, _website, _social, _type)
 }
 
-// Initialize is a paid mutator transaction binding the contract method 0xc4d66de8.
+// InActiveMinerBoosterNft is a paid mutator transaction binding the contract method 0x685fbb51.
 //
-// Solidity: function initialize(address _initialOwner) returns()
-func (_NftManager *NftManagerTransactor) Initialize(opts *bind.TransactOpts, _initialOwner common.Address) (*types.Transaction, error) {
-	return _NftManager.contract.Transact(opts, "initialize", _initialOwner)
+// Solidity: function inActiveMinerBoosterNft(address _miner, uint256 tokenId) returns()
+func (_NftManager *NftManagerTransactor) InActiveMinerBoosterNft(opts *bind.TransactOpts, _miner common.Address, tokenId *big.Int) (*types.Transaction, error) {
+	return _NftManager.contract.Transact(opts, "inActiveMinerBoosterNft", _miner, tokenId)
 }
 
-// Initialize is a paid mutator transaction binding the contract method 0xc4d66de8.
+// InActiveMinerBoosterNft is a paid mutator transaction binding the contract method 0x685fbb51.
 //
-// Solidity: function initialize(address _initialOwner) returns()
-func (_NftManager *NftManagerSession) Initialize(_initialOwner common.Address) (*types.Transaction, error) {
-	return _NftManager.Contract.Initialize(&_NftManager.TransactOpts, _initialOwner)
+// Solidity: function inActiveMinerBoosterNft(address _miner, uint256 tokenId) returns()
+func (_NftManager *NftManagerSession) InActiveMinerBoosterNft(_miner common.Address, tokenId *big.Int) (*types.Transaction, error) {
+	return _NftManager.Contract.InActiveMinerBoosterNft(&_NftManager.TransactOpts, _miner, tokenId)
 }
 
-// Initialize is a paid mutator transaction binding the contract method 0xc4d66de8.
+// InActiveMinerBoosterNft is a paid mutator transaction binding the contract method 0x685fbb51.
 //
-// Solidity: function initialize(address _initialOwner) returns()
-func (_NftManager *NftManagerTransactorSession) Initialize(_initialOwner common.Address) (*types.Transaction, error) {
-	return _NftManager.Contract.Initialize(&_NftManager.TransactOpts, _initialOwner)
+// Solidity: function inActiveMinerBoosterNft(address _miner, uint256 tokenId) returns()
+func (_NftManager *NftManagerTransactorSession) InActiveMinerBoosterNft(_miner common.Address, tokenId *big.Int) (*types.Transaction, error) {
+	return _NftManager.Contract.InActiveMinerBoosterNft(&_NftManager.TransactOpts, _miner, tokenId)
+}
+
+// Initialize is a paid mutator transaction binding the contract method 0xf8c8765e.
+//
+// Solidity: function initialize(address _initialOwner, address _fccTokenAddr, address _tokenUsdtAddr, address _redemptionPoolAddress) returns()
+func (_NftManager *NftManagerTransactor) Initialize(opts *bind.TransactOpts, _initialOwner common.Address, _fccTokenAddr common.Address, _tokenUsdtAddr common.Address, _redemptionPoolAddress common.Address) (*types.Transaction, error) {
+	return _NftManager.contract.Transact(opts, "initialize", _initialOwner, _fccTokenAddr, _tokenUsdtAddr, _redemptionPoolAddress)
+}
+
+// Initialize is a paid mutator transaction binding the contract method 0xf8c8765e.
+//
+// Solidity: function initialize(address _initialOwner, address _fccTokenAddr, address _tokenUsdtAddr, address _redemptionPoolAddress) returns()
+func (_NftManager *NftManagerSession) Initialize(_initialOwner common.Address, _fccTokenAddr common.Address, _tokenUsdtAddr common.Address, _redemptionPoolAddress common.Address) (*types.Transaction, error) {
+	return _NftManager.Contract.Initialize(&_NftManager.TransactOpts, _initialOwner, _fccTokenAddr, _tokenUsdtAddr, _redemptionPoolAddress)
+}
+
+// Initialize is a paid mutator transaction binding the contract method 0xf8c8765e.
+//
+// Solidity: function initialize(address _initialOwner, address _fccTokenAddr, address _tokenUsdtAddr, address _redemptionPoolAddress) returns()
+func (_NftManager *NftManagerTransactorSession) Initialize(_initialOwner common.Address, _fccTokenAddr common.Address, _tokenUsdtAddr common.Address, _redemptionPoolAddress common.Address) (*types.Transaction, error) {
+	return _NftManager.Contract.Initialize(&_NftManager.TransactOpts, _initialOwner, _fccTokenAddr, _tokenUsdtAddr, _redemptionPoolAddress)
+}
+
+// InitializeV5 is a paid mutator transaction binding the contract method 0x5a023693.
+//
+// Solidity: function initializeV5(address _stakingManagerAddress) returns()
+func (_NftManager *NftManagerTransactor) InitializeV5(opts *bind.TransactOpts, _stakingManagerAddress common.Address) (*types.Transaction, error) {
+	return _NftManager.contract.Transact(opts, "initializeV5", _stakingManagerAddress)
+}
+
+// InitializeV5 is a paid mutator transaction binding the contract method 0x5a023693.
+//
+// Solidity: function initializeV5(address _stakingManagerAddress) returns()
+func (_NftManager *NftManagerSession) InitializeV5(_stakingManagerAddress common.Address) (*types.Transaction, error) {
+	return _NftManager.Contract.InitializeV5(&_NftManager.TransactOpts, _stakingManagerAddress)
+}
+
+// InitializeV5 is a paid mutator transaction binding the contract method 0x5a023693.
+//
+// Solidity: function initializeV5(address _stakingManagerAddress) returns()
+func (_NftManager *NftManagerTransactorSession) InitializeV5(_stakingManagerAddress common.Address) (*types.Transaction, error) {
+	return _NftManager.Contract.InitializeV5(&_NftManager.TransactOpts, _stakingManagerAddress)
+}
+
+// MintBoosterNFT is a paid mutator transaction binding the contract method 0xab15cff2.
+//
+// Solidity: function mintBoosterNFT(uint8 nft_type) returns(bool, uint256)
+func (_NftManager *NftManagerTransactor) MintBoosterNFT(opts *bind.TransactOpts, nft_type uint8) (*types.Transaction, error) {
+	return _NftManager.contract.Transact(opts, "mintBoosterNFT", nft_type)
+}
+
+// MintBoosterNFT is a paid mutator transaction binding the contract method 0xab15cff2.
+//
+// Solidity: function mintBoosterNFT(uint8 nft_type) returns(bool, uint256)
+func (_NftManager *NftManagerSession) MintBoosterNFT(nft_type uint8) (*types.Transaction, error) {
+	return _NftManager.Contract.MintBoosterNFT(&_NftManager.TransactOpts, nft_type)
+}
+
+// MintBoosterNFT is a paid mutator transaction binding the contract method 0xab15cff2.
+//
+// Solidity: function mintBoosterNFT(uint8 nft_type) returns(bool, uint256)
+func (_NftManager *NftManagerTransactorSession) MintBoosterNFT(nft_type uint8) (*types.Transaction, error) {
+	return _NftManager.Contract.MintBoosterNFT(&_NftManager.TransactOpts, nft_type)
+}
+
+// NftUpgradeInit is a paid mutator transaction binding the contract method 0x73df1f0f.
+//
+// Solidity: function nftUpgradeInit(address _feManagerAddress, address _boosterAddress, address _stakingManagerAddress) returns()
+func (_NftManager *NftManagerTransactor) NftUpgradeInit(opts *bind.TransactOpts, _feManagerAddress common.Address, _boosterAddress common.Address, _stakingManagerAddress common.Address) (*types.Transaction, error) {
+	return _NftManager.contract.Transact(opts, "nftUpgradeInit", _feManagerAddress, _boosterAddress, _stakingManagerAddress)
+}
+
+// NftUpgradeInit is a paid mutator transaction binding the contract method 0x73df1f0f.
+//
+// Solidity: function nftUpgradeInit(address _feManagerAddress, address _boosterAddress, address _stakingManagerAddress) returns()
+func (_NftManager *NftManagerSession) NftUpgradeInit(_feManagerAddress common.Address, _boosterAddress common.Address, _stakingManagerAddress common.Address) (*types.Transaction, error) {
+	return _NftManager.Contract.NftUpgradeInit(&_NftManager.TransactOpts, _feManagerAddress, _boosterAddress, _stakingManagerAddress)
+}
+
+// NftUpgradeInit is a paid mutator transaction binding the contract method 0x73df1f0f.
+//
+// Solidity: function nftUpgradeInit(address _feManagerAddress, address _boosterAddress, address _stakingManagerAddress) returns()
+func (_NftManager *NftManagerTransactorSession) NftUpgradeInit(_feManagerAddress common.Address, _boosterAddress common.Address, _stakingManagerAddress common.Address) (*types.Transaction, error) {
+	return _NftManager.Contract.NftUpgradeInit(&_NftManager.TransactOpts, _feManagerAddress, _boosterAddress, _stakingManagerAddress)
 }
 
 // RenounceOwnership is a paid mutator transaction binding the contract method 0x715018a6.
@@ -1277,6 +1981,48 @@ func (_NftManager *NftManagerSession) TransferOwnership(newOwner common.Address)
 // Solidity: function transferOwnership(address newOwner) returns()
 func (_NftManager *NftManagerTransactorSession) TransferOwnership(newOwner common.Address) (*types.Transaction, error) {
 	return _NftManager.Contract.TransferOwnership(&_NftManager.TransactOpts, newOwner)
+}
+
+// UpdateNameAndSymbol is a paid mutator transaction binding the contract method 0xeaf9d194.
+//
+// Solidity: function updateNameAndSymbol(string newName, string newSymbol) returns()
+func (_NftManager *NftManagerTransactor) UpdateNameAndSymbol(opts *bind.TransactOpts, newName string, newSymbol string) (*types.Transaction, error) {
+	return _NftManager.contract.Transact(opts, "updateNameAndSymbol", newName, newSymbol)
+}
+
+// UpdateNameAndSymbol is a paid mutator transaction binding the contract method 0xeaf9d194.
+//
+// Solidity: function updateNameAndSymbol(string newName, string newSymbol) returns()
+func (_NftManager *NftManagerSession) UpdateNameAndSymbol(newName string, newSymbol string) (*types.Transaction, error) {
+	return _NftManager.Contract.UpdateNameAndSymbol(&_NftManager.TransactOpts, newName, newSymbol)
+}
+
+// UpdateNameAndSymbol is a paid mutator transaction binding the contract method 0xeaf9d194.
+//
+// Solidity: function updateNameAndSymbol(string newName, string newSymbol) returns()
+func (_NftManager *NftManagerTransactorSession) UpdateNameAndSymbol(newName string, newSymbol string) (*types.Transaction, error) {
+	return _NftManager.Contract.UpdateNameAndSymbol(&_NftManager.TransactOpts, newName, newSymbol)
+}
+
+// UpdateNftJson is a paid mutator transaction binding the contract method 0x5e7cc26e.
+//
+// Solidity: function updateNftJson(uint8 _type, string _newJsonUrl) returns()
+func (_NftManager *NftManagerTransactor) UpdateNftJson(opts *bind.TransactOpts, _type uint8, _newJsonUrl string) (*types.Transaction, error) {
+	return _NftManager.contract.Transact(opts, "updateNftJson", _type, _newJsonUrl)
+}
+
+// UpdateNftJson is a paid mutator transaction binding the contract method 0x5e7cc26e.
+//
+// Solidity: function updateNftJson(uint8 _type, string _newJsonUrl) returns()
+func (_NftManager *NftManagerSession) UpdateNftJson(_type uint8, _newJsonUrl string) (*types.Transaction, error) {
+	return _NftManager.Contract.UpdateNftJson(&_NftManager.TransactOpts, _type, _newJsonUrl)
+}
+
+// UpdateNftJson is a paid mutator transaction binding the contract method 0x5e7cc26e.
+//
+// Solidity: function updateNftJson(uint8 _type, string _newJsonUrl) returns()
+func (_NftManager *NftManagerTransactorSession) UpdateNftJson(_type uint8, _newJsonUrl string) (*types.Transaction, error) {
+	return _NftManager.Contract.UpdateNftJson(&_NftManager.TransactOpts, _type, _newJsonUrl)
 }
 
 // WithdrawNativeToken is a paid mutator transaction binding the contract method 0x536c6bfa.
@@ -2215,6 +2961,297 @@ func (_NftManager *NftManagerFilterer) ParseMetadataUpdate(log types.Log) (*NftM
 	return event, nil
 }
 
+// NftManagerMintBoosterNFTIterator is returned from FilterMintBoosterNFT and is used to iterate over the raw logs and unpacked data for MintBoosterNFT events raised by the NftManager contract.
+type NftManagerMintBoosterNFTIterator struct {
+	Event *NftManagerMintBoosterNFT // Event containing the contract specifics and raw log
+
+	contract *bind.BoundContract // Generic contract to use for unpacking event data
+	event    string              // Event name to use for unpacking event data
+
+	logs chan types.Log        // Log channel receiving the found contract events
+	sub  ethereum.Subscription // Subscription for errors, completion and termination
+	done bool                  // Whether the subscription completed delivering logs
+	fail error                 // Occurred error to stop iteration
+}
+
+// Next advances the iterator to the subsequent event, returning whether there
+// are any more events found. In case of a retrieval or parsing error, false is
+// returned and Error() can be queried for the exact failure.
+func (it *NftManagerMintBoosterNFTIterator) Next() bool {
+	// If the iterator failed, stop iterating
+	if it.fail != nil {
+		return false
+	}
+	// If the iterator completed, deliver directly whatever's available
+	if it.done {
+		select {
+		case log := <-it.logs:
+			it.Event = new(NftManagerMintBoosterNFT)
+			if err := it.contract.UnpackLog(it.Event, it.event, log); err != nil {
+				it.fail = err
+				return false
+			}
+			it.Event.Raw = log
+			return true
+
+		default:
+			return false
+		}
+	}
+	// Iterator still in progress, wait for either a data or an error event
+	select {
+	case log := <-it.logs:
+		it.Event = new(NftManagerMintBoosterNFT)
+		if err := it.contract.UnpackLog(it.Event, it.event, log); err != nil {
+			it.fail = err
+			return false
+		}
+		it.Event.Raw = log
+		return true
+
+	case err := <-it.sub.Err():
+		it.done = true
+		it.fail = err
+		return it.Next()
+	}
+}
+
+// Error returns any retrieval or parsing error occurred during filtering.
+func (it *NftManagerMintBoosterNFTIterator) Error() error {
+	return it.fail
+}
+
+// Close terminates the iteration process, releasing any pending underlying
+// resources.
+func (it *NftManagerMintBoosterNFTIterator) Close() error {
+	it.sub.Unsubscribe()
+	return nil
+}
+
+// NftManagerMintBoosterNFT represents a MintBoosterNFT event raised by the NftManager contract.
+type NftManagerMintBoosterNFT struct {
+	Miner             common.Address
+	TokenId           *big.Int
+	NftType           uint8
+	UsedFishCakePower *big.Int
+	MintTime          *big.Int
+	Raw               types.Log // Blockchain specific contextual infos
+}
+
+// FilterMintBoosterNFT is a free log retrieval operation binding the contract event 0xc60a5c3110a02ecfb1d3e6b142398b2967f11d9396f1f42100e2ca3274edc9a3.
+//
+// Solidity: event MintBoosterNFT(address indexed miner, uint256 indexed tokenId, uint8 nftType, uint256 usedFishCakePower, uint256 mintTime)
+func (_NftManager *NftManagerFilterer) FilterMintBoosterNFT(opts *bind.FilterOpts, miner []common.Address, tokenId []*big.Int) (*NftManagerMintBoosterNFTIterator, error) {
+
+	var minerRule []interface{}
+	for _, minerItem := range miner {
+		minerRule = append(minerRule, minerItem)
+	}
+	var tokenIdRule []interface{}
+	for _, tokenIdItem := range tokenId {
+		tokenIdRule = append(tokenIdRule, tokenIdItem)
+	}
+
+	logs, sub, err := _NftManager.contract.FilterLogs(opts, "MintBoosterNFT", minerRule, tokenIdRule)
+	if err != nil {
+		return nil, err
+	}
+	return &NftManagerMintBoosterNFTIterator{contract: _NftManager.contract, event: "MintBoosterNFT", logs: logs, sub: sub}, nil
+}
+
+// WatchMintBoosterNFT is a free log subscription operation binding the contract event 0xc60a5c3110a02ecfb1d3e6b142398b2967f11d9396f1f42100e2ca3274edc9a3.
+//
+// Solidity: event MintBoosterNFT(address indexed miner, uint256 indexed tokenId, uint8 nftType, uint256 usedFishCakePower, uint256 mintTime)
+func (_NftManager *NftManagerFilterer) WatchMintBoosterNFT(opts *bind.WatchOpts, sink chan<- *NftManagerMintBoosterNFT, miner []common.Address, tokenId []*big.Int) (event.Subscription, error) {
+
+	var minerRule []interface{}
+	for _, minerItem := range miner {
+		minerRule = append(minerRule, minerItem)
+	}
+	var tokenIdRule []interface{}
+	for _, tokenIdItem := range tokenId {
+		tokenIdRule = append(tokenIdRule, tokenIdItem)
+	}
+
+	logs, sub, err := _NftManager.contract.WatchLogs(opts, "MintBoosterNFT", minerRule, tokenIdRule)
+	if err != nil {
+		return nil, err
+	}
+	return event.NewSubscription(func(quit <-chan struct{}) error {
+		defer sub.Unsubscribe()
+		for {
+			select {
+			case log := <-logs:
+				// New log arrived, parse the event and forward to the user
+				event := new(NftManagerMintBoosterNFT)
+				if err := _NftManager.contract.UnpackLog(event, "MintBoosterNFT", log); err != nil {
+					return err
+				}
+				event.Raw = log
+
+				select {
+				case sink <- event:
+				case err := <-sub.Err():
+					return err
+				case <-quit:
+					return nil
+				}
+			case err := <-sub.Err():
+				return err
+			case <-quit:
+				return nil
+			}
+		}
+	}), nil
+}
+
+// ParseMintBoosterNFT is a log parse operation binding the contract event 0xc60a5c3110a02ecfb1d3e6b142398b2967f11d9396f1f42100e2ca3274edc9a3.
+//
+// Solidity: event MintBoosterNFT(address indexed miner, uint256 indexed tokenId, uint8 nftType, uint256 usedFishCakePower, uint256 mintTime)
+func (_NftManager *NftManagerFilterer) ParseMintBoosterNFT(log types.Log) (*NftManagerMintBoosterNFT, error) {
+	event := new(NftManagerMintBoosterNFT)
+	if err := _NftManager.contract.UnpackLog(event, "MintBoosterNFT", log); err != nil {
+		return nil, err
+	}
+	event.Raw = log
+	return event, nil
+}
+
+// NftManagerNameSymbolUpdatedIterator is returned from FilterNameSymbolUpdated and is used to iterate over the raw logs and unpacked data for NameSymbolUpdated events raised by the NftManager contract.
+type NftManagerNameSymbolUpdatedIterator struct {
+	Event *NftManagerNameSymbolUpdated // Event containing the contract specifics and raw log
+
+	contract *bind.BoundContract // Generic contract to use for unpacking event data
+	event    string              // Event name to use for unpacking event data
+
+	logs chan types.Log        // Log channel receiving the found contract events
+	sub  ethereum.Subscription // Subscription for errors, completion and termination
+	done bool                  // Whether the subscription completed delivering logs
+	fail error                 // Occurred error to stop iteration
+}
+
+// Next advances the iterator to the subsequent event, returning whether there
+// are any more events found. In case of a retrieval or parsing error, false is
+// returned and Error() can be queried for the exact failure.
+func (it *NftManagerNameSymbolUpdatedIterator) Next() bool {
+	// If the iterator failed, stop iterating
+	if it.fail != nil {
+		return false
+	}
+	// If the iterator completed, deliver directly whatever's available
+	if it.done {
+		select {
+		case log := <-it.logs:
+			it.Event = new(NftManagerNameSymbolUpdated)
+			if err := it.contract.UnpackLog(it.Event, it.event, log); err != nil {
+				it.fail = err
+				return false
+			}
+			it.Event.Raw = log
+			return true
+
+		default:
+			return false
+		}
+	}
+	// Iterator still in progress, wait for either a data or an error event
+	select {
+	case log := <-it.logs:
+		it.Event = new(NftManagerNameSymbolUpdated)
+		if err := it.contract.UnpackLog(it.Event, it.event, log); err != nil {
+			it.fail = err
+			return false
+		}
+		it.Event.Raw = log
+		return true
+
+	case err := <-it.sub.Err():
+		it.done = true
+		it.fail = err
+		return it.Next()
+	}
+}
+
+// Error returns any retrieval or parsing error occurred during filtering.
+func (it *NftManagerNameSymbolUpdatedIterator) Error() error {
+	return it.fail
+}
+
+// Close terminates the iteration process, releasing any pending underlying
+// resources.
+func (it *NftManagerNameSymbolUpdatedIterator) Close() error {
+	it.sub.Unsubscribe()
+	return nil
+}
+
+// NftManagerNameSymbolUpdated represents a NameSymbolUpdated event raised by the NftManager contract.
+type NftManagerNameSymbolUpdated struct {
+	NewName   string
+	NewSymbol string
+	Raw       types.Log // Blockchain specific contextual infos
+}
+
+// FilterNameSymbolUpdated is a free log retrieval operation binding the contract event 0x9e771d8c51ac52b04ab2fe084b01eabd5d8e1c6fc207db7e2e8671c5a136fbd9.
+//
+// Solidity: event NameSymbolUpdated(string newName, string newSymbol)
+func (_NftManager *NftManagerFilterer) FilterNameSymbolUpdated(opts *bind.FilterOpts) (*NftManagerNameSymbolUpdatedIterator, error) {
+
+	logs, sub, err := _NftManager.contract.FilterLogs(opts, "NameSymbolUpdated")
+	if err != nil {
+		return nil, err
+	}
+	return &NftManagerNameSymbolUpdatedIterator{contract: _NftManager.contract, event: "NameSymbolUpdated", logs: logs, sub: sub}, nil
+}
+
+// WatchNameSymbolUpdated is a free log subscription operation binding the contract event 0x9e771d8c51ac52b04ab2fe084b01eabd5d8e1c6fc207db7e2e8671c5a136fbd9.
+//
+// Solidity: event NameSymbolUpdated(string newName, string newSymbol)
+func (_NftManager *NftManagerFilterer) WatchNameSymbolUpdated(opts *bind.WatchOpts, sink chan<- *NftManagerNameSymbolUpdated) (event.Subscription, error) {
+
+	logs, sub, err := _NftManager.contract.WatchLogs(opts, "NameSymbolUpdated")
+	if err != nil {
+		return nil, err
+	}
+	return event.NewSubscription(func(quit <-chan struct{}) error {
+		defer sub.Unsubscribe()
+		for {
+			select {
+			case log := <-logs:
+				// New log arrived, parse the event and forward to the user
+				event := new(NftManagerNameSymbolUpdated)
+				if err := _NftManager.contract.UnpackLog(event, "NameSymbolUpdated", log); err != nil {
+					return err
+				}
+				event.Raw = log
+
+				select {
+				case sink <- event:
+				case err := <-sub.Err():
+					return err
+				case <-quit:
+					return nil
+				}
+			case err := <-sub.Err():
+				return err
+			case <-quit:
+				return nil
+			}
+		}
+	}), nil
+}
+
+// ParseNameSymbolUpdated is a log parse operation binding the contract event 0x9e771d8c51ac52b04ab2fe084b01eabd5d8e1c6fc207db7e2e8671c5a136fbd9.
+//
+// Solidity: event NameSymbolUpdated(string newName, string newSymbol)
+func (_NftManager *NftManagerFilterer) ParseNameSymbolUpdated(log types.Log) (*NftManagerNameSymbolUpdated, error) {
+	event := new(NftManagerNameSymbolUpdated)
+	if err := _NftManager.contract.UnpackLog(event, "NameSymbolUpdated", log); err != nil {
+		return nil, err
+	}
+	event.Raw = log
+	return event, nil
+}
+
 // NftManagerOwnershipTransferredIterator is returned from FilterOwnershipTransferred and is used to iterate over the raw logs and unpacked data for OwnershipTransferred events raised by the NftManager contract.
 type NftManagerOwnershipTransferredIterator struct {
 	Event *NftManagerOwnershipTransferred // Event containing the contract specifics and raw log
@@ -2960,6 +3997,152 @@ func (_NftManager *NftManagerFilterer) WatchTransfer(opts *bind.WatchOpts, sink 
 func (_NftManager *NftManagerFilterer) ParseTransfer(log types.Log) (*NftManagerTransfer, error) {
 	event := new(NftManagerTransfer)
 	if err := _NftManager.contract.UnpackLog(event, "Transfer", log); err != nil {
+		return nil, err
+	}
+	event.Raw = log
+	return event, nil
+}
+
+// NftManagerUpdatedNftJsonIterator is returned from FilterUpdatedNftJson and is used to iterate over the raw logs and unpacked data for UpdatedNftJson events raised by the NftManager contract.
+type NftManagerUpdatedNftJsonIterator struct {
+	Event *NftManagerUpdatedNftJson // Event containing the contract specifics and raw log
+
+	contract *bind.BoundContract // Generic contract to use for unpacking event data
+	event    string              // Event name to use for unpacking event data
+
+	logs chan types.Log        // Log channel receiving the found contract events
+	sub  ethereum.Subscription // Subscription for errors, completion and termination
+	done bool                  // Whether the subscription completed delivering logs
+	fail error                 // Occurred error to stop iteration
+}
+
+// Next advances the iterator to the subsequent event, returning whether there
+// are any more events found. In case of a retrieval or parsing error, false is
+// returned and Error() can be queried for the exact failure.
+func (it *NftManagerUpdatedNftJsonIterator) Next() bool {
+	// If the iterator failed, stop iterating
+	if it.fail != nil {
+		return false
+	}
+	// If the iterator completed, deliver directly whatever's available
+	if it.done {
+		select {
+		case log := <-it.logs:
+			it.Event = new(NftManagerUpdatedNftJson)
+			if err := it.contract.UnpackLog(it.Event, it.event, log); err != nil {
+				it.fail = err
+				return false
+			}
+			it.Event.Raw = log
+			return true
+
+		default:
+			return false
+		}
+	}
+	// Iterator still in progress, wait for either a data or an error event
+	select {
+	case log := <-it.logs:
+		it.Event = new(NftManagerUpdatedNftJson)
+		if err := it.contract.UnpackLog(it.Event, it.event, log); err != nil {
+			it.fail = err
+			return false
+		}
+		it.Event.Raw = log
+		return true
+
+	case err := <-it.sub.Err():
+		it.done = true
+		it.fail = err
+		return it.Next()
+	}
+}
+
+// Error returns any retrieval or parsing error occurred during filtering.
+func (it *NftManagerUpdatedNftJsonIterator) Error() error {
+	return it.fail
+}
+
+// Close terminates the iteration process, releasing any pending underlying
+// resources.
+func (it *NftManagerUpdatedNftJsonIterator) Close() error {
+	it.sub.Unsubscribe()
+	return nil
+}
+
+// NftManagerUpdatedNftJson represents a UpdatedNftJson event raised by the NftManager contract.
+type NftManagerUpdatedNftJson struct {
+	Creator    common.Address
+	NftType    uint8
+	NewJsonUrl string
+	Raw        types.Log // Blockchain specific contextual infos
+}
+
+// FilterUpdatedNftJson is a free log retrieval operation binding the contract event 0xc837f8e8f6dc2319b0a6ea1224339706be17cdfb378eb073dcfe2b7ebb50d36a.
+//
+// Solidity: event UpdatedNftJson(address indexed creator, uint8 nftType, string newJsonUrl)
+func (_NftManager *NftManagerFilterer) FilterUpdatedNftJson(opts *bind.FilterOpts, creator []common.Address) (*NftManagerUpdatedNftJsonIterator, error) {
+
+	var creatorRule []interface{}
+	for _, creatorItem := range creator {
+		creatorRule = append(creatorRule, creatorItem)
+	}
+
+	logs, sub, err := _NftManager.contract.FilterLogs(opts, "UpdatedNftJson", creatorRule)
+	if err != nil {
+		return nil, err
+	}
+	return &NftManagerUpdatedNftJsonIterator{contract: _NftManager.contract, event: "UpdatedNftJson", logs: logs, sub: sub}, nil
+}
+
+// WatchUpdatedNftJson is a free log subscription operation binding the contract event 0xc837f8e8f6dc2319b0a6ea1224339706be17cdfb378eb073dcfe2b7ebb50d36a.
+//
+// Solidity: event UpdatedNftJson(address indexed creator, uint8 nftType, string newJsonUrl)
+func (_NftManager *NftManagerFilterer) WatchUpdatedNftJson(opts *bind.WatchOpts, sink chan<- *NftManagerUpdatedNftJson, creator []common.Address) (event.Subscription, error) {
+
+	var creatorRule []interface{}
+	for _, creatorItem := range creator {
+		creatorRule = append(creatorRule, creatorItem)
+	}
+
+	logs, sub, err := _NftManager.contract.WatchLogs(opts, "UpdatedNftJson", creatorRule)
+	if err != nil {
+		return nil, err
+	}
+	return event.NewSubscription(func(quit <-chan struct{}) error {
+		defer sub.Unsubscribe()
+		for {
+			select {
+			case log := <-logs:
+				// New log arrived, parse the event and forward to the user
+				event := new(NftManagerUpdatedNftJson)
+				if err := _NftManager.contract.UnpackLog(event, "UpdatedNftJson", log); err != nil {
+					return err
+				}
+				event.Raw = log
+
+				select {
+				case sink <- event:
+				case err := <-sub.Err():
+					return err
+				case <-quit:
+					return nil
+				}
+			case err := <-sub.Err():
+				return err
+			case <-quit:
+				return nil
+			}
+		}
+	}), nil
+}
+
+// ParseUpdatedNftJson is a log parse operation binding the contract event 0xc837f8e8f6dc2319b0a6ea1224339706be17cdfb378eb073dcfe2b7ebb50d36a.
+//
+// Solidity: event UpdatedNftJson(address indexed creator, uint8 nftType, string newJsonUrl)
+func (_NftManager *NftManagerFilterer) ParseUpdatedNftJson(log types.Log) (*NftManagerUpdatedNftJson, error) {
+	event := new(NftManagerUpdatedNftJson)
+	if err := _NftManager.contract.UnpackLog(event, "UpdatedNftJson", log); err != nil {
 		return nil, err
 	}
 	event.Raw = log

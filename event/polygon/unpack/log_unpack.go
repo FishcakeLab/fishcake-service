@@ -2,6 +2,9 @@ package unpack
 
 import (
 	"math/big"
+
+	"strings"
+
 	"time"
 
 	"github.com/ethereum/go-ethereum/common"
@@ -160,6 +163,62 @@ func MintNft(event event.ContractEvent, db *database.DB) error {
 	return nil
 }
 
+func MintBoosterNft(event event.ContractEvent, db *database.DB) error {
+	return db.Transaction(func(tx *database.DB) error {
+		rlpLog := event.RLPLog
+		uEvent, err := NftTokenUnpack.ParseMintBoosterNFT(*rlpLog)
+		if err != nil {
+			return err
+		}
+
+		address := strings.ToLower(uEvent.Miner.Hex())
+		tokenId := uEvent.TokenId.Int64()
+		nftType := int8(uEvent.NftType)
+		mintTime := uEvent.MintTime.Int64()
+		usedPower := uEvent.UsedFishCakePower
+
+		// ---------- 1. 锁行读取 mining_info ----------
+		miningInfo, err := tx.MiningInfoDB.GetByAddressForUpdate(address)
+		if err != nil {
+			return err
+		}
+
+		// ---------- 2. 幂等判断（必须在事务里） ----------
+		if miningInfo.LastMintTime.Int64() >= mintTime {
+			return nil
+		}
+
+		// ---------- 3. 更新 mining_info ----------
+		newMiningInfo := &activity.MiningInfo{
+			Id:                 miningInfo.Id,
+			Address:            miningInfo.Address,
+			MinedAmount:        miningInfo.MinedAmount,
+			MinedFishCakePower: new(big.Int).Sub(miningInfo.MinedFishCakePower, usedPower),
+			LastMintTime:       big.NewInt(mintTime),
+		}
+
+		if err := tx.MiningInfoDB.Update(newMiningInfo); err != nil {
+			return err
+		}
+
+		// ---------- 4. Upsert Booster NFT ----------
+		token := token_nft.TokenNft{
+			TokenId:         tokenId,
+			Who:             address,
+			NftType:         nftType,
+			ContractAddress: strings.ToLower(event.ContractAddress.Hex()),
+			BusinessName:    "BoosterNFT",
+			Description:     "Miner Booster NFT",
+		}
+
+		if err := tx.TokenNftDB.UpsertBoosterNft(token); err != nil {
+			return err
+		}
+
+		return nil
+	})
+}
+
 func Drop(event event.ContractEvent, db *database.DB) error {
 	rlpLog := event.RLPLog
 	uEvent, unpackErr := MerchantUnpack.ParseDrop(*rlpLog)
@@ -216,46 +275,62 @@ func Drop(event event.ContractEvent, db *database.DB) error {
 
 // StakeHolderDepositStaking 事件解析与入库
 func StakeHolderDepositStaking(event event.ContractEvent, db *database.DB) error {
-	rlpLog := event.RLPLog
-	uEvent, unpackErr := StakingUnpack.ParseStakeHolderDepositStaking(*rlpLog)
-	if unpackErr != nil {
-		log.Error("unpack StakeHolderDepositStaking fail", "err", unpackErr)
-		return unpackErr
-	}
+	return db.Transaction(func(tx *database.DB) error {
+		rlpLog := event.RLPLog
+		uEvent, err := StakingUnpack.ParseStakeHolderDepositStaking(*rlpLog)
+		if err != nil {
+			log.Error("unpack StakeHolderDepositStaking fail", "err", err)
+			return err
+		}
 
-	record := stake.StakeHolderStaking{
-		UserAddress:   uEvent.Staker.Hex(), // msg.sender
-		Amount:        uEvent.Amount,
-		StakingType:   int16(uEvent.StakingType),
-		StartTime:     uEvent.StartStakingTime.Int64(),
-		EndTime:       uEvent.EndStakingTime.Int64(),
-		TokenID:       uEvent.BindingNft.Int64(),
-		NftApr:        uEvent.NftApr.Int64(),
-		IsAutoRenew:   uEvent.IsAutoRenew,
-		MessageNonce:  uEvent.MessageNonce.Int64(),
-		TxMessageHash: "",            // deposit 时没有交易哈希
-		StakingReward: big.NewInt(0), // 初始化 0
-		StakingStatus: 0,             // 质押中
-		CreateTime:    time.Now(),    // 当前时间
-	}
 
-	if err := db.StakingDB.InsertDepositRecord(record); err != nil {
-		log.Error("insert StakeHolderDepositStaking fail",
+		record := stake.StakeHolderStaking{
+			UserAddress:   uEvent.Staker.Hex(),
+			Amount:        uEvent.Amount,
+			StakingType:   int16(uEvent.StakingType),
+			StartTime:     uEvent.StartStakingTime.Int64(),
+			EndTime:       uEvent.EndStakingTime.Int64(),
+			TokenID:       uEvent.BindingNft.Int64(), // Booster tokenId
+			NftApr:        uEvent.NftApr.Int64(),
+			IsAutoRenew:   uEvent.IsAutoRenew,
+			MessageNonce:  uEvent.MessageNonce.Int64(),
+			TxMessageHash: "",
+			StakingReward: big.NewInt(0),
+			StakingStatus: 0,
+			CreateTime:    time.Now(),
+		}
+
+		// 1. 插入 staking 记录
+		if err := tx.StakingDB.InsertDepositRecord(record); err != nil {
+			log.Error("insert StakeHolderDepositStaking fail",
+				"user", uEvent.Staker.String(),
+				"nonce", uEvent.MessageNonce.Int64(),
+				"block", event.BlockNumber,
+				"err", err)
+			return err
+		}
+
+
+		// 2. 标记 Booster NFT 为 used（nft_type + 10）
+		tokenId := uEvent.BindingNft.Int64()
+		if tokenId > 0 {
+			if err := tx.TokenNftDB.MarkBoosterUsed(tokenId); err != nil {
+				log.Error("mark booster used fail",
+					"tokenId", tokenId,
+					"err", err)
+				return err
+			}
+		}
+
+		log.Info("StakeHolderDepositStaking success",
 			"user", uEvent.Staker.String(),
 			"nonce", uEvent.MessageNonce.Int64(),
-			"block", event.BlockNumber,
-			"err", err)
-		return err
-	}
+			"amount", uEvent.Amount.String(),
+			"boosterTokenId", tokenId,
+			"block", event.BlockNumber)
 
-	// 成功日志
-	log.Info("StakeHolderDepositStaking success",
-		"user", uEvent.Staker.String(),
-		"nonce", uEvent.MessageNonce.Int64(),
-		"amount", uEvent.Amount.String(),
-		"block", event.BlockNumber)
-
-	return nil
+		return nil
+	})
 }
 
 // StakeHolderWithdrawStaking 事件解析与更新
@@ -309,6 +384,9 @@ func Transfer(event event.ContractEvent, db *database.DB, address string) error 
 		Amount:       value,
 		Description:  "ERC20 Token Transfer Sent",
 		Timestamp:    uint64(event.Timestamp),
+
+		TxHash:   event.RLPLog.TxHash.Hex(),
+		LogIndex: uint(event.RLPLog.Index),
 	}
 
 	tokenReceived := token_transfer.TokenReceived{
@@ -317,6 +395,9 @@ func Transfer(event event.ContractEvent, db *database.DB, address string) error 
 		Amount:       value,
 		Description:  "ERC20 Token Transfer Received",
 		Timestamp:    uint64(event.Timestamp),
+
+		TxHash:   event.RLPLog.TxHash.Hex(),
+		LogIndex: uint(event.RLPLog.Index),
 	}
 
 	if err := db.Transaction(func(tx *database.DB) error {

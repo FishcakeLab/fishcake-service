@@ -4,16 +4,19 @@ import (
 	"math/big"
 
 	"gorm.io/gorm"
+	"gorm.io/gorm/clause"
 )
 
 type TokenSent struct {
-
 	Id           string   `json:"id" gorm:"column:id"`
 	Address      string   `json:"address" gorm:"column:address"`
 	TokenAddress string   `json:"token_address" gorm:"column:token_address"`
 	Description  string   `json:"description" gorm:"column:description"`
 	Amount       *big.Int `json:"amount" gorm:"serializer:u256;column:amount"`
 	Timestamp    uint64   `json:"timestamp" gorm:"column:timestamp"`
+
+	TxHash   string `json:"tx_hash" gorm:"column:tx_hash"`     // 交易哈希，用于去重
+	LogIndex uint   `json:"log_index" gorm:"column:log_index"` // 事件日志索引，用于去重
 }
 
 type TokenReceived struct {
@@ -24,6 +27,8 @@ type TokenReceived struct {
 	Amount       *big.Int `json:"amount" gorm:"serializer:u256;column:amount"`
 	Timestamp    uint64   `json:"timestamp" gorm:"column:timestamp"`
 
+	TxHash   string `json:"tx_hash" gorm:"column:tx_hash"`     // 交易哈希，用于去重
+	LogIndex uint   `json:"log_index" gorm:"column:log_index"` // 事件日志索引，用于去重
 }
 
 func (TokenSent) TableName() string {
@@ -85,7 +90,18 @@ func (ts tokenSentDB) List(address, tokenType string, lastTimestamp uint64, limi
 }
 
 func (ts tokenSentDB) StoreTokenSent(tokenSent TokenSent) error {
-	err := ts.db.Table(tokenSent.TableName()).Create(&tokenSent).Error
+	err := ts.db.
+		Table(tokenSent.TableName()).
+		Clauses(clause.OnConflict{
+			Columns: []clause.Column{
+				{Name: "tx_hash"},
+				{Name: "log_index"},
+			},
+			DoNothing: true,
+		}).
+		Create(&tokenSent).
+		Error
+
 	if err != nil {
 		return err
 	}
@@ -117,7 +133,18 @@ func (ts tokenReceivedDB) List(address, tokenType string, lastTimestamp uint64, 
 }
 
 func (tr tokenReceivedDB) StoreTokenReceived(tokenReceived TokenReceived) error {
-	err := tr.db.Table(tokenReceived.TableName()).Create(&tokenReceived).Error
+	err := tr.db.
+		Table(tokenReceived.TableName()).
+		Clauses(clause.OnConflict{
+			Columns: []clause.Column{
+				{Name: "tx_hash"},
+				{Name: "log_index"},
+			},
+			DoNothing: true,
+		}).
+		Create(&tokenReceived).
+		Error
+
 	if err != nil {
 		return err
 	}

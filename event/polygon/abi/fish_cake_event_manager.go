@@ -31,7 +31,7 @@ var (
 
 // FishcakeEventManagerMetaData contains all meta data concerning the FishcakeEventManager contract.
 var FishcakeEventManagerMetaData = &bind.MetaData{
-	ABI: "[{\"type\":\"constructor\",\"inputs\":[{\"name\":\"_fccAddress\",\"type\":\"address\",\"internalType\":\"address\"},{\"name\":\"_usdtTokenAddr\",\"type\":\"address\",\"internalType\":\"address\"},{\"name\":\"_NFTManagerAddr\",\"type\":\"address\",\"internalType\":\"address\"}],\"stateMutability\":\"nonpayable\"},{\"type\":\"function\",\"name\":\"FccTokenAddr\",\"inputs\":[],\"outputs\":[{\"name\":\"\",\"type\":\"address\",\"internalType\":\"contractIERC20\"}],\"stateMutability\":\"view\"},{\"type\":\"function\",\"name\":\"NTFLastMineTime\",\"inputs\":[{\"name\":\"\",\"type\":\"address\",\"internalType\":\"address\"}],\"outputs\":[{\"name\":\"\",\"type\":\"uint256\",\"internalType\":\"uint256\"}],\"stateMutability\":\"view\"},{\"type\":\"function\",\"name\":\"UsdtTokenAddr\",\"inputs\":[],\"outputs\":[{\"name\":\"\",\"type\":\"address\",\"internalType\":\"contractIERC20\"}],\"stateMutability\":\"view\"},{\"type\":\"function\",\"name\":\"activityAdd\",\"inputs\":[{\"name\":\"_businessName\",\"type\":\"string\",\"internalType\":\"string\"},{\"name\":\"_activityContent\",\"type\":\"string\",\"internalType\":\"string\"},{\"name\":\"_latitudeLongitude\",\"type\":\"string\",\"internalType\":\"string\"},{\"name\":\"_activityDeadLine\",\"type\":\"uint256\",\"internalType\":\"uint256\"},{\"name\":\"_totalDropAmts\",\"type\":\"uint256\",\"internalType\":\"uint256\"},{\"name\":\"_dropType\",\"type\":\"uint8\",\"internalType\":\"uint8\"},{\"name\":\"_dropNumber\",\"type\":\"uint256\",\"internalType\":\"uint256\"},{\"name\":\"_minDropAmt\",\"type\":\"uint256\",\"internalType\":\"uint256\"},{\"name\":\"_maxDropAmt\",\"type\":\"uint256\",\"internalType\":\"uint256\"},{\"name\":\"_tokenContractAddr\",\"type\":\"address\",\"internalType\":\"address\"}],\"outputs\":[{\"name\":\"\",\"type\":\"bool\",\"internalType\":\"bool\"},{\"name\":\"\",\"type\":\"uint256\",\"internalType\":\"uint256\"}],\"stateMutability\":\"nonpayable\"},{\"type\":\"function\",\"name\":\"activityDropedToAccount\",\"inputs\":[{\"name\":\"\",\"type\":\"uint256\",\"internalType\":\"uint256\"},{\"name\":\"\",\"type\":\"address\",\"internalType\":\"address\"}],\"outputs\":[{\"name\":\"\",\"type\":\"bool\",\"internalType\":\"bool\"}],\"stateMutability\":\"view\"},{\"type\":\"function\",\"name\":\"activityFinish\",\"inputs\":[{\"name\":\"_activityId\",\"type\":\"uint256\",\"internalType\":\"uint256\"}],\"outputs\":[{\"name\":\"\",\"type\":\"bool\",\"internalType\":\"bool\"}],\"stateMutability\":\"nonpayable\"},{\"type\":\"function\",\"name\":\"activityInfoArrs\",\"inputs\":[{\"name\":\"\",\"type\":\"uint256\",\"internalType\":\"uint256\"}],\"outputs\":[{\"name\":\"activityId\",\"type\":\"uint256\",\"internalType\":\"uint256\"},{\"name\":\"businessAccount\",\"type\":\"address\",\"internalType\":\"address\"},{\"name\":\"businessName\",\"type\":\"string\",\"internalType\":\"string\"},{\"name\":\"activityContent\",\"type\":\"string\",\"internalType\":\"string\"},{\"name\":\"latitudeLongitude\",\"type\":\"string\",\"internalType\":\"string\"},{\"name\":\"activityCreateTime\",\"type\":\"uint256\",\"internalType\":\"uint256\"},{\"name\":\"activityDeadLine\",\"type\":\"uint256\",\"internalType\":\"uint256\"},{\"name\":\"dropType\",\"type\":\"uint8\",\"internalType\":\"uint8\"},{\"name\":\"dropNumber\",\"type\":\"uint256\",\"internalType\":\"uint256\"},{\"name\":\"minDropAmt\",\"type\":\"uint256\",\"internalType\":\"uint256\"},{\"name\":\"maxDropAmt\",\"type\":\"uint256\",\"internalType\":\"uint256\"},{\"name\":\"tokenContractAddr\",\"type\":\"address\",\"internalType\":\"address\"}],\"stateMutability\":\"view\"},{\"type\":\"function\",\"name\":\"activityInfoChangedIdx\",\"inputs\":[{\"name\":\"\",\"type\":\"uint256\",\"internalType\":\"uint256\"}],\"outputs\":[{\"name\":\"\",\"type\":\"uint256\",\"internalType\":\"uint256\"}],\"stateMutability\":\"view\"},{\"type\":\"function\",\"name\":\"activityInfoExtArrs\",\"inputs\":[{\"name\":\"\",\"type\":\"uint256\",\"internalType\":\"uint256\"}],\"outputs\":[{\"name\":\"activityId\",\"type\":\"uint256\",\"internalType\":\"uint256\"},{\"name\":\"alreadyDropAmts\",\"type\":\"uint256\",\"internalType\":\"uint256\"},{\"name\":\"alreadyDropNumber\",\"type\":\"uint256\",\"internalType\":\"uint256\"},{\"name\":\"businessMinedAmt\",\"type\":\"uint256\",\"internalType\":\"uint256\"},{\"name\":\"businessMinedWithdrawedAmt\",\"type\":\"uint256\",\"internalType\":\"uint256\"},{\"name\":\"activityStatus\",\"type\":\"uint8\",\"internalType\":\"uint8\"}],\"stateMutability\":\"view\"},{\"type\":\"function\",\"name\":\"allowance\",\"inputs\":[{\"name\":\"owner\",\"type\":\"address\",\"internalType\":\"address\"},{\"name\":\"spender\",\"type\":\"address\",\"internalType\":\"address\"}],\"outputs\":[{\"name\":\"\",\"type\":\"uint256\",\"internalType\":\"uint256\"}],\"stateMutability\":\"view\"},{\"type\":\"function\",\"name\":\"approve\",\"inputs\":[{\"name\":\"spender\",\"type\":\"address\",\"internalType\":\"address\"},{\"name\":\"value\",\"type\":\"uint256\",\"internalType\":\"uint256\"}],\"outputs\":[{\"name\":\"\",\"type\":\"bool\",\"internalType\":\"bool\"}],\"stateMutability\":\"nonpayable\"},{\"type\":\"function\",\"name\":\"balanceOf\",\"inputs\":[{\"name\":\"account\",\"type\":\"address\",\"internalType\":\"address\"}],\"outputs\":[{\"name\":\"\",\"type\":\"uint256\",\"internalType\":\"uint256\"}],\"stateMutability\":\"view\"},{\"type\":\"function\",\"name\":\"burn\",\"inputs\":[{\"name\":\"value\",\"type\":\"uint256\",\"internalType\":\"uint256\"}],\"outputs\":[],\"stateMutability\":\"nonpayable\"},{\"type\":\"function\",\"name\":\"burnFrom\",\"inputs\":[{\"name\":\"account\",\"type\":\"address\",\"internalType\":\"address\"},{\"name\":\"value\",\"type\":\"uint256\",\"internalType\":\"uint256\"}],\"outputs\":[],\"stateMutability\":\"nonpayable\"},{\"type\":\"function\",\"name\":\"decimals\",\"inputs\":[],\"outputs\":[{\"name\":\"\",\"type\":\"uint8\",\"internalType\":\"uint8\"}],\"stateMutability\":\"view\"},{\"type\":\"function\",\"name\":\"drop\",\"inputs\":[{\"name\":\"_activityId\",\"type\":\"uint256\",\"internalType\":\"uint256\"},{\"name\":\"_userAccount\",\"type\":\"address\",\"internalType\":\"address\"},{\"name\":\"_dropAmt\",\"type\":\"uint256\",\"internalType\":\"uint256\"}],\"outputs\":[{\"name\":\"\",\"type\":\"bool\",\"internalType\":\"bool\"}],\"stateMutability\":\"nonpayable\"},{\"type\":\"function\",\"name\":\"dropInfoArrs\",\"inputs\":[{\"name\":\"\",\"type\":\"uint256\",\"internalType\":\"uint256\"}],\"outputs\":[{\"name\":\"activityId\",\"type\":\"uint256\",\"internalType\":\"uint256\"},{\"name\":\"userAccount\",\"type\":\"address\",\"internalType\":\"address\"},{\"name\":\"dropTime\",\"type\":\"uint256\",\"internalType\":\"uint256\"},{\"name\":\"dropAmt\",\"type\":\"uint256\",\"internalType\":\"uint256\"}],\"stateMutability\":\"view\"},{\"type\":\"function\",\"name\":\"iNFTManager\",\"inputs\":[],\"outputs\":[{\"name\":\"\",\"type\":\"address\",\"internalType\":\"contractINftManager\"}],\"stateMutability\":\"view\"},{\"type\":\"function\",\"name\":\"initialize\",\"inputs\":[{\"name\":\"_initialOwner\",\"type\":\"address\",\"internalType\":\"address\"}],\"outputs\":[],\"stateMutability\":\"nonpayable\"},{\"type\":\"function\",\"name\":\"isMint\",\"inputs\":[],\"outputs\":[{\"name\":\"\",\"type\":\"bool\",\"internalType\":\"bool\"}],\"stateMutability\":\"view\"},{\"type\":\"function\",\"name\":\"maxDeadLine\",\"inputs\":[],\"outputs\":[{\"name\":\"\",\"type\":\"uint256\",\"internalType\":\"uint256\"}],\"stateMutability\":\"view\"},{\"type\":\"function\",\"name\":\"merchantOnceMaxMineAmt\",\"inputs\":[],\"outputs\":[{\"name\":\"\",\"type\":\"uint256\",\"internalType\":\"uint256\"}],\"stateMutability\":\"view\"},{\"type\":\"function\",\"name\":\"minePercent\",\"inputs\":[],\"outputs\":[{\"name\":\"\",\"type\":\"uint8\",\"internalType\":\"uint8\"}],\"stateMutability\":\"view\"},{\"type\":\"function\",\"name\":\"minedAmt\",\"inputs\":[],\"outputs\":[{\"name\":\"\",\"type\":\"uint256\",\"internalType\":\"uint256\"}],\"stateMutability\":\"view\"},{\"type\":\"function\",\"name\":\"name\",\"inputs\":[],\"outputs\":[{\"name\":\"\",\"type\":\"string\",\"internalType\":\"string\"}],\"stateMutability\":\"view\"},{\"type\":\"function\",\"name\":\"oneDay\",\"inputs\":[],\"outputs\":[{\"name\":\"\",\"type\":\"uint256\",\"internalType\":\"uint256\"}],\"stateMutability\":\"view\"},{\"type\":\"function\",\"name\":\"owner\",\"inputs\":[],\"outputs\":[{\"name\":\"\",\"type\":\"address\",\"internalType\":\"address\"}],\"stateMutability\":\"view\"},{\"type\":\"function\",\"name\":\"renounceOwnership\",\"inputs\":[],\"outputs\":[],\"stateMutability\":\"nonpayable\"},{\"type\":\"function\",\"name\":\"symbol\",\"inputs\":[],\"outputs\":[{\"name\":\"\",\"type\":\"string\",\"internalType\":\"string\"}],\"stateMutability\":\"view\"},{\"type\":\"function\",\"name\":\"totalMineAmt\",\"inputs\":[],\"outputs\":[{\"name\":\"\",\"type\":\"uint256\",\"internalType\":\"uint256\"}],\"stateMutability\":\"view\"},{\"type\":\"function\",\"name\":\"totalSupply\",\"inputs\":[],\"outputs\":[{\"name\":\"\",\"type\":\"uint256\",\"internalType\":\"uint256\"}],\"stateMutability\":\"view\"},{\"type\":\"function\",\"name\":\"transfer\",\"inputs\":[{\"name\":\"to\",\"type\":\"address\",\"internalType\":\"address\"},{\"name\":\"value\",\"type\":\"uint256\",\"internalType\":\"uint256\"}],\"outputs\":[{\"name\":\"\",\"type\":\"bool\",\"internalType\":\"bool\"}],\"stateMutability\":\"nonpayable\"},{\"type\":\"function\",\"name\":\"transferFrom\",\"inputs\":[{\"name\":\"from\",\"type\":\"address\",\"internalType\":\"address\"},{\"name\":\"to\",\"type\":\"address\",\"internalType\":\"address\"},{\"name\":\"value\",\"type\":\"uint256\",\"internalType\":\"uint256\"}],\"outputs\":[{\"name\":\"\",\"type\":\"bool\",\"internalType\":\"bool\"}],\"stateMutability\":\"nonpayable\"},{\"type\":\"function\",\"name\":\"transferOwnership\",\"inputs\":[{\"name\":\"newOwner\",\"type\":\"address\",\"internalType\":\"address\"}],\"outputs\":[],\"stateMutability\":\"nonpayable\"},{\"type\":\"function\",\"name\":\"userOnceMaxMineAmt\",\"inputs\":[],\"outputs\":[{\"name\":\"\",\"type\":\"uint256\",\"internalType\":\"uint256\"}],\"stateMutability\":\"view\"},{\"type\":\"event\",\"name\":\"ActivityAdd\",\"inputs\":[{\"name\":\"who\",\"type\":\"address\",\"indexed\":true,\"internalType\":\"address\"},{\"name\":\"_activityId\",\"type\":\"uint256\",\"indexed\":true,\"internalType\":\"uint256\"},{\"name\":\"_totalDropAmts\",\"type\":\"uint256\",\"indexed\":false,\"internalType\":\"uint256\"},{\"name\":\"_businessName\",\"type\":\"string\",\"indexed\":false,\"internalType\":\"string\"},{\"name\":\"_activityContent\",\"type\":\"string\",\"indexed\":false,\"internalType\":\"string\"},{\"name\":\"_latitudeLongitude\",\"type\":\"string\",\"indexed\":false,\"internalType\":\"string\"},{\"name\":\"_activityDeadLine\",\"type\":\"uint256\",\"indexed\":false,\"internalType\":\"uint256\"},{\"name\":\"_dropType\",\"type\":\"uint8\",\"indexed\":false,\"internalType\":\"uint8\"},{\"name\":\"_dropNumber\",\"type\":\"uint256\",\"indexed\":false,\"internalType\":\"uint256\"},{\"name\":\"_minDropAmt\",\"type\":\"uint256\",\"indexed\":false,\"internalType\":\"uint256\"},{\"name\":\"_maxDropAmt\",\"type\":\"uint256\",\"indexed\":false,\"internalType\":\"uint256\"},{\"name\":\"_tokenContractAddr\",\"type\":\"address\",\"indexed\":false,\"internalType\":\"address\"}],\"anonymous\":false},{\"type\":\"event\",\"name\":\"ActivityFinish\",\"inputs\":[{\"name\":\"_activityId\",\"type\":\"uint256\",\"indexed\":true,\"internalType\":\"uint256\"},{\"name\":\"_tokenContractAddr\",\"type\":\"address\",\"indexed\":false,\"internalType\":\"address\"},{\"name\":\"_returnAmount\",\"type\":\"uint256\",\"indexed\":false,\"internalType\":\"uint256\"},{\"name\":\"_minedAmount\",\"type\":\"uint256\",\"indexed\":false,\"internalType\":\"uint256\"}],\"anonymous\":false},{\"type\":\"event\",\"name\":\"AddMineAmt\",\"inputs\":[{\"name\":\"who\",\"type\":\"address\",\"indexed\":true,\"internalType\":\"address\"},{\"name\":\"_addMineAmt\",\"type\":\"uint256\",\"indexed\":false,\"internalType\":\"uint256\"}],\"anonymous\":false},{\"type\":\"event\",\"name\":\"Approval\",\"inputs\":[{\"name\":\"owner\",\"type\":\"address\",\"indexed\":true,\"internalType\":\"address\"},{\"name\":\"spender\",\"type\":\"address\",\"indexed\":true,\"internalType\":\"address\"},{\"name\":\"value\",\"type\":\"uint256\",\"indexed\":false,\"internalType\":\"uint256\"}],\"anonymous\":false},{\"type\":\"event\",\"name\":\"Drop\",\"inputs\":[{\"name\":\"who\",\"type\":\"address\",\"indexed\":true,\"internalType\":\"address\"},{\"name\":\"_activityId\",\"type\":\"uint256\",\"indexed\":true,\"internalType\":\"uint256\"},{\"name\":\"_dropAmt\",\"type\":\"uint256\",\"indexed\":false,\"internalType\":\"uint256\"}],\"anonymous\":false},{\"type\":\"event\",\"name\":\"Initialized\",\"inputs\":[{\"name\":\"version\",\"type\":\"uint64\",\"indexed\":false,\"internalType\":\"uint64\"}],\"anonymous\":false},{\"type\":\"event\",\"name\":\"OwnershipTransferred\",\"inputs\":[{\"name\":\"previousOwner\",\"type\":\"address\",\"indexed\":true,\"internalType\":\"address\"},{\"name\":\"newOwner\",\"type\":\"address\",\"indexed\":true,\"internalType\":\"address\"}],\"anonymous\":false},{\"type\":\"event\",\"name\":\"SetMinePercent\",\"inputs\":[{\"name\":\"minePercent\",\"type\":\"uint8\",\"indexed\":false,\"internalType\":\"uint8\"}],\"anonymous\":false},{\"type\":\"event\",\"name\":\"SetValidTime\",\"inputs\":[{\"name\":\"who\",\"type\":\"address\",\"indexed\":true,\"internalType\":\"address\"},{\"name\":\"_time\",\"type\":\"uint256\",\"indexed\":false,\"internalType\":\"uint256\"}],\"anonymous\":false},{\"type\":\"event\",\"name\":\"Transfer\",\"inputs\":[{\"name\":\"from\",\"type\":\"address\",\"indexed\":true,\"internalType\":\"address\"},{\"name\":\"to\",\"type\":\"address\",\"indexed\":true,\"internalType\":\"address\"},{\"name\":\"value\",\"type\":\"uint256\",\"indexed\":false,\"internalType\":\"uint256\"}],\"anonymous\":false},{\"type\":\"error\",\"name\":\"ERC20InsufficientAllowance\",\"inputs\":[{\"name\":\"spender\",\"type\":\"address\",\"internalType\":\"address\"},{\"name\":\"allowance\",\"type\":\"uint256\",\"internalType\":\"uint256\"},{\"name\":\"needed\",\"type\":\"uint256\",\"internalType\":\"uint256\"}]},{\"type\":\"error\",\"name\":\"ERC20InsufficientBalance\",\"inputs\":[{\"name\":\"sender\",\"type\":\"address\",\"internalType\":\"address\"},{\"name\":\"balance\",\"type\":\"uint256\",\"internalType\":\"uint256\"},{\"name\":\"needed\",\"type\":\"uint256\",\"internalType\":\"uint256\"}]},{\"type\":\"error\",\"name\":\"ERC20InvalidApprover\",\"inputs\":[{\"name\":\"approver\",\"type\":\"address\",\"internalType\":\"address\"}]},{\"type\":\"error\",\"name\":\"ERC20InvalidReceiver\",\"inputs\":[{\"name\":\"receiver\",\"type\":\"address\",\"internalType\":\"address\"}]},{\"type\":\"error\",\"name\":\"ERC20InvalidSender\",\"inputs\":[{\"name\":\"sender\",\"type\":\"address\",\"internalType\":\"address\"}]},{\"type\":\"error\",\"name\":\"ERC20InvalidSpender\",\"inputs\":[{\"name\":\"spender\",\"type\":\"address\",\"internalType\":\"address\"}]},{\"type\":\"error\",\"name\":\"InvalidInitialization\",\"inputs\":[]},{\"type\":\"error\",\"name\":\"NotInitializing\",\"inputs\":[]},{\"type\":\"error\",\"name\":\"OwnableInvalidOwner\",\"inputs\":[{\"name\":\"owner\",\"type\":\"address\",\"internalType\":\"address\"}]},{\"type\":\"error\",\"name\":\"OwnableUnauthorizedAccount\",\"inputs\":[{\"name\":\"account\",\"type\":\"address\",\"internalType\":\"address\"}]},{\"type\":\"error\",\"name\":\"ReentrancyGuardReentrantCall\",\"inputs\":[]}]",
+	ABI: "[{\"type\":\"constructor\",\"inputs\":[],\"stateMutability\":\"nonpayable\"},{\"type\":\"function\",\"name\":\"FccTokenAddr\",\"inputs\":[],\"outputs\":[{\"name\":\"\",\"type\":\"address\",\"internalType\":\"contractIERC20\"}],\"stateMutability\":\"view\"},{\"type\":\"function\",\"name\":\"NTFLastMineTime\",\"inputs\":[{\"name\":\"\",\"type\":\"address\",\"internalType\":\"address\"}],\"outputs\":[{\"name\":\"\",\"type\":\"uint256\",\"internalType\":\"uint256\"}],\"stateMutability\":\"view\"},{\"type\":\"function\",\"name\":\"UsdtTokenAddr\",\"inputs\":[],\"outputs\":[{\"name\":\"\",\"type\":\"address\",\"internalType\":\"contractIERC20\"}],\"stateMutability\":\"view\"},{\"type\":\"function\",\"name\":\"activityAdd\",\"inputs\":[{\"name\":\"_businessName\",\"type\":\"string\",\"internalType\":\"string\"},{\"name\":\"_activityContent\",\"type\":\"string\",\"internalType\":\"string\"},{\"name\":\"_latitudeLongitude\",\"type\":\"string\",\"internalType\":\"string\"},{\"name\":\"_activityDeadLine\",\"type\":\"uint256\",\"internalType\":\"uint256\"},{\"name\":\"_totalDropAmts\",\"type\":\"uint256\",\"internalType\":\"uint256\"},{\"name\":\"_dropType\",\"type\":\"uint8\",\"internalType\":\"uint8\"},{\"name\":\"_dropNumber\",\"type\":\"uint256\",\"internalType\":\"uint256\"},{\"name\":\"_minDropAmt\",\"type\":\"uint256\",\"internalType\":\"uint256\"},{\"name\":\"_maxDropAmt\",\"type\":\"uint256\",\"internalType\":\"uint256\"},{\"name\":\"_tokenContractAddr\",\"type\":\"address\",\"internalType\":\"address\"}],\"outputs\":[{\"name\":\"\",\"type\":\"bool\",\"internalType\":\"bool\"},{\"name\":\"\",\"type\":\"uint256\",\"internalType\":\"uint256\"}],\"stateMutability\":\"nonpayable\"},{\"type\":\"function\",\"name\":\"activityDroppedToAccount\",\"inputs\":[{\"name\":\"\",\"type\":\"uint256\",\"internalType\":\"uint256\"},{\"name\":\"\",\"type\":\"address\",\"internalType\":\"address\"}],\"outputs\":[{\"name\":\"\",\"type\":\"bool\",\"internalType\":\"bool\"}],\"stateMutability\":\"view\"},{\"type\":\"function\",\"name\":\"activityFinish\",\"inputs\":[{\"name\":\"_activityId\",\"type\":\"uint256\",\"internalType\":\"uint256\"}],\"outputs\":[{\"name\":\"\",\"type\":\"bool\",\"internalType\":\"bool\"}],\"stateMutability\":\"nonpayable\"},{\"type\":\"function\",\"name\":\"activityInfoArrs\",\"inputs\":[{\"name\":\"\",\"type\":\"uint256\",\"internalType\":\"uint256\"}],\"outputs\":[{\"name\":\"activityId\",\"type\":\"uint256\",\"internalType\":\"uint256\"},{\"name\":\"businessAccount\",\"type\":\"address\",\"internalType\":\"address\"},{\"name\":\"businessName\",\"type\":\"string\",\"internalType\":\"string\"},{\"name\":\"activityContent\",\"type\":\"string\",\"internalType\":\"string\"},{\"name\":\"latitudeLongitude\",\"type\":\"string\",\"internalType\":\"string\"},{\"name\":\"activityCreateTime\",\"type\":\"uint256\",\"internalType\":\"uint256\"},{\"name\":\"activityDeadLine\",\"type\":\"uint256\",\"internalType\":\"uint256\"},{\"name\":\"dropType\",\"type\":\"uint8\",\"internalType\":\"uint8\"},{\"name\":\"dropNumber\",\"type\":\"uint256\",\"internalType\":\"uint256\"},{\"name\":\"minDropAmt\",\"type\":\"uint256\",\"internalType\":\"uint256\"},{\"name\":\"maxDropAmt\",\"type\":\"uint256\",\"internalType\":\"uint256\"},{\"name\":\"tokenContractAddr\",\"type\":\"address\",\"internalType\":\"address\"}],\"stateMutability\":\"view\"},{\"type\":\"function\",\"name\":\"activityInfoChangedIdx\",\"inputs\":[{\"name\":\"\",\"type\":\"uint256\",\"internalType\":\"uint256\"}],\"outputs\":[{\"name\":\"\",\"type\":\"uint256\",\"internalType\":\"uint256\"}],\"stateMutability\":\"view\"},{\"type\":\"function\",\"name\":\"activityInfoExtArrs\",\"inputs\":[{\"name\":\"\",\"type\":\"uint256\",\"internalType\":\"uint256\"}],\"outputs\":[{\"name\":\"activityId\",\"type\":\"uint256\",\"internalType\":\"uint256\"},{\"name\":\"alreadyDropAmts\",\"type\":\"uint256\",\"internalType\":\"uint256\"},{\"name\":\"alreadyDropNumber\",\"type\":\"uint256\",\"internalType\":\"uint256\"},{\"name\":\"businessMinedAmt\",\"type\":\"uint256\",\"internalType\":\"uint256\"},{\"name\":\"businessMinedWithdrawedAmt\",\"type\":\"uint256\",\"internalType\":\"uint256\"},{\"name\":\"activityStatus\",\"type\":\"uint8\",\"internalType\":\"uint8\"}],\"stateMutability\":\"view\"},{\"type\":\"function\",\"name\":\"allowance\",\"inputs\":[{\"name\":\"owner\",\"type\":\"address\",\"internalType\":\"address\"},{\"name\":\"spender\",\"type\":\"address\",\"internalType\":\"address\"}],\"outputs\":[{\"name\":\"\",\"type\":\"uint256\",\"internalType\":\"uint256\"}],\"stateMutability\":\"view\"},{\"type\":\"function\",\"name\":\"approve\",\"inputs\":[{\"name\":\"spender\",\"type\":\"address\",\"internalType\":\"address\"},{\"name\":\"value\",\"type\":\"uint256\",\"internalType\":\"uint256\"}],\"outputs\":[{\"name\":\"\",\"type\":\"bool\",\"internalType\":\"bool\"}],\"stateMutability\":\"nonpayable\"},{\"type\":\"function\",\"name\":\"balanceOf\",\"inputs\":[{\"name\":\"account\",\"type\":\"address\",\"internalType\":\"address\"}],\"outputs\":[{\"name\":\"\",\"type\":\"uint256\",\"internalType\":\"uint256\"}],\"stateMutability\":\"view\"},{\"type\":\"function\",\"name\":\"burn\",\"inputs\":[{\"name\":\"value\",\"type\":\"uint256\",\"internalType\":\"uint256\"}],\"outputs\":[],\"stateMutability\":\"nonpayable\"},{\"type\":\"function\",\"name\":\"burnFrom\",\"inputs\":[{\"name\":\"account\",\"type\":\"address\",\"internalType\":\"address\"},{\"name\":\"value\",\"type\":\"uint256\",\"internalType\":\"uint256\"}],\"outputs\":[],\"stateMutability\":\"nonpayable\"},{\"type\":\"function\",\"name\":\"decimals\",\"inputs\":[],\"outputs\":[{\"name\":\"\",\"type\":\"uint8\",\"internalType\":\"uint8\"}],\"stateMutability\":\"view\"},{\"type\":\"function\",\"name\":\"deleteMinedFishcakePower\",\"inputs\":[{\"name\":\"_miner\",\"type\":\"address\",\"internalType\":\"address\"}],\"outputs\":[],\"stateMutability\":\"nonpayable\"},{\"type\":\"function\",\"name\":\"deleteMinerMineAmount\",\"inputs\":[{\"name\":\"_miner\",\"type\":\"address\",\"internalType\":\"address\"}],\"outputs\":[],\"stateMutability\":\"nonpayable\"},{\"type\":\"function\",\"name\":\"drop\",\"inputs\":[{\"name\":\"_activityId\",\"type\":\"uint256\",\"internalType\":\"uint256\"},{\"name\":\"_userAccount\",\"type\":\"address\",\"internalType\":\"address\"},{\"name\":\"_dropAmt\",\"type\":\"uint256\",\"internalType\":\"uint256\"}],\"outputs\":[{\"name\":\"\",\"type\":\"bool\",\"internalType\":\"bool\"}],\"stateMutability\":\"nonpayable\"},{\"type\":\"function\",\"name\":\"dropInfoArrs\",\"inputs\":[{\"name\":\"\",\"type\":\"uint256\",\"internalType\":\"uint256\"}],\"outputs\":[{\"name\":\"activityId\",\"type\":\"uint256\",\"internalType\":\"uint256\"},{\"name\":\"userAccount\",\"type\":\"address\",\"internalType\":\"address\"},{\"name\":\"dropTime\",\"type\":\"uint256\",\"internalType\":\"uint256\"},{\"name\":\"dropAmt\",\"type\":\"uint256\",\"internalType\":\"uint256\"}],\"stateMutability\":\"view\"},{\"type\":\"function\",\"name\":\"getMinedFishcakePower\",\"inputs\":[{\"name\":\"_miner\",\"type\":\"address\",\"internalType\":\"address\"}],\"outputs\":[{\"name\":\"\",\"type\":\"uint256\",\"internalType\":\"uint256\"}],\"stateMutability\":\"view\"},{\"type\":\"function\",\"name\":\"getMinerMineAmount\",\"inputs\":[{\"name\":\"_miner\",\"type\":\"address\",\"internalType\":\"address\"}],\"outputs\":[{\"name\":\"\",\"type\":\"uint256\",\"internalType\":\"uint256\"}],\"stateMutability\":\"view\"},{\"type\":\"function\",\"name\":\"iNFTManager\",\"inputs\":[],\"outputs\":[{\"name\":\"\",\"type\":\"address\",\"internalType\":\"contractINftManager\"}],\"stateMutability\":\"view\"},{\"type\":\"function\",\"name\":\"initialize\",\"inputs\":[{\"name\":\"_initialOwner\",\"type\":\"address\",\"internalType\":\"address\"},{\"name\":\"_fccAddress\",\"type\":\"address\",\"internalType\":\"address\"},{\"name\":\"_usdtTokenAddr\",\"type\":\"address\",\"internalType\":\"address\"},{\"name\":\"_NFTManagerAddr\",\"type\":\"address\",\"internalType\":\"address\"}],\"outputs\":[],\"stateMutability\":\"nonpayable\"},{\"type\":\"function\",\"name\":\"isMint\",\"inputs\":[],\"outputs\":[{\"name\":\"\",\"type\":\"bool\",\"internalType\":\"bool\"}],\"stateMutability\":\"view\"},{\"type\":\"function\",\"name\":\"maxDeadLine\",\"inputs\":[],\"outputs\":[{\"name\":\"\",\"type\":\"uint256\",\"internalType\":\"uint256\"}],\"stateMutability\":\"view\"},{\"type\":\"function\",\"name\":\"merchantOnceMaxMineAmt\",\"inputs\":[],\"outputs\":[{\"name\":\"\",\"type\":\"uint256\",\"internalType\":\"uint256\"}],\"stateMutability\":\"view\"},{\"type\":\"function\",\"name\":\"minePercent\",\"inputs\":[],\"outputs\":[{\"name\":\"\",\"type\":\"uint8\",\"internalType\":\"uint8\"}],\"stateMutability\":\"view\"},{\"type\":\"function\",\"name\":\"minedAmt\",\"inputs\":[],\"outputs\":[{\"name\":\"\",\"type\":\"uint256\",\"internalType\":\"uint256\"}],\"stateMutability\":\"view\"},{\"type\":\"function\",\"name\":\"minedFishcakePower\",\"inputs\":[{\"name\":\"\",\"type\":\"address\",\"internalType\":\"address\"}],\"outputs\":[{\"name\":\"\",\"type\":\"uint256\",\"internalType\":\"uint256\"}],\"stateMutability\":\"view\"},{\"type\":\"function\",\"name\":\"minerMineAmount\",\"inputs\":[{\"name\":\"\",\"type\":\"address\",\"internalType\":\"address\"}],\"outputs\":[{\"name\":\"\",\"type\":\"uint256\",\"internalType\":\"uint256\"}],\"stateMutability\":\"view\"},{\"type\":\"function\",\"name\":\"name\",\"inputs\":[],\"outputs\":[{\"name\":\"\",\"type\":\"string\",\"internalType\":\"string\"}],\"stateMutability\":\"view\"},{\"type\":\"function\",\"name\":\"oneDay\",\"inputs\":[],\"outputs\":[{\"name\":\"\",\"type\":\"uint256\",\"internalType\":\"uint256\"}],\"stateMutability\":\"view\"},{\"type\":\"function\",\"name\":\"owner\",\"inputs\":[],\"outputs\":[{\"name\":\"\",\"type\":\"address\",\"internalType\":\"address\"}],\"stateMutability\":\"view\"},{\"type\":\"function\",\"name\":\"renounceOwnership\",\"inputs\":[],\"outputs\":[],\"stateMutability\":\"nonpayable\"},{\"type\":\"function\",\"name\":\"symbol\",\"inputs\":[],\"outputs\":[{\"name\":\"\",\"type\":\"string\",\"internalType\":\"string\"}],\"stateMutability\":\"view\"},{\"type\":\"function\",\"name\":\"totalMineAmt\",\"inputs\":[],\"outputs\":[{\"name\":\"\",\"type\":\"uint256\",\"internalType\":\"uint256\"}],\"stateMutability\":\"view\"},{\"type\":\"function\",\"name\":\"totalSupply\",\"inputs\":[],\"outputs\":[{\"name\":\"\",\"type\":\"uint256\",\"internalType\":\"uint256\"}],\"stateMutability\":\"view\"},{\"type\":\"function\",\"name\":\"transfer\",\"inputs\":[{\"name\":\"to\",\"type\":\"address\",\"internalType\":\"address\"},{\"name\":\"value\",\"type\":\"uint256\",\"internalType\":\"uint256\"}],\"outputs\":[{\"name\":\"\",\"type\":\"bool\",\"internalType\":\"bool\"}],\"stateMutability\":\"nonpayable\"},{\"type\":\"function\",\"name\":\"transferFrom\",\"inputs\":[{\"name\":\"from\",\"type\":\"address\",\"internalType\":\"address\"},{\"name\":\"to\",\"type\":\"address\",\"internalType\":\"address\"},{\"name\":\"value\",\"type\":\"uint256\",\"internalType\":\"uint256\"}],\"outputs\":[{\"name\":\"\",\"type\":\"bool\",\"internalType\":\"bool\"}],\"stateMutability\":\"nonpayable\"},{\"type\":\"function\",\"name\":\"transferOwnership\",\"inputs\":[{\"name\":\"newOwner\",\"type\":\"address\",\"internalType\":\"address\"}],\"outputs\":[],\"stateMutability\":\"nonpayable\"},{\"type\":\"function\",\"name\":\"userOnceMaxMineAmt\",\"inputs\":[],\"outputs\":[{\"name\":\"\",\"type\":\"uint256\",\"internalType\":\"uint256\"}],\"stateMutability\":\"view\"},{\"type\":\"event\",\"name\":\"ActivityAdd\",\"inputs\":[{\"name\":\"who\",\"type\":\"address\",\"indexed\":true,\"internalType\":\"address\"},{\"name\":\"_activityId\",\"type\":\"uint256\",\"indexed\":true,\"internalType\":\"uint256\"},{\"name\":\"_totalDropAmts\",\"type\":\"uint256\",\"indexed\":false,\"internalType\":\"uint256\"},{\"name\":\"_businessName\",\"type\":\"string\",\"indexed\":false,\"internalType\":\"string\"},{\"name\":\"_activityContent\",\"type\":\"string\",\"indexed\":false,\"internalType\":\"string\"},{\"name\":\"_latitudeLongitude\",\"type\":\"string\",\"indexed\":false,\"internalType\":\"string\"},{\"name\":\"_activityDeadLine\",\"type\":\"uint256\",\"indexed\":false,\"internalType\":\"uint256\"},{\"name\":\"_dropType\",\"type\":\"uint8\",\"indexed\":false,\"internalType\":\"uint8\"},{\"name\":\"_dropNumber\",\"type\":\"uint256\",\"indexed\":false,\"internalType\":\"uint256\"},{\"name\":\"_minDropAmt\",\"type\":\"uint256\",\"indexed\":false,\"internalType\":\"uint256\"},{\"name\":\"_maxDropAmt\",\"type\":\"uint256\",\"indexed\":false,\"internalType\":\"uint256\"},{\"name\":\"_tokenContractAddr\",\"type\":\"address\",\"indexed\":false,\"internalType\":\"address\"}],\"anonymous\":false},{\"type\":\"event\",\"name\":\"ActivityFinish\",\"inputs\":[{\"name\":\"_activityId\",\"type\":\"uint256\",\"indexed\":true,\"internalType\":\"uint256\"},{\"name\":\"_tokenContractAddr\",\"type\":\"address\",\"indexed\":false,\"internalType\":\"address\"},{\"name\":\"_returnAmount\",\"type\":\"uint256\",\"indexed\":false,\"internalType\":\"uint256\"},{\"name\":\"_minedAmount\",\"type\":\"uint256\",\"indexed\":false,\"internalType\":\"uint256\"}],\"anonymous\":false},{\"type\":\"event\",\"name\":\"AddMineAmt\",\"inputs\":[{\"name\":\"who\",\"type\":\"address\",\"indexed\":true,\"internalType\":\"address\"},{\"name\":\"_addMineAmt\",\"type\":\"uint256\",\"indexed\":false,\"internalType\":\"uint256\"}],\"anonymous\":false},{\"type\":\"event\",\"name\":\"Approval\",\"inputs\":[{\"name\":\"owner\",\"type\":\"address\",\"indexed\":true,\"internalType\":\"address\"},{\"name\":\"spender\",\"type\":\"address\",\"indexed\":true,\"internalType\":\"address\"},{\"name\":\"value\",\"type\":\"uint256\",\"indexed\":false,\"internalType\":\"uint256\"}],\"anonymous\":false},{\"type\":\"event\",\"name\":\"Drop\",\"inputs\":[{\"name\":\"who\",\"type\":\"address\",\"indexed\":true,\"internalType\":\"address\"},{\"name\":\"_activityId\",\"type\":\"uint256\",\"indexed\":true,\"internalType\":\"uint256\"},{\"name\":\"_dropAmt\",\"type\":\"uint256\",\"indexed\":false,\"internalType\":\"uint256\"}],\"anonymous\":false},{\"type\":\"event\",\"name\":\"Initialized\",\"inputs\":[{\"name\":\"version\",\"type\":\"uint64\",\"indexed\":false,\"internalType\":\"uint64\"}],\"anonymous\":false},{\"type\":\"event\",\"name\":\"OwnershipTransferred\",\"inputs\":[{\"name\":\"previousOwner\",\"type\":\"address\",\"indexed\":true,\"internalType\":\"address\"},{\"name\":\"newOwner\",\"type\":\"address\",\"indexed\":true,\"internalType\":\"address\"}],\"anonymous\":false},{\"type\":\"event\",\"name\":\"SetMinePercent\",\"inputs\":[{\"name\":\"minePercent\",\"type\":\"uint8\",\"indexed\":false,\"internalType\":\"uint8\"}],\"anonymous\":false},{\"type\":\"event\",\"name\":\"SetValidTime\",\"inputs\":[{\"name\":\"who\",\"type\":\"address\",\"indexed\":true,\"internalType\":\"address\"},{\"name\":\"_time\",\"type\":\"uint256\",\"indexed\":false,\"internalType\":\"uint256\"}],\"anonymous\":false},{\"type\":\"event\",\"name\":\"Transfer\",\"inputs\":[{\"name\":\"from\",\"type\":\"address\",\"indexed\":true,\"internalType\":\"address\"},{\"name\":\"to\",\"type\":\"address\",\"indexed\":true,\"internalType\":\"address\"},{\"name\":\"value\",\"type\":\"uint256\",\"indexed\":false,\"internalType\":\"uint256\"}],\"anonymous\":false},{\"type\":\"error\",\"name\":\"ERC20InsufficientAllowance\",\"inputs\":[{\"name\":\"spender\",\"type\":\"address\",\"internalType\":\"address\"},{\"name\":\"allowance\",\"type\":\"uint256\",\"internalType\":\"uint256\"},{\"name\":\"needed\",\"type\":\"uint256\",\"internalType\":\"uint256\"}]},{\"type\":\"error\",\"name\":\"ERC20InsufficientBalance\",\"inputs\":[{\"name\":\"sender\",\"type\":\"address\",\"internalType\":\"address\"},{\"name\":\"balance\",\"type\":\"uint256\",\"internalType\":\"uint256\"},{\"name\":\"needed\",\"type\":\"uint256\",\"internalType\":\"uint256\"}]},{\"type\":\"error\",\"name\":\"ERC20InvalidApprover\",\"inputs\":[{\"name\":\"approver\",\"type\":\"address\",\"internalType\":\"address\"}]},{\"type\":\"error\",\"name\":\"ERC20InvalidReceiver\",\"inputs\":[{\"name\":\"receiver\",\"type\":\"address\",\"internalType\":\"address\"}]},{\"type\":\"error\",\"name\":\"ERC20InvalidSender\",\"inputs\":[{\"name\":\"sender\",\"type\":\"address\",\"internalType\":\"address\"}]},{\"type\":\"error\",\"name\":\"ERC20InvalidSpender\",\"inputs\":[{\"name\":\"spender\",\"type\":\"address\",\"internalType\":\"address\"}]},{\"type\":\"error\",\"name\":\"InvalidInitialization\",\"inputs\":[]},{\"type\":\"error\",\"name\":\"NotInitializing\",\"inputs\":[]},{\"type\":\"error\",\"name\":\"OwnableInvalidOwner\",\"inputs\":[{\"name\":\"owner\",\"type\":\"address\",\"internalType\":\"address\"}]},{\"type\":\"error\",\"name\":\"OwnableUnauthorizedAccount\",\"inputs\":[{\"name\":\"account\",\"type\":\"address\",\"internalType\":\"address\"}]},{\"type\":\"error\",\"name\":\"ReentrancyGuardReentrantCall\",\"inputs\":[]}]",
 }
 
 // FishcakeEventManagerABI is the input ABI used to generate the binding from.
@@ -273,12 +273,12 @@ func (_FishcakeEventManager *FishcakeEventManagerCallerSession) UsdtTokenAddr() 
 	return _FishcakeEventManager.Contract.UsdtTokenAddr(&_FishcakeEventManager.CallOpts)
 }
 
-// ActivityDropedToAccount is a free data retrieval call binding the contract method 0x85a455f5.
+// ActivityDroppedToAccount is a free data retrieval call binding the contract method 0xacae5d25.
 //
-// Solidity: function activityDropedToAccount(uint256 , address ) view returns(bool)
-func (_FishcakeEventManager *FishcakeEventManagerCaller) ActivityDropedToAccount(opts *bind.CallOpts, arg0 *big.Int, arg1 common.Address) (bool, error) {
+// Solidity: function activityDroppedToAccount(uint256 , address ) view returns(bool)
+func (_FishcakeEventManager *FishcakeEventManagerCaller) ActivityDroppedToAccount(opts *bind.CallOpts, arg0 *big.Int, arg1 common.Address) (bool, error) {
 	var out []interface{}
-	err := _FishcakeEventManager.contract.Call(opts, &out, "activityDropedToAccount", arg0, arg1)
+	err := _FishcakeEventManager.contract.Call(opts, &out, "activityDroppedToAccount", arg0, arg1)
 
 	if err != nil {
 		return *new(bool), err
@@ -290,18 +290,18 @@ func (_FishcakeEventManager *FishcakeEventManagerCaller) ActivityDropedToAccount
 
 }
 
-// ActivityDropedToAccount is a free data retrieval call binding the contract method 0x85a455f5.
+// ActivityDroppedToAccount is a free data retrieval call binding the contract method 0xacae5d25.
 //
-// Solidity: function activityDropedToAccount(uint256 , address ) view returns(bool)
-func (_FishcakeEventManager *FishcakeEventManagerSession) ActivityDropedToAccount(arg0 *big.Int, arg1 common.Address) (bool, error) {
-	return _FishcakeEventManager.Contract.ActivityDropedToAccount(&_FishcakeEventManager.CallOpts, arg0, arg1)
+// Solidity: function activityDroppedToAccount(uint256 , address ) view returns(bool)
+func (_FishcakeEventManager *FishcakeEventManagerSession) ActivityDroppedToAccount(arg0 *big.Int, arg1 common.Address) (bool, error) {
+	return _FishcakeEventManager.Contract.ActivityDroppedToAccount(&_FishcakeEventManager.CallOpts, arg0, arg1)
 }
 
-// ActivityDropedToAccount is a free data retrieval call binding the contract method 0x85a455f5.
+// ActivityDroppedToAccount is a free data retrieval call binding the contract method 0xacae5d25.
 //
-// Solidity: function activityDropedToAccount(uint256 , address ) view returns(bool)
-func (_FishcakeEventManager *FishcakeEventManagerCallerSession) ActivityDropedToAccount(arg0 *big.Int, arg1 common.Address) (bool, error) {
-	return _FishcakeEventManager.Contract.ActivityDropedToAccount(&_FishcakeEventManager.CallOpts, arg0, arg1)
+// Solidity: function activityDroppedToAccount(uint256 , address ) view returns(bool)
+func (_FishcakeEventManager *FishcakeEventManagerCallerSession) ActivityDroppedToAccount(arg0 *big.Int, arg1 common.Address) (bool, error) {
+	return _FishcakeEventManager.Contract.ActivityDroppedToAccount(&_FishcakeEventManager.CallOpts, arg0, arg1)
 }
 
 // ActivityInfoArrs is a free data retrieval call binding the contract method 0xa0752825.
@@ -643,6 +643,68 @@ func (_FishcakeEventManager *FishcakeEventManagerCallerSession) DropInfoArrs(arg
 	return _FishcakeEventManager.Contract.DropInfoArrs(&_FishcakeEventManager.CallOpts, arg0)
 }
 
+// GetMinedFishcakePower is a free data retrieval call binding the contract method 0x4c6681e1.
+//
+// Solidity: function getMinedFishcakePower(address _miner) view returns(uint256)
+func (_FishcakeEventManager *FishcakeEventManagerCaller) GetMinedFishcakePower(opts *bind.CallOpts, _miner common.Address) (*big.Int, error) {
+	var out []interface{}
+	err := _FishcakeEventManager.contract.Call(opts, &out, "getMinedFishcakePower", _miner)
+
+	if err != nil {
+		return *new(*big.Int), err
+	}
+
+	out0 := *abi.ConvertType(out[0], new(*big.Int)).(**big.Int)
+
+	return out0, err
+
+}
+
+// GetMinedFishcakePower is a free data retrieval call binding the contract method 0x4c6681e1.
+//
+// Solidity: function getMinedFishcakePower(address _miner) view returns(uint256)
+func (_FishcakeEventManager *FishcakeEventManagerSession) GetMinedFishcakePower(_miner common.Address) (*big.Int, error) {
+	return _FishcakeEventManager.Contract.GetMinedFishcakePower(&_FishcakeEventManager.CallOpts, _miner)
+}
+
+// GetMinedFishcakePower is a free data retrieval call binding the contract method 0x4c6681e1.
+//
+// Solidity: function getMinedFishcakePower(address _miner) view returns(uint256)
+func (_FishcakeEventManager *FishcakeEventManagerCallerSession) GetMinedFishcakePower(_miner common.Address) (*big.Int, error) {
+	return _FishcakeEventManager.Contract.GetMinedFishcakePower(&_FishcakeEventManager.CallOpts, _miner)
+}
+
+// GetMinerMineAmount is a free data retrieval call binding the contract method 0xa731299b.
+//
+// Solidity: function getMinerMineAmount(address _miner) view returns(uint256)
+func (_FishcakeEventManager *FishcakeEventManagerCaller) GetMinerMineAmount(opts *bind.CallOpts, _miner common.Address) (*big.Int, error) {
+	var out []interface{}
+	err := _FishcakeEventManager.contract.Call(opts, &out, "getMinerMineAmount", _miner)
+
+	if err != nil {
+		return *new(*big.Int), err
+	}
+
+	out0 := *abi.ConvertType(out[0], new(*big.Int)).(**big.Int)
+
+	return out0, err
+
+}
+
+// GetMinerMineAmount is a free data retrieval call binding the contract method 0xa731299b.
+//
+// Solidity: function getMinerMineAmount(address _miner) view returns(uint256)
+func (_FishcakeEventManager *FishcakeEventManagerSession) GetMinerMineAmount(_miner common.Address) (*big.Int, error) {
+	return _FishcakeEventManager.Contract.GetMinerMineAmount(&_FishcakeEventManager.CallOpts, _miner)
+}
+
+// GetMinerMineAmount is a free data retrieval call binding the contract method 0xa731299b.
+//
+// Solidity: function getMinerMineAmount(address _miner) view returns(uint256)
+func (_FishcakeEventManager *FishcakeEventManagerCallerSession) GetMinerMineAmount(_miner common.Address) (*big.Int, error) {
+	return _FishcakeEventManager.Contract.GetMinerMineAmount(&_FishcakeEventManager.CallOpts, _miner)
+}
+
 // INFTManager is a free data retrieval call binding the contract method 0xbbe68511.
 //
 // Solidity: function iNFTManager() view returns(address)
@@ -827,6 +889,68 @@ func (_FishcakeEventManager *FishcakeEventManagerSession) MinedAmt() (*big.Int, 
 // Solidity: function minedAmt() view returns(uint256)
 func (_FishcakeEventManager *FishcakeEventManagerCallerSession) MinedAmt() (*big.Int, error) {
 	return _FishcakeEventManager.Contract.MinedAmt(&_FishcakeEventManager.CallOpts)
+}
+
+// MinedFishcakePower is a free data retrieval call binding the contract method 0xd4621430.
+//
+// Solidity: function minedFishcakePower(address ) view returns(uint256)
+func (_FishcakeEventManager *FishcakeEventManagerCaller) MinedFishcakePower(opts *bind.CallOpts, arg0 common.Address) (*big.Int, error) {
+	var out []interface{}
+	err := _FishcakeEventManager.contract.Call(opts, &out, "minedFishcakePower", arg0)
+
+	if err != nil {
+		return *new(*big.Int), err
+	}
+
+	out0 := *abi.ConvertType(out[0], new(*big.Int)).(**big.Int)
+
+	return out0, err
+
+}
+
+// MinedFishcakePower is a free data retrieval call binding the contract method 0xd4621430.
+//
+// Solidity: function minedFishcakePower(address ) view returns(uint256)
+func (_FishcakeEventManager *FishcakeEventManagerSession) MinedFishcakePower(arg0 common.Address) (*big.Int, error) {
+	return _FishcakeEventManager.Contract.MinedFishcakePower(&_FishcakeEventManager.CallOpts, arg0)
+}
+
+// MinedFishcakePower is a free data retrieval call binding the contract method 0xd4621430.
+//
+// Solidity: function minedFishcakePower(address ) view returns(uint256)
+func (_FishcakeEventManager *FishcakeEventManagerCallerSession) MinedFishcakePower(arg0 common.Address) (*big.Int, error) {
+	return _FishcakeEventManager.Contract.MinedFishcakePower(&_FishcakeEventManager.CallOpts, arg0)
+}
+
+// MinerMineAmount is a free data retrieval call binding the contract method 0x265d3051.
+//
+// Solidity: function minerMineAmount(address ) view returns(uint256)
+func (_FishcakeEventManager *FishcakeEventManagerCaller) MinerMineAmount(opts *bind.CallOpts, arg0 common.Address) (*big.Int, error) {
+	var out []interface{}
+	err := _FishcakeEventManager.contract.Call(opts, &out, "minerMineAmount", arg0)
+
+	if err != nil {
+		return *new(*big.Int), err
+	}
+
+	out0 := *abi.ConvertType(out[0], new(*big.Int)).(**big.Int)
+
+	return out0, err
+
+}
+
+// MinerMineAmount is a free data retrieval call binding the contract method 0x265d3051.
+//
+// Solidity: function minerMineAmount(address ) view returns(uint256)
+func (_FishcakeEventManager *FishcakeEventManagerSession) MinerMineAmount(arg0 common.Address) (*big.Int, error) {
+	return _FishcakeEventManager.Contract.MinerMineAmount(&_FishcakeEventManager.CallOpts, arg0)
+}
+
+// MinerMineAmount is a free data retrieval call binding the contract method 0x265d3051.
+//
+// Solidity: function minerMineAmount(address ) view returns(uint256)
+func (_FishcakeEventManager *FishcakeEventManagerCallerSession) MinerMineAmount(arg0 common.Address) (*big.Int, error) {
+	return _FishcakeEventManager.Contract.MinerMineAmount(&_FishcakeEventManager.CallOpts, arg0)
 }
 
 // Name is a free data retrieval call binding the contract method 0x06fdde03.
@@ -1151,6 +1275,48 @@ func (_FishcakeEventManager *FishcakeEventManagerTransactorSession) BurnFrom(acc
 	return _FishcakeEventManager.Contract.BurnFrom(&_FishcakeEventManager.TransactOpts, account, value)
 }
 
+// DeleteMinedFishcakePower is a paid mutator transaction binding the contract method 0xf74b4709.
+//
+// Solidity: function deleteMinedFishcakePower(address _miner) returns()
+func (_FishcakeEventManager *FishcakeEventManagerTransactor) DeleteMinedFishcakePower(opts *bind.TransactOpts, _miner common.Address) (*types.Transaction, error) {
+	return _FishcakeEventManager.contract.Transact(opts, "deleteMinedFishcakePower", _miner)
+}
+
+// DeleteMinedFishcakePower is a paid mutator transaction binding the contract method 0xf74b4709.
+//
+// Solidity: function deleteMinedFishcakePower(address _miner) returns()
+func (_FishcakeEventManager *FishcakeEventManagerSession) DeleteMinedFishcakePower(_miner common.Address) (*types.Transaction, error) {
+	return _FishcakeEventManager.Contract.DeleteMinedFishcakePower(&_FishcakeEventManager.TransactOpts, _miner)
+}
+
+// DeleteMinedFishcakePower is a paid mutator transaction binding the contract method 0xf74b4709.
+//
+// Solidity: function deleteMinedFishcakePower(address _miner) returns()
+func (_FishcakeEventManager *FishcakeEventManagerTransactorSession) DeleteMinedFishcakePower(_miner common.Address) (*types.Transaction, error) {
+	return _FishcakeEventManager.Contract.DeleteMinedFishcakePower(&_FishcakeEventManager.TransactOpts, _miner)
+}
+
+// DeleteMinerMineAmount is a paid mutator transaction binding the contract method 0x97088e49.
+//
+// Solidity: function deleteMinerMineAmount(address _miner) returns()
+func (_FishcakeEventManager *FishcakeEventManagerTransactor) DeleteMinerMineAmount(opts *bind.TransactOpts, _miner common.Address) (*types.Transaction, error) {
+	return _FishcakeEventManager.contract.Transact(opts, "deleteMinerMineAmount", _miner)
+}
+
+// DeleteMinerMineAmount is a paid mutator transaction binding the contract method 0x97088e49.
+//
+// Solidity: function deleteMinerMineAmount(address _miner) returns()
+func (_FishcakeEventManager *FishcakeEventManagerSession) DeleteMinerMineAmount(_miner common.Address) (*types.Transaction, error) {
+	return _FishcakeEventManager.Contract.DeleteMinerMineAmount(&_FishcakeEventManager.TransactOpts, _miner)
+}
+
+// DeleteMinerMineAmount is a paid mutator transaction binding the contract method 0x97088e49.
+//
+// Solidity: function deleteMinerMineAmount(address _miner) returns()
+func (_FishcakeEventManager *FishcakeEventManagerTransactorSession) DeleteMinerMineAmount(_miner common.Address) (*types.Transaction, error) {
+	return _FishcakeEventManager.Contract.DeleteMinerMineAmount(&_FishcakeEventManager.TransactOpts, _miner)
+}
+
 // Drop is a paid mutator transaction binding the contract method 0xc8c1d78d.
 //
 // Solidity: function drop(uint256 _activityId, address _userAccount, uint256 _dropAmt) returns(bool)
@@ -1172,25 +1338,25 @@ func (_FishcakeEventManager *FishcakeEventManagerTransactorSession) Drop(_activi
 	return _FishcakeEventManager.Contract.Drop(&_FishcakeEventManager.TransactOpts, _activityId, _userAccount, _dropAmt)
 }
 
-// Initialize is a paid mutator transaction binding the contract method 0xc4d66de8.
+// Initialize is a paid mutator transaction binding the contract method 0xf8c8765e.
 //
-// Solidity: function initialize(address _initialOwner) returns()
-func (_FishcakeEventManager *FishcakeEventManagerTransactor) Initialize(opts *bind.TransactOpts, _initialOwner common.Address) (*types.Transaction, error) {
-	return _FishcakeEventManager.contract.Transact(opts, "initialize", _initialOwner)
+// Solidity: function initialize(address _initialOwner, address _fccAddress, address _usdtTokenAddr, address _NFTManagerAddr) returns()
+func (_FishcakeEventManager *FishcakeEventManagerTransactor) Initialize(opts *bind.TransactOpts, _initialOwner common.Address, _fccAddress common.Address, _usdtTokenAddr common.Address, _NFTManagerAddr common.Address) (*types.Transaction, error) {
+	return _FishcakeEventManager.contract.Transact(opts, "initialize", _initialOwner, _fccAddress, _usdtTokenAddr, _NFTManagerAddr)
 }
 
-// Initialize is a paid mutator transaction binding the contract method 0xc4d66de8.
+// Initialize is a paid mutator transaction binding the contract method 0xf8c8765e.
 //
-// Solidity: function initialize(address _initialOwner) returns()
-func (_FishcakeEventManager *FishcakeEventManagerSession) Initialize(_initialOwner common.Address) (*types.Transaction, error) {
-	return _FishcakeEventManager.Contract.Initialize(&_FishcakeEventManager.TransactOpts, _initialOwner)
+// Solidity: function initialize(address _initialOwner, address _fccAddress, address _usdtTokenAddr, address _NFTManagerAddr) returns()
+func (_FishcakeEventManager *FishcakeEventManagerSession) Initialize(_initialOwner common.Address, _fccAddress common.Address, _usdtTokenAddr common.Address, _NFTManagerAddr common.Address) (*types.Transaction, error) {
+	return _FishcakeEventManager.Contract.Initialize(&_FishcakeEventManager.TransactOpts, _initialOwner, _fccAddress, _usdtTokenAddr, _NFTManagerAddr)
 }
 
-// Initialize is a paid mutator transaction binding the contract method 0xc4d66de8.
+// Initialize is a paid mutator transaction binding the contract method 0xf8c8765e.
 //
-// Solidity: function initialize(address _initialOwner) returns()
-func (_FishcakeEventManager *FishcakeEventManagerTransactorSession) Initialize(_initialOwner common.Address) (*types.Transaction, error) {
-	return _FishcakeEventManager.Contract.Initialize(&_FishcakeEventManager.TransactOpts, _initialOwner)
+// Solidity: function initialize(address _initialOwner, address _fccAddress, address _usdtTokenAddr, address _NFTManagerAddr) returns()
+func (_FishcakeEventManager *FishcakeEventManagerTransactorSession) Initialize(_initialOwner common.Address, _fccAddress common.Address, _usdtTokenAddr common.Address, _NFTManagerAddr common.Address) (*types.Transaction, error) {
+	return _FishcakeEventManager.Contract.Initialize(&_FishcakeEventManager.TransactOpts, _initialOwner, _fccAddress, _usdtTokenAddr, _NFTManagerAddr)
 }
 
 // RenounceOwnership is a paid mutator transaction binding the contract method 0x715018a6.
