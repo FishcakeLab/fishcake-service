@@ -251,6 +251,16 @@ func (a *activityInfoDB) ActivityFinish(activityId string, returnAmount, minedAm
 			return err
 		}
 
+		if mi.MinedAmount == nil {
+			mi.MinedAmount = big.NewInt(0)
+		}
+		if mi.MinedFishCakePower == nil {
+			mi.MinedFishCakePower = big.NewInt(0)
+		}
+		if minedAmount == nil {
+			return fmt.Errorf("minedAmount is nil")
+		}
+
 		// 3.3 已存在 -> 累加更新
 		mi.MinedAmount = new(big.Int).Add(mi.MinedAmount, minedAmount)
 		mi.MinedFishCakePower = new(big.Int).Add(mi.MinedFishCakePower, minedAmount)
