@@ -115,7 +115,7 @@ type miningInfoDB struct {
 }
 
 // GetUserMinedAmount 查询某个地址的累计挖矿数量（可选按月）
-func (d activityInfoDB) GetUserMinedAmount(address string, monthFilter bool) (*big.Int, error) {
+func (d *activityInfoDB) GetUserMinedAmount(address string, monthFilter bool) (*big.Int, error) {
 	db := d.db.Table("activity_info").
 		Select("SUM(mined_amount::numeric) as total_mined").
 		Where("business_account = ? AND activity_status = 2", address)
@@ -142,7 +142,7 @@ func (d activityInfoDB) GetUserMinedAmount(address string, monthFilter bool) (*b
 	return result.TotalMined, nil
 }
 
-func (d activityInfoDB) GetActivityRank(monthFilter bool) ([]BusinessRank, error) {
+func (d *activityInfoDB) GetActivityRank(monthFilter bool) ([]BusinessRank, error) {
 	db := d.db.Table("activity_info").
 		Select("business_account, SUM(mined_amount::numeric) as total_mined").
 		Where("activity_status = ?", 2).
@@ -163,7 +163,7 @@ func (d activityInfoDB) GetActivityRank(monthFilter bool) ([]BusinessRank, error
 	return ranks, nil
 }
 
-func (a activityInfoDB) UnDropActivityParticipantAddresses() []ActivityParticipantAddress {
+func (a *activityInfoDB) UnDropActivityParticipantAddresses() []ActivityParticipantAddress {
 	var dropAddressList []ActivityParticipantAddress
 	err := a.db.Table("activity_participants_addresses").Where("status = ?", 0).Find(&dropAddressList).Error
 	if err != nil {
@@ -173,7 +173,7 @@ func (a activityInfoDB) UnDropActivityParticipantAddresses() []ActivityParticipa
 	return dropAddressList
 }
 
-func (a activityInfoDB) MarkActivityParticipantAddressDropped(address string) error {
+func (a *activityInfoDB) MarkActivityParticipantAddressDropped(address string) error {
 	err := a.db.Table("activity_participants_addresses").Where("address = ?", address).Update("status", 1).Error
 	if err != nil {
 		log.Error("mark drop address status fail", "err", err)
@@ -183,7 +183,7 @@ func (a activityInfoDB) MarkActivityParticipantAddressDropped(address string) er
 }
 
 // UpdateActivityInfo increments the already_drop_number for an activity
-func (a activityInfoDB) UpdateActivityInfo(activityId string) error {
+func (a *activityInfoDB) UpdateActivityInfo(activityId string) error {
 	sql := `update activity_info set already_drop_number = already_drop_number + 1 where activity_id = ? AND already_drop_number < drop_number;`
 	err := a.db.Exec(sql, activityId).Error
 	return err
@@ -198,91 +198,76 @@ func (a activityInfoDB) UpdateActivityInfo(activityId string) error {
 // }
 
 // ActivityFinish updates activity status and amounts when activity is finished
-func (a activityInfoDB) ActivityFinish(activityId string, returnAmount, minedAmount *big.Int) error {
+func (a *activityInfoDB) ActivityFinish(activityId string, returnAmount, minedAmount *big.Int) error {
+	return a.db.Transaction(func(tx *gorm.DB) error {
 
-	tx := a.db.Begin()
-	if tx.Error != nil {
-		log.Warn("begin transaction failed", "err", tx.Error)
-		return tx.Error
-	}
+		// 1. 更新 activity_info
+		finishSql := `UPDATE activity_info 
+                      SET activity_status = 2, return_amount = ?, mined_amount = ? 
+                      WHERE activity_id = ?`
 
-	// 1. 更新 activity_info
-	finishSql := `UPDATE activity_info 
-				  SET activity_status = 2, return_amount = ?, mined_amount = ? 
-				  WHERE activity_id = ?`
-	if err := tx.Exec(finishSql, returnAmount, minedAmount, activityId).Error; err != nil {
-		tx.Rollback()
-		log.Error("update activity_info fail", "err", err)
-		return err
-	}
-
-	// 2. 读取 business_account（因为 mining_info 需要 address）
-	var address string
-	if err := tx.Table("activity_info").
-		Select("business_account").
-		Where("activity_id = ?", activityId).
-		Scan(&address).Error; err != nil {
-		tx.Rollback()
-		log.Error("query business_account fail", "err", err)
-		return err
-	}
-
-	// address 非空检查
-	if len(address) == 0 {
-		tx.Rollback()
-		return fmt.Errorf("empty business_account for activity_id %s", activityId)
-	}
-
-	// 3. 查询 mining_info 里是否已有记录
-	var mi MiningInfo
-	err := tx.Where(`address = ?`, address).First(&mi).Error
-
-	// 3.1 如果不存在，插入一条新的
-	if errors.Is(err, gorm.ErrRecordNotFound) {
-
-		newInfo := MiningInfo{
-			Address:            address,
-			MinedAmount:        new(big.Int).Set(minedAmount), // 初始挖矿量
-			MinedFishCakePower: new(big.Int).Set(minedAmount), // 初始power = 挖矿量
+		if err := tx.Exec(finishSql, returnAmount, minedAmount, activityId).Error; err != nil {
+			log.Error("update activity_info fail", "err", err)
+			return err // return error -> 自动 rollback
 		}
 
-		if err := tx.Create(&newInfo).Error; err != nil {
-			tx.Rollback()
-			log.Error("insert mining_info fail", "err", err)
+		// 2. 读取 business_account
+		var address string
+		if err := tx.Table("activity_info").
+			Select("business_account").
+			Where("activity_id = ?", activityId).
+			Scan(&address).Error; err != nil {
+			log.Error("query business_account fail", "err", err)
 			return err
 		}
 
-		return tx.Commit().Error
-	}
+		if len(address) == 0 {
+			return fmt.Errorf("empty business_account for activity_id %s", activityId)
+		}
 
-	// 3.2 如果存在，则累加
-	if err != nil {
-		tx.Rollback()
-		log.Error("query mining_info fail", "err", err)
-		return err
-	}
+		// 3. 查询 mining_info
+		var mi MiningInfo
+		err := tx.Where(`address = ?`, address).First(&mi).Error
 
-	mi.MinedAmount = new(big.Int).Add(mi.MinedAmount, minedAmount)
-	mi.MinedFishCakePower = new(big.Int).Add(mi.MinedFishCakePower, minedAmount)
+		// 3.1 不存在 -> 插入
+		if errors.Is(err, gorm.ErrRecordNotFound) {
+			newInfo := MiningInfo{
+				Address:            address,
+				MinedAmount:        new(big.Int).Set(minedAmount),
+				MinedFishCakePower: new(big.Int).Set(minedAmount),
+			}
 
-	if err := tx.Model(&MiningInfo{}).
-		Where(`address = ?`, address).
-		Updates(map[string]interface{}{
-			"mined_amount":         mi.MinedAmount,
-			"mined_fishcake_power": mi.MinedFishCakePower,
-		}).Error; err != nil {
+			if err := tx.Create(&newInfo).Error; err != nil {
+				log.Error("insert mining_info fail", "err", err)
+				return err
+			}
 
-		tx.Rollback()
-		log.Error("update mining_info fail", "err", err)
-		return err
-	}
+			return nil // return nil -> 自动 commit
+		}
 
-	// return tx.Commit().Error
-	if err := tx.Commit().Error; err != nil {
-		log.Error("commit transaction fail", "err", err)
-		return err
-	}
-	return nil
+		// 3.2 查询报其他错误
+		if err != nil {
+			log.Error("query mining_info fail", "err", err)
+			return err
+		}
+
+		// 3.3 已存在 -> 累加更新
+		mi.MinedAmount = new(big.Int).Add(mi.MinedAmount, minedAmount)
+		mi.MinedFishCakePower = new(big.Int).Add(mi.MinedFishCakePower, minedAmount)
+
+		if err := tx.Model(&MiningInfo{}).
+			Where(`address = ?`, address).
+			Updates(map[string]interface{}{
+				"mined_amount":         mi.MinedAmount,
+				"mined_fishcake_power": mi.MinedFishCakePower,
+			}).Error; err != nil {
+
+			log.Error("update mining_info fail", "err", err)
+			return err
+		}
+
+		return nil // return nil -> 自动 commit
+	})
 }
 
 // optional: use Model and Updates replace SQL
@@ -297,7 +282,7 @@ func (a activityInfoDB) ActivityFinish(activityId string, returnAmount, minedAmo
 // 		}).Error
 // }
 
-func (a activityInfoDB) StoreActivityInfo(activityInfo ActivityInfo) error {
+func (a *activityInfoDB) StoreActivityInfo(activityInfo ActivityInfo) error {
 	activityInfoRecord := new(ActivityInfo)
 
 	err := a.db.Table(activityInfoRecord.TableName()).
@@ -347,7 +332,7 @@ func (a activityInfoDB) StoreActivityInfo(activityInfo ActivityInfo) error {
 }
 
 // ActivityInfo retrieves activity information by ID
-func (a activityInfoDB) ActivityInfo(activityId int) ActivityInfo {
+func (a *activityInfoDB) ActivityInfo(activityId int) ActivityInfo {
 	var activityInfo ActivityInfo
 	this := a.db.Table(ActivityInfo{}.TableName())
 	this = this.Joins("LEFT JOIN account_nft_info ON activity_info.business_account = account_nft_info.address")
@@ -388,7 +373,7 @@ func (a activityInfoDB) ActivityInfo(activityId int) ActivityInfo {
 */
 
 // ActivityInfoList retrieves a list of activities based on various filters
-func (a activityInfoDB) ActivityInfoList(activityFilter, businessAccount, activityStatus, businessName, tokenContractAddr, latitude, longitude, scope string, activityId, pageNum, pageSize int) ([]ActivityInfo, int) {
+func (a *activityInfoDB) ActivityInfoList(activityFilter, businessAccount, activityStatus, businessName, tokenContractAddr, latitude, longitude, scope string, activityId, pageNum, pageSize int) ([]ActivityInfo, int) {
 	var activityInfo []ActivityInfo
 	var count int64
 	this := a.db.Table(ActivityInfo{}.TableName())
