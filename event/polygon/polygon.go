@@ -387,7 +387,7 @@ func (pp *PolygonEventProcessor) eventsFetch(fromHeight, toHeight *big.Int, tx *
 		for _, contractEvent := range events {
 			unpackErr := pp.eventUnpack(contractEvent, tx)
 			if unpackErr != nil {
-				log.Warn("failed to index events", "unpackErr", unpackErr)
+				log.Warn("failed to index events 27c1049", "unpackErr", unpackErr)
 				return unpackErr
 			}
 		}
