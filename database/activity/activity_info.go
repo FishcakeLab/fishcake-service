@@ -202,6 +202,7 @@ func (a activityInfoDB) ActivityFinish(activityId string, returnAmount, minedAmo
 
 	tx := a.db.Begin()
 	if tx.Error != nil {
+		log.Warn("begin transaction failed", "err", tx.Error)
 		return tx.Error
 	}
 
@@ -211,6 +212,7 @@ func (a activityInfoDB) ActivityFinish(activityId string, returnAmount, minedAmo
 				  WHERE activity_id = ?`
 	if err := tx.Exec(finishSql, returnAmount, minedAmount, activityId).Error; err != nil {
 		tx.Rollback()
+		log.Error("update activity_info fail", "err", err)
 		return err
 	}
 
@@ -221,6 +223,7 @@ func (a activityInfoDB) ActivityFinish(activityId string, returnAmount, minedAmo
 		Where("activity_id = ?", activityId).
 		Scan(&address).Error; err != nil {
 		tx.Rollback()
+		log.Error("query business_account fail", "err", err)
 		return err
 	}
 
@@ -245,6 +248,7 @@ func (a activityInfoDB) ActivityFinish(activityId string, returnAmount, minedAmo
 
 		if err := tx.Create(&newInfo).Error; err != nil {
 			tx.Rollback()
+			log.Error("insert mining_info fail", "err", err)
 			return err
 		}
 
@@ -254,6 +258,7 @@ func (a activityInfoDB) ActivityFinish(activityId string, returnAmount, minedAmo
 	// 3.2 如果存在，则累加
 	if err != nil {
 		tx.Rollback()
+		log.Error("query mining_info fail", "err", err)
 		return err
 	}
 
@@ -268,10 +273,16 @@ func (a activityInfoDB) ActivityFinish(activityId string, returnAmount, minedAmo
 		}).Error; err != nil {
 
 		tx.Rollback()
+		log.Error("update mining_info fail", "err", err)
 		return err
 	}
 
-	return tx.Commit().Error
+	// return tx.Commit().Error
+	if err := tx.Commit().Error; err != nil {
+		log.Error("commit transaction fail", "err", err)
+		return err
+	}
+	return nil
 }
 
 // optional: use Model and Updates replace SQL
