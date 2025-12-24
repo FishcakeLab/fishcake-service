@@ -381,13 +381,13 @@ func (pp *PolygonEventProcessor) eventsFetch(fromHeight, toHeight *big.Int, tx *
 		contractEventFilter := event.ContractEvent{ContractAddress: common.HexToAddress(contract)}
 		events, err := pp.db.ContractEvent.ContractEventsWithFilter(contractEventFilter, fromHeight, toHeight)
 		if err != nil {
-			log.Info("failed to index ContractEventsWithFilter ", "err", err)
+			log.Warn("failed to index ContractEventsWithFilter ", "err", err)
 			return err
 		}
 		for _, contractEvent := range events {
 			unpackErr := pp.eventUnpack(contractEvent, tx)
 			if unpackErr != nil {
-				log.Info("failed to index events", "unpackErr", unpackErr)
+				log.Warn("failed to index events", "unpackErr", unpackErr)
 				return unpackErr
 			}
 		}
