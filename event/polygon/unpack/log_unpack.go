@@ -2,7 +2,9 @@ package unpack
 
 import (
 	"math/big"
+
 	"strings"
+
 	"time"
 
 	"github.com/ethereum/go-ethereum/common"
@@ -50,6 +52,8 @@ func ActivityAdd(event event.ContractEvent, db *database.DB) error {
 		ReturnAmount:       big.NewInt(0),
 		MinedAmount:        big.NewInt(0),
 	}
+
+	log.Info("Parse activity add success", "txHash", uEvent.Raw.TxHash)
 
 	tokenSent := token_transfer.TokenSent{
 		Address:      activityInfo.BusinessAccount,
@@ -101,6 +105,8 @@ func ActivityFinish(event event.ContractEvent, db *database.DB) error {
 		Timestamp:    event.Timestamp,
 	}
 
+	log.Info("Parse activity finish success", "txHash", uEvent.Raw.TxHash)
+
 	if err := db.Transaction(func(tx *database.DB) error {
 		if err := tx.ActivityInfoDB.ActivityFinish(ActivityId, ReturnAmount, MinedAmount); err != nil {
 			return err
@@ -125,6 +131,7 @@ func MintNft(event event.ContractEvent, db *database.DB) error {
 	if unpackErr != nil {
 		return unpackErr
 	}
+	log.Info("Parse mint nft success", "txHash", uEvent.Raw.TxHash)
 	token := token_nft.TokenNft{
 		TokenId:         uEvent.TokenId.Int64(),
 		Who:             uEvent.Creator.String(),
@@ -174,6 +181,8 @@ func MintBoosterNft(event event.ContractEvent, db *database.DB) error {
 		nftType := int8(uEvent.NftType)
 		mintTime := uEvent.MintTime.Int64()
 		usedPower := uEvent.UsedFishCakePower
+
+		log.Info("Parse mint boost nft success", "txHash", uEvent.Raw.TxHash)
 
 		// ---------- 1. 锁行读取 mining_info ----------
 		miningInfo, err := tx.MiningInfoDB.GetByAddressForUpdate(address)
@@ -232,6 +241,8 @@ func Drop(event event.ContractEvent, db *database.DB) error {
 		TransactionHash: event.TransactionHash.String(),
 		EventSignature:  event.EventSignature.String(),
 	}
+
+	log.Info("Parse drop success", "txHash", uEvent.Raw.TxHash)
 
 	tokenReceived := token_transfer.TokenReceived{
 		Address:      drop.Address,

@@ -90,6 +90,8 @@ func (qt *QueueTxProcessor) ProcessSendQueueTx() error {
 		return err
 	}
 
+	log.Info("unhandled tx list", "txCount", len(unhandledTxList))
+
 	var handledTxList []wallet.QueueTx
 	for _, unhandledTx := range unhandledTxList {
 		reqTx := &account.SendTxRequest{
@@ -97,6 +99,8 @@ func (qt *QueueTxProcessor) ProcessSendQueueTx() error {
 			Network: "mainnet",
 			RawTx:   unhandledTx.RawTx,
 		}
+
+		log.Info("handing and sent tx", "rawTx", unhandledTx.RawTx)
 
 		sendTx, errSentTx := qt.baseService.RpcService.SendTx(context.Background(), reqTx)
 		if errSentTx != nil {
@@ -145,12 +149,14 @@ func (qt *QueueTxProcessor) AfterSentQueueTx() error {
 		return err
 	}
 
+	log.Info("fetch tx receipt list", "txCount", len(unhandledTxList))
+
 	var handledTxList []wallet.QueueTx
 	for _, unhandledTx := range unhandledTxList {
 		log.Info("unhandled transaction", "txHash", unhandledTx.TransactionHash, "blockNumber", unhandledTx.Status)
 		fetchTx, errFetchTx := qt.ethClient.TxReceiptByHash(common.HexToHash(unhandledTx.TransactionHash))
 		if errFetchTx != nil {
-			log.Error("fetch tx receipt error: %v", errFetchTx.Error())
+			log.Error("fetch tx receipt error: %w", errFetchTx.Error())
 			unhandledTx.Result = errFetchTx.Error()
 			unhandledTx.Status = 1
 		}
@@ -165,10 +171,12 @@ func (qt *QueueTxProcessor) AfterSentQueueTx() error {
 			if fetchTx.Status == 1 {
 				unhandledTx.Status = 2
 				unhandledTx.Result = "success to send"
+				log.Info("transaction success to send", "Status", fetchTx.Status, "hash", fetchTx.TxHash)
 			}
 			if fetchTx.Status == 0 {
 				unhandledTx.Result = "transaction exec fail on chain"
 				unhandledTx.Status = 4
+				log.Info("transaction exec fail on chain", "Status", fetchTx.Status, "hash", fetchTx.TxHash)
 			}
 		}
 		handledTxList = append(handledTxList, unhandledTx)
