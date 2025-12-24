@@ -417,7 +417,7 @@ func (pp *PolygonEventProcessor) eventUnpack(event event.ContractEvent, tx *data
 
 	merchantAbi, _ := abi.FishcakeEventManagerMetaData.GetAbi()
 	nftTokenAbi, _ := abi.NftManagerMetaData.GetAbi()
-	stakeAbi, _ := abi.StakingManagerMetaData.GetAbi()
+	// stakeAbi, _ := abi.StakingManagerMetaData.GetAbi()
 	switch event.EventSignature.String() {
 	case merchantAbi.Events["ActivityAdd"].ID.String():
 		err := unpack.ActivityAdd(event, tx)
@@ -429,21 +429,21 @@ func (pp *PolygonEventProcessor) eventUnpack(event event.ContractEvent, tx *data
 		err := unpack.MintNft(event, tx)
 		return err
 
-	case nftTokenAbi.Events["MintBoosterNFT"].ID.String():
-		err := unpack.MintBoosterNft(event, tx)
-		return err
+	//case nftTokenAbi.Events["MintBoosterNFT"].ID.String():
+	//	err := unpack.MintBoosterNft(event, tx)
+	//	return err
 
 	case merchantAbi.Events["Drop"].ID.String():
 		err := unpack.Drop(event, tx)
 		return err
 
-	case stakeAbi.Events["StakeHolderDepositStaking"].ID.String():
-		err := unpack.StakeHolderDepositStaking(event, tx)
-		return err
+		//case stakeAbi.Events["StakeHolderDepositStaking"].ID.String():
+		//	err := unpack.StakeHolderDepositStaking(event, tx)
+		//	return err
 
-	case stakeAbi.Events["StakeHolderWithdrawStaking"].ID.String():
-		err := unpack.StakeHolderWithdrawStaking(event, tx)
-		return err
+		//case stakeAbi.Events["StakeHolderWithdrawStaking"].ID.String():
+		//	err := unpack.StakeHolderWithdrawStaking(event, tx)
+		//	return err
 	}
 	return nil
 }
