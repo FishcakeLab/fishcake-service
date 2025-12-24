@@ -402,16 +402,18 @@ func (pp *PolygonEventProcessor) eventUnpack(event event.ContractEvent, tx *data
 	if event.EventSignature == transferSig {
 		address := event.RLPLog.Address.Hex()
 		if address != "0x84eBc138F4Ab844A3050a6059763D269dC9951c6" && address != "0xc2132D05D31c914a87C6611C10748AEb04B58e8F" {
-			log.Info("skipping transfer event for non fcc/USDT", "address", address)
+			log.Warn("skipping transfer event for non fcc/USDT", "address", address)
 			return nil
 		} // 筛选出 FCC 和 USDT 合约地址的 Transfer 事件
 		err := unpack.Transfer(event, tx, address)
 		if err != nil {
-			log.Info("failed to unpack transfer event", "err", err)
+			log.Error("failed to unpack transfer event", "err", err)
 			return err
 		}
 		return nil
 	}
+
+	log.Info("====== Start parse ourself contracts events===========")
 
 	merchantAbi, _ := abi.FishcakeEventManagerMetaData.GetAbi()
 	nftTokenAbi, _ := abi.NftManagerMetaData.GetAbi()
