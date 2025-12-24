@@ -31,6 +31,7 @@ func ActivityAdd(event event.ContractEvent, db *database.DB) error {
 	rlpLog := event.RLPLog
 	uEvent, unpackErr := MerchantUnpack.ParseActivityAdd(*rlpLog)
 	if unpackErr != nil {
+		log.Warn("unpack ActivityAdd fail", "err", unpackErr)
 		return unpackErr
 	}
 
@@ -69,10 +70,12 @@ func ActivityAdd(event event.ContractEvent, db *database.DB) error {
 	if err := db.Transaction(func(tx *database.DB) error {
 
 		if err := tx.ActivityInfoDB.StoreActivityInfo(activityInfo); err != nil {
+			log.Warn("StoreActivityInfo failed", "err", err)
 			return err
 		}
 
 		if err := tx.TokenSentDB.StoreTokenSent(tokenSent); err != nil {
+			log.Warn("StoreTokenSent failed", "err", err)
 			return err
 		}
 
@@ -88,6 +91,7 @@ func ActivityFinish(event event.ContractEvent, db *database.DB) error {
 	rlpLog := event.RLPLog
 	uEvent, unpackErr := MerchantUnpack.ParseActivityFinish(*rlpLog)
 	if unpackErr != nil {
+		log.Warn("unpack ActivityFinish fail", "err", unpackErr)
 		return unpackErr
 	}
 	ActivityId := uEvent.ActivityId.String()
@@ -109,10 +113,12 @@ func ActivityFinish(event event.ContractEvent, db *database.DB) error {
 
 	if err := db.Transaction(func(tx *database.DB) error {
 		if err := tx.ActivityInfoDB.ActivityFinish(ActivityId, ReturnAmount, MinedAmount); err != nil {
+			log.Warn("ActivityFinish failed", "err", err)
 			return err
 		}
 
 		if err := tx.TokenReceivedDB.StoreTokenReceived(tokenReceived); err != nil {
+			log.Warn("StoreTokenReceived failed in ActivityFinish", "err", err)
 			return err
 		}
 
@@ -129,6 +135,7 @@ func MintNft(event event.ContractEvent, db *database.DB) error {
 	rlpLog := event.RLPLog
 	uEvent, unpackErr := NftTokenUnpack.ParseCreateNFT(*rlpLog)
 	if unpackErr != nil {
+		log.Warn("unpack CreateNFT fail", "err", unpackErr)
 		return unpackErr
 	}
 	log.Info("Parse mint nft success", "txHash", uEvent.Raw.TxHash)
@@ -156,9 +163,11 @@ func MintNft(event event.ContractEvent, db *database.DB) error {
 	}
 	if err := db.Transaction(func(tx *database.DB) error {
 		if err := tx.TokenNftDB.StoreTokenNft(token); err != nil {
+			log.Warn("StoreTokenNft failed", "err", err)
 			return err
 		}
 		if err := tx.AccountNftInfoDB.StoreAccountNftInfo(accountNftInfo); err != nil {
+			log.Warn("StoreAccountNftInfo failed", "err", err)
 			return err
 		}
 		return nil
@@ -173,6 +182,7 @@ func MintBoosterNft(event event.ContractEvent, db *database.DB) error {
 		rlpLog := event.RLPLog
 		uEvent, err := NftTokenUnpack.ParseMintBoosterNFT(*rlpLog)
 		if err != nil {
+			log.Warn("unpack MintBoosterNFT fail", "err", err)
 			return err
 		}
 
@@ -187,6 +197,7 @@ func MintBoosterNft(event event.ContractEvent, db *database.DB) error {
 		// ---------- 1. 锁行读取 mining_info ----------
 		miningInfo, err := tx.MiningInfoDB.GetByAddressForUpdate(address)
 		if err != nil {
+			log.Warn("GetByAddressForUpdate failed", "err", err)
 			return err
 		}
 
@@ -205,6 +216,7 @@ func MintBoosterNft(event event.ContractEvent, db *database.DB) error {
 		}
 
 		if err := tx.MiningInfoDB.Update(newMiningInfo); err != nil {
+			log.Warn("Update mining_info failed", "err", err)
 			return err
 		}
 
@@ -219,6 +231,7 @@ func MintBoosterNft(event event.ContractEvent, db *database.DB) error {
 		}
 
 		if err := tx.TokenNftDB.UpsertBoosterNft(token); err != nil {
+			log.Warn("UpsertBoosterNft failed", "err", err)
 			return err
 		}
 
@@ -230,6 +243,7 @@ func Drop(event event.ContractEvent, db *database.DB) error {
 	rlpLog := event.RLPLog
 	uEvent, unpackErr := MerchantUnpack.ParseDrop(*rlpLog)
 	if unpackErr != nil {
+		log.Warn("unpack Drop fail", "err", unpackErr)
 		return unpackErr
 	}
 	drop := drop.DropInfo{
@@ -256,16 +270,20 @@ func Drop(event event.ContractEvent, db *database.DB) error {
 		resultErr, exist := tx.DropInfoDB.IsExist(drop.TransactionHash, drop.EventSignature, drop.DropType)
 		if !exist && resultErr == nil {
 			if err := tx.DropInfoDB.StoreDropInfo(drop); err != nil {
+				log.Warn("StoreDropInfo failed", "err", err)
 				return err
 			}
 			if err := tx.TokenReceivedDB.StoreTokenReceived(tokenReceived); err != nil {
+				log.Warn("StoreTokenReceived failed in Drop", "err", err)
 				return err
 			}
 			// update activity info already drop number
 			if err := tx.ActivityInfoDB.UpdateActivityInfo(uEvent.ActivityId.String()); err != nil {
+				log.Warn("UpdateActivityInfo failed", "err", err)
 				return err
 			} // 重复加了
 		} else {
+			log.Warn("Drop record already exists", "txHash", drop.TransactionHash, "eventSig", drop.EventSignature)
 			return resultErr
 		}
 		// create merchant drop record
@@ -273,6 +291,7 @@ func Drop(event event.ContractEvent, db *database.DB) error {
 		drop.Address = activityInfo.BusinessAccount
 		drop.DropType = 2
 		if err := tx.DropInfoDB.StoreDropInfo(drop); err != nil {
+			log.Warn("StoreMerchantDropInfo failed", "err", err)
 			return err
 		}
 		return nil
