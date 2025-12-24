@@ -65,7 +65,7 @@ type MiningInfo struct {
 	Id                 string   `gorm:"column:id" json:"id"`
 	Address            string   `gorm:"column:address" json:"address"`
 	MinedAmount        *big.Int `gorm:"serializer:u256;column:mined_amount" json:"minedAmount"`
-	MinedFishCakePower *big.Int `gorm:"serializer:u256;column:mined_fishcake_power" json:"minedFishCakePower"`
+	MinedFishCakePower *big.Int `gorm:"serializer:u256;column:mined_fishcakepower" json:"minedFishCakePower"`
 	LastMintTime       *big.Int `gorm:"serializer:u256;column:last_mint_time" json:"lastMintTime"`
 }
 
@@ -268,8 +268,8 @@ func (a *activityInfoDB) ActivityFinish(activityId string, returnAmount, minedAm
 		if err := tx.Model(&MiningInfo{}).
 			Where(`address = ?`, address).
 			Updates(map[string]interface{}{
-				"mined_amount":         mi.MinedAmount,
-				"mined_fishcake_power": mi.MinedFishCakePower,
+				"mined_amount":        mi.MinedAmount,
+				"mined_fishcakepower": mi.MinedFishCakePower,
 			}).Error; err != nil {
 
 			log.Error("update mining_info fail", "err", err)
@@ -491,9 +491,9 @@ func (m *miningInfoDB) Update(info *MiningInfo) error {
 	return m.db.Model(&MiningInfo{}).
 		Where("address = ?", info.Address).
 		Updates(map[string]interface{}{
-			"mined_amount":         info.MinedAmount,
-			"mined_fishcake_power": info.MinedFishCakePower,
-			"last_mint_time":       info.LastMintTime,
+			"mined_amount":        info.MinedAmount,
+			"mined_fishcakepower": info.MinedFishCakePower,
+			"last_mint_time":      info.LastMintTime,
 		}).Error
 }
 
