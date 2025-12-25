@@ -314,12 +314,16 @@ func (pp *PolygonEventProcessor) onData() error {
 
 		pp.startHeight = lastListenBlock.BlockNumber // 把起始高度设置为上次监听的区块高度
 		if pp.startHeight.Cmp(big.NewInt(0)) == 0 {
-			pp.startHeight = big.NewInt(int64(pp.cfg.StartBlock))
+			pp.startHeight = big.NewInt(int64(pp.cfg.StartBlock)) // 如果上次监听的区块高度为0，则设置为配置的起始高度
 		}
 
 		log.Info("config StartBlock", "StartBlock", pp.startHeight)
 		// 如果起始高度（上次监听的区块高度）小于配置的事件起始高度，则设置为配置的起始高度
-		if pp.startHeight.Cmp(big.NewInt(int64(pp.eventStartBlock))) == -1 {
+		// if pp.startHeight.Cmp(big.NewInt(int64(pp.eventStartBlock))) == -1 {
+		// 	pp.startHeight = big.NewInt(int64(pp.eventStartBlock))
+		// }
+
+		if int64(pp.eventStartBlock) != 0 {
 			pp.startHeight = big.NewInt(int64(pp.eventStartBlock))
 		}
 	} else {
@@ -328,6 +332,7 @@ func (pp *PolygonEventProcessor) onData() error {
 		log.Info("pp.start height", "pp.startHeight", pp.startHeight)
 
 	}
+
 	fromHeight := pp.startHeight
 	toHeight := new(big.Int).Add(fromHeight, big.NewInt(int64(pp.epoch)))
 
@@ -339,6 +344,7 @@ func (pp *PolygonEventProcessor) onData() error {
 		return err
 	}
 	log.Info("LatestBlockHeader got: ", "LatestBlockHeader", pp.startHeight)
+
 	if latestBlockHeader == nil {
 		pp.startHeight = new(big.Int).Sub(pp.startHeight, bigint.One) // 如果没有最新区块头，回退1
 		return nil
