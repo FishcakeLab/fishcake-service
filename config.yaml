@@ -24,7 +24,7 @@ metrics_port: 9090
 # 同步起始区块
 
 start_block: 78801000
-eventStartBlock: 78801000
+event_start_block: 80400000
 
 # 三个合约地址（都用合法的格式即可）
 contracts:

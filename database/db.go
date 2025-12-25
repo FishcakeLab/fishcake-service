@@ -168,19 +168,41 @@ func (db *DB) ExecuteSQLMigration(migrationsFolder string) error {
 	return err
 }
 
+// AlreadyHandled 检查事件是否已处理
 func AlreadyHandled(e event.ContractEvent, db *DB) bool {
 	var count int64
+
+	// 1. 必须转为 Hex 字符串以匹配数据库的 VARCHAR
+	txHash := e.TransactionHash.Hex()
+
 	db.gorm.Raw(`
-        SELECT COUNT(*) FROM processed_events
-        WHERE tx_hash = ? AND log_index = ?
-    `, e.TransactionHash, e.LogIndex).Scan(&count)
+        SELECT COUNT(*) 
+        FROM processed_events 
+        WHERE tx_hash = ? 
+          AND log_index = ?
+    `, txHash, e.LogIndex).Scan(&count)
+
 	return count > 0
 }
 
+// MarkProcessed 标记事件为已处理
 func MarkProcessed(e event.ContractEvent, db *DB) error {
+	// 1. 处理 BlockNumber，防止空指针 (虽然 Event 中通常不为空)
+	var blockNum uint64
+	if e.BlockNumber != nil {
+		blockNum = e.BlockNumber.Uint64()
+	}
+
+	// 2. 使用 Exec 执行插入
+	// 注意：tx_hash 和 contract 必须调用 .Hex() 转为字符串
 	return db.gorm.Exec(`
         INSERT INTO processed_events (tx_hash, log_index, contract, block_number)
         VALUES (?, ?, ?, ?)
-        ON CONFLICT DO NOTHING
-    `, e.TransactionHash, e.LogIndex, e.ContractAddress, e.BlockNumber).Error
+        ON CONFLICT (tx_hash, log_index) DO NOTHING
+    `,
+		e.TransactionHash.Hex(), // 对应 VARCHAR
+		e.LogIndex,              // 对应 INTEGER
+		e.ContractAddress.Hex(), // 对应 VARCHAR
+		blockNum,                // 对应 NUMERIC
+	).Error
 }
