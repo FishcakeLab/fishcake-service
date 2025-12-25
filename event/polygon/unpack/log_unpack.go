@@ -283,7 +283,7 @@ func Drop(event event.ContractEvent, db *database.DB) error {
 				return err
 			} // 重复加了
 		} else {
-			log.Warn("Drop record already exists", "txHash", drop.TransactionHash, "eventSig", drop.EventSignature)
+			log.Warn("Drop record already exists", "txHash", drop.TransactionHash, "eventSig", drop.EventSignature, "resultErr", resultErr)
 			return resultErr
 		}
 		// create merchant drop record

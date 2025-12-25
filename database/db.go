@@ -11,6 +11,7 @@ import (
 	"gorm.io/gorm"
 
 	"github.com/FishcakeLab/fishcake-service/config"
+
 	"github.com/FishcakeLab/fishcake-service/database/account_nft_info"
 	"github.com/FishcakeLab/fishcake-service/database/activity"
 	"github.com/FishcakeLab/fishcake-service/database/block_listener"
@@ -165,4 +166,21 @@ func (db *DB) ExecuteSQLMigration(migrationsFolder string) error {
 		return nil
 	})
 	return err
+}
+
+func AlreadyHandled(e event.ContractEvent, db *DB) bool {
+	var count int64
+	db.gorm.Raw(`
+        SELECT COUNT(*) FROM processed_events
+        WHERE tx_hash = ? AND log_index = ?
+    `, e.TransactionHash, e.LogIndex).Scan(&count)
+	return count > 0
+}
+
+func MarkProcessed(e event.ContractEvent, db *DB) error {
+	return db.gorm.Exec(`
+        INSERT INTO processed_events (tx_hash, log_index, contract, block_number)
+        VALUES (?, ?, ?, ?)
+        ON CONFLICT DO NOTHING
+    `, e.TransactionHash, e.LogIndex, e.ContractAddress, e.BlockNumber).Error
 }

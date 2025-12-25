@@ -45,6 +45,7 @@ func NewEventProcessor(db *database.DB, cfg *config.Config, client node.EthClien
 ) (*PolygonEventProcessor, error) {
 
 	var contracts []string = cfg.Contracts
+	log.Info("polygon event processor contracts:", "contracts", contracts, " length of contracts:", len(contracts))
 
 	eventStartBlock := cfg.EventStartBlock
 	// aliConfig := cfg.AliConfig
@@ -361,6 +362,7 @@ func (pp *PolygonEventProcessor) onData() error {
 		}
 	}
 	if err := pp.db.Transaction(func(tx *database.DB) error {
+		log.Info("eventsFetch Action 27c1049", "fromHeight", fromHeight, "toHeight", toHeight)
 		eventsFetchErr := pp.eventsFetch(fromHeight, toHeight, tx) // *** 传入事务tx ***
 		if eventsFetchErr != nil {
 			return eventsFetchErr
@@ -388,13 +390,19 @@ func (pp *PolygonEventProcessor) eventsFetch(fromHeight, toHeight *big.Int, tx *
 	//  先处理合约事件
 	contracts := pp.contracts
 	for _, contract := range contracts {
+
 		contractEventFilter := event.ContractEvent{ContractAddress: common.HexToAddress(contract)}
 		events, err := pp.db.ContractEvent.ContractEventsWithFilter(contractEventFilter, fromHeight, toHeight)
+		if contract == "0x2caf752814f244b3778e30c27051cc6b45cb1fc9" && fromHeight.Int64() == 80600006 {
+			log.Info("Debug fetch events", "length: ", len(events))
+		}
 		if err != nil {
 			log.Warn("failed to index ContractEventsWithFilter ", "err", err)
 			return err
 		}
+		log.Info("fetched contract events", "count", len(events), "contract", contract, "fromHeight", fromHeight, "toHeight", toHeight)
 		for _, contractEvent := range events {
+
 			unpackErr := pp.eventUnpack(contractEvent, tx)
 			if unpackErr != nil {
 				log.Warn("failed to index events 27c1049", "unpackErr", unpackErr)
@@ -408,11 +416,18 @@ func (pp *PolygonEventProcessor) eventsFetch(fromHeight, toHeight *big.Int, tx *
 
 func (pp *PolygonEventProcessor) eventUnpack(event event.ContractEvent, tx *database.DB) error {
 
+	// 过滤重复处理的事件
+	if database.AlreadyHandled(event, tx) {
+		log.Warn("ActivityFinish already processed", "tx", event.TransactionHash, "log", event.LogIndex)
+		return nil
+	}
+
 	transferSig := crypto.Keccak256Hash([]byte("Transfer(address,address,uint256)"))
 	if event.EventSignature == transferSig {
+
 		address := event.RLPLog.Address.Hex()
 		if address != "0x84eBc138F4Ab844A3050a6059763D269dC9951c6" && address != "0xc2132D05D31c914a87C6611C10748AEb04B58e8F" {
-			log.Warn("skipping transfer event for non fcc/USDT", "address", address)
+			log.Info("skipping transfer event for non fcc/USDT", "address", address)
 			return nil
 		} // 筛选出 FCC 和 USDT 合约地址的 Transfer 事件
 		err := unpack.Transfer(event, tx, address)
@@ -420,6 +435,8 @@ func (pp *PolygonEventProcessor) eventUnpack(event event.ContractEvent, tx *data
 			log.Error("failed to unpack transfer event", "err", err)
 			return err
 		}
+		// 标记该事件已处理
+		database.MarkProcessed(event, tx)
 		return nil
 	}
 
@@ -429,15 +446,36 @@ func (pp *PolygonEventProcessor) eventUnpack(event event.ContractEvent, tx *data
 	nftTokenAbi, _ := abi.NftManagerMetaData.GetAbi()
 	// stakeAbi, _ := abi.StakingManagerMetaData.GetAbi()
 	switch event.EventSignature.String() {
+
 	case merchantAbi.Events["ActivityAdd"].ID.String():
 		err := unpack.ActivityAdd(event, tx)
-		return err
+		if err != nil {
+			log.Error("failed to unpack ActivityAdd event", "err", err)
+			return err
+		}
+		// 标记该事件已处理
+		database.MarkProcessed(event, tx)
+		return nil
+
 	case merchantAbi.Events["ActivityFinish"].ID.String():
 		err := unpack.ActivityFinish(event, tx)
-		return err
+		if err != nil {
+			log.Error("failed to unpack ActivityFinish event", "err", err)
+			return err
+		}
+		// 标记该事件已处理
+		database.MarkProcessed(event, tx)
+		return nil
+
 	case nftTokenAbi.Events["CreateNFT"].ID.String():
 		err := unpack.MintNft(event, tx)
-		return err
+		if err != nil {
+			log.Error("failed to unpack CreateNFT event", "err", err)
+			return err
+		}
+		// 标记该事件已处理
+		database.MarkProcessed(event, tx)
+		return nil
 
 	//case nftTokenAbi.Events["MintBoosterNFT"].ID.String():
 	//	err := unpack.MintBoosterNft(event, tx)
@@ -445,7 +483,13 @@ func (pp *PolygonEventProcessor) eventUnpack(event event.ContractEvent, tx *data
 
 	case merchantAbi.Events["Drop"].ID.String():
 		err := unpack.Drop(event, tx)
-		return err
+		if err != nil {
+			log.Error("failed to unpack Drop event", "err", err)
+			return err
+		}
+		// 标记该事件已处理
+		database.MarkProcessed(event, tx)
+		return nil
 
 		//case stakeAbi.Events["StakeHolderDepositStaking"].ID.String():
 		//	err := unpack.StakeHolderDepositStaking(event, tx)
@@ -455,5 +499,8 @@ func (pp *PolygonEventProcessor) eventUnpack(event event.ContractEvent, tx *data
 		//	err := unpack.StakeHolderWithdrawStaking(event, tx)
 		//	return err
 	}
+
+	// 标记该事件已处理
+	database.MarkProcessed(event, tx)
 	return nil
 }
