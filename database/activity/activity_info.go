@@ -4,6 +4,7 @@ import (
 	"errors"
 	"fmt"
 	"math/big"
+	"strings"
 	"time"
 
 	"gorm.io/gorm"
@@ -62,11 +63,11 @@ type BusinessRank struct {
 }
 
 type MiningInfo struct {
-	Id                 string   `gorm:"column:id" json:"id"`
-	Address            string   `gorm:"column:address" json:"address"`
-	MinedAmount        *big.Int `gorm:"serializer:u256;column:mined_amount" json:"minedAmount"`
-	MinedFishCakePower *big.Int `gorm:"serializer:u256;column:mined_fishcakepower" json:"minedFishCakePower"`
-	LastMintTime       *big.Int `gorm:"serializer:u256;column:last_mint_time" json:"lastMintTime"`
+	Id                 string  `gorm:"column:id" json:"id"`
+	Address            string  `gorm:"column:address" json:"address"`
+	MinedAmount        *string `gorm:"column:mined_amount" json:"minedAmount"`
+	MinedFishCakePower *string `gorm:"column:mined_fishcakepower" json:"minedFishCakePower"`
+	LastMintTime       *string `gorm:"column:last_mint_time" json:"lastMintTime"`
 }
 
 func (ActivityInfo) TableName() string {
@@ -230,11 +231,16 @@ func (a *activityInfoDB) ActivityFinish(activityId string, returnAmount, minedAm
 		err := tx.Where(`address = ?`, address).First(&mi).Error
 
 		// 3.1 不存在 -> 插入
+		amtStr := "0"
+		if minedAmount != nil {
+			amtStr = minedAmount.String()
+		}
+
 		if errors.Is(err, gorm.ErrRecordNotFound) {
 			newInfo := MiningInfo{
 				Address:            address,
-				MinedAmount:        new(big.Int).Set(minedAmount),
-				MinedFishCakePower: new(big.Int).Set(minedAmount),
+				MinedAmount:        &amtStr,
+				MinedFishCakePower: &amtStr,
 			}
 
 			if err := tx.Create(&newInfo).Error; err != nil {
@@ -251,25 +257,41 @@ func (a *activityInfoDB) ActivityFinish(activityId string, returnAmount, minedAm
 			return err
 		}
 
-		if mi.MinedAmount == nil {
-			mi.MinedAmount = big.NewInt(0)
-		}
-		if mi.MinedFishCakePower == nil {
-			mi.MinedFishCakePower = big.NewInt(0)
-		}
 		if minedAmount == nil {
 			return fmt.Errorf("minedAmount is nil")
 		}
 
-		// 3.3 已存在 -> 累加更新
-		mi.MinedAmount = new(big.Int).Add(mi.MinedAmount, minedAmount)
-		mi.MinedFishCakePower = new(big.Int).Add(mi.MinedFishCakePower, minedAmount)
+		if mi.MinedFishCakePower == nil {
+			return fmt.Errorf("minedFishCakePower is nil")
+		}
+
+		// 把 DB 里的 string 转成 big.Int（严格：转不了就报错）
+		curMined, err := strToBigInt(mi.MinedAmount)
+		if err != nil {
+			return fmt.Errorf("invalid mi.MinedAmount for address %s: %w", mi.Address, err)
+		}
+		curPower, err := strToBigInt(mi.MinedFishCakePower)
+		if err != nil {
+			return fmt.Errorf("invalid mi.MinedFishCakePower for address %s: %w", mi.Address, err)
+		}
+
+		// 3.3 已存在 -> 累加更新（big.Int 运算）
+		newMined := new(big.Int).Add(curMined, minedAmount)
+		newPower := new(big.Int).Add(curPower, minedAmount)
+
+		// 回写：big.Int -> string
+		newMinedStr := newMined.String()
+		newPowerStr := newPower.String()
+
+		// // 3.3 已存在 -> 累加更新
+		// mi.MinedAmount = new(big.Int).Add(mi.MinedAmount, minedAmount)
+		// mi.MinedFishCakePower = new(big.Int).Add(mi.MinedFishCakePower, minedAmount)
 
 		if err := tx.Model(&MiningInfo{}).
 			Where(`address = ?`, address).
 			Updates(map[string]interface{}{
-				"mined_amount":        mi.MinedAmount,
-				"mined_fishcakepower": mi.MinedFishCakePower,
+				"mined_amount":        &newMinedStr,
+				"mined_fishcakepower": &newPowerStr,
 			}).Error; err != nil {
 
 			log.Error("update mining_info fail", "err", err)
@@ -478,6 +500,7 @@ func (m *miningInfoDB) GetByAddress(address string) (*MiningInfo, error) {
 	}
 	return &info, nil
 }
+
 func (m *miningInfoDB) GetByAddressForUpdate(address string) (*MiningInfo, error) {
 	var info MiningInfo
 	err := m.db.
@@ -527,4 +550,22 @@ func NewActivityDB(db *gorm.DB) ActivityInfoDB {
 
 func NewMiningInfoDB(db *gorm.DB) MiningInfoDB {
 	return &miningInfoDB{db: db}
+}
+
+func strToBigInt(s *string) (*big.Int, error) {
+	if s == nil {
+		return big.NewInt(0), nil
+	}
+
+	str := strings.TrimSpace(*s)
+	if str == "" {
+		return big.NewInt(0), nil
+	}
+
+	i, ok := new(big.Int).SetString(str, 10)
+	if !ok {
+		return nil, fmt.Errorf("invalid uint256 string: %q", str)
+	}
+
+	return i, nil
 }

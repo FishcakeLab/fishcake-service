@@ -1,7 +1,9 @@
 package unpack
 
 import (
+	"fmt"
 	"math/big"
+	"strconv"
 
 	"strings"
 
@@ -202,17 +204,34 @@ func MintBoosterNft(event event.ContractEvent, db *database.DB) error {
 		}
 
 		// ---------- 2. 幂等判断（必须在事务里） ----------
-		if miningInfo.LastMintTime.Int64() >= mintTime {
+		lastMint, err := strToBigInt(miningInfo.LastMintTime)
+		if err != nil {
+			log.Warn("strToBigInt failed", "err", err)
+			return err
+		}
+		if lastMint.Int64() >= mintTime {
 			return nil
 		}
 
-		// ---------- 3. 更新 mining_info ----------
+		// ---------- 3. 计算新 power ----------
+		currentPower, err := strToBigInt(miningInfo.MinedFishCakePower)
+		if err != nil {
+			log.Warn("strToBigInt failed", "err", err)
+			return err
+		}
+		newPower := new(big.Int).Sub(currentPower, usedPower)
+
+		// ---------- 4. 回写 mining_info ----------
+		newPowerStr := newPower.String()
+		mintTimeStr := strconv.FormatInt(mintTime, 10)
+
+		// ---------- 5. 更新 mining_info ----------
 		newMiningInfo := &activity.MiningInfo{
 			Id:                 miningInfo.Id,
 			Address:            miningInfo.Address,
 			MinedAmount:        miningInfo.MinedAmount,
-			MinedFishCakePower: new(big.Int).Sub(miningInfo.MinedFishCakePower, usedPower),
-			LastMintTime:       big.NewInt(mintTime),
+			MinedFishCakePower: &newPowerStr,
+			LastMintTime:       &mintTimeStr,
 		}
 
 		if err := tx.MiningInfoDB.Update(newMiningInfo); err != nil {
@@ -220,7 +239,7 @@ func MintBoosterNft(event event.ContractEvent, db *database.DB) error {
 			return err
 		}
 
-		// ---------- 4. Upsert Booster NFT ----------
+		// ---------- 6. Upsert Booster NFT ----------
 		token := token_nft.TokenNft{
 			TokenId:         tokenId,
 			Who:             address,
@@ -439,4 +458,22 @@ func Transfer(event event.ContractEvent, db *database.DB, address string) error 
 	}
 	return nil
 
+}
+
+func strToBigInt(s *string) (*big.Int, error) {
+	if s == nil {
+		return big.NewInt(0), nil
+	}
+
+	str := strings.TrimSpace(*s)
+	if str == "" {
+		return big.NewInt(0), nil
+	}
+
+	i, ok := new(big.Int).SetString(str, 10)
+	if !ok {
+		return nil, fmt.Errorf("invalid uint256 string: %q", str)
+	}
+
+	return i, nil
 }
