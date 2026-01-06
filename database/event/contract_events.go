@@ -7,6 +7,7 @@ import (
 
 	"github.com/google/uuid"
 	"gorm.io/gorm"
+	"gorm.io/gorm/clause"
 
 	"github.com/ethereum/go-ethereum/common"
 	"github.com/ethereum/go-ethereum/core/types"
@@ -134,8 +135,29 @@ func (db *contractEventDB) LatestContractEventWithFilter(filter ContractEvent) (
 	return &l1ContractEvent, nil
 }
 
+// func (db *contractEventDB) StoreContractEvents(events []ContractEvent) error {
+// 	result := db.gorm.Table("contract_events").CreateInBatches(&events, utils.BatchInsertSize)
+// 	return result.Error
+// }
+
 func (db *contractEventDB) StoreContractEvents(events []ContractEvent) error {
-	result := db.gorm.Table("contract_events").CreateInBatches(&events, utils.BatchInsertSize)
+	if len(events) == 0 {
+		return nil
+	}
+
+	result := db.gorm.
+		Table("contract_events").
+		Clauses(clause.OnConflict{
+			Columns: []clause.Column{
+				{Name: "block_hash"},
+				{Name: "contract_address"},
+				{Name: "transaction_hash"},
+				{Name: "log_index"},
+			},
+			DoNothing: true, // 冲突时不执行任何操作
+		}).
+		CreateInBatches(&events, utils.BatchInsertSize)
+
 	return result.Error
 }
 

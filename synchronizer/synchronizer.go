@@ -91,7 +91,7 @@ func (syncer *Synchronizer) Start() error {
 	syncer.tasks.Go(func() error {
 		for range tickerSyncer.C {
 			if len(syncer.headers) > 0 {
-				log.Info("retrying previous batch") // 一直卡在这里
+				log.Warn("retrying previous batch")
 			} else {
 				newHeaders, err := syncer.headerTraversal.NextHeaders(syncer.headerBufferSize)
 				if err != nil {
@@ -110,7 +110,7 @@ func (syncer *Synchronizer) Start() error {
 			if err == nil {
 				syncer.headers = nil
 			} else {
-				log.Error("process batch fail", "err", err) // 一直报错，卡在这里
+				log.Error("process batch fail", "err", err)
 			}
 		}
 		return nil
