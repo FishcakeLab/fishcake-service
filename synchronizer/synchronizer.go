@@ -198,7 +198,7 @@ func (syncer *Synchronizer) processBatch(headers []types.Header, ymlCfg *config.
 			}
 			return nil
 		}); err != nil {
-			log.Info("unable to persist batch", err)
+			log.Warn("unable to persist batch", err, "AT blocks", firstHeader.Number, "to", lastHeader.Number)
 			return nil, fmt.Errorf("unable to persist batch: %w", err)
 		}
 		return nil, nil

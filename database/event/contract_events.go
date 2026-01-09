@@ -140,25 +140,40 @@ func (db *contractEventDB) LatestContractEventWithFilter(filter ContractEvent) (
 // 	return result.Error
 // }
 
+// func (db *contractEventDB) StoreContractEvents(events []ContractEvent) error {
+// 	if len(events) == 0 {
+// 		return nil
+// 	}
+
+// 	result := db.gorm.
+// 		Table("contract_events").
+// 		Clauses(clause.OnConflict{
+// 			Columns: []clause.Column{
+// 				{Name: "block_hash"},
+// 				{Name: "contract_address"},
+// 				{Name: "transaction_hash"},
+// 				{Name: "log_index"},
+// 			},
+// 			DoNothing: true, // 冲突时不执行任何操作
+// 		}).
+// 		CreateInBatches(&events, utils.BatchInsertSize)
+
+//		return result.Error
+//	}
+
 func (db *contractEventDB) StoreContractEvents(events []ContractEvent) error {
 	if len(events) == 0 {
 		return nil
 	}
 
-	result := db.gorm.
+	return db.gorm.
 		Table("contract_events").
 		Clauses(clause.OnConflict{
-			Columns: []clause.Column{
-				{Name: "block_hash"},
-				{Name: "contract_address"},
-				{Name: "transaction_hash"},
-				{Name: "log_index"},
-			},
-			DoNothing: true, // 冲突时不执行任何操作
+			OnConstraint: "uniq_event_log",
+			DoNothing:    true,
 		}).
-		CreateInBatches(&events, utils.BatchInsertSize)
-
-	return result.Error
+		CreateInBatches(&events, utils.BatchInsertSize).
+		Error
 }
 
 func NewContractEventsDB(db *gorm.DB) ContractEventDB {
