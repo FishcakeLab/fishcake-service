@@ -82,7 +82,10 @@ func (s *stakeInfoService) GetStakeRank(monthFilter bool) ([]StakeRankResponse, 
 	if err != nil {
 		return nil, err
 	}
-	var res []StakeRankResponse
+
+	// var res []StakeRankResponse
+	res := make([]StakeRankResponse, 0)
+
 	for i, item := range ranks {
 		res = append(res, StakeRankResponse{
 			Rank:        i + 1,
@@ -91,6 +94,7 @@ func (s *stakeInfoService) GetStakeRank(monthFilter bool) ([]StakeRankResponse, 
 			Month:       monthFilter,
 		})
 	}
+
 	return res, nil
 }
 
