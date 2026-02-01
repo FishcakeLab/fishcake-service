@@ -1,6 +1,7 @@
 package errors_h
 
 import (
+	"fmt"
 	"runtime/debug"
 
 	"github.com/ethereum/go-ethereum/log"
@@ -38,7 +39,9 @@ func Recover(c *gin.Context) {
 				api_result.NewApiResult(c).Error(myErr.code, myErr.msg)
 			} else {
 				//封装通用json返回
-				api_result.NewApiResult(c).Error("9999", "Service upgrading. Please try again later.")
+				// api_result.NewApiResult(c).Error("9999", "Service upgrading. Please try again later.")
+				api_result.NewApiResult(c).Error("9999", fmt.Sprintf("panic: %v", r))
+
 				// 未知错误
 				log.Info("panic: %v\n", r)
 				debug.PrintStack()

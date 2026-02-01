@@ -3,6 +3,7 @@ package chain_info
 import (
 	"context"
 	"math/big"
+	"sort"
 	"strconv"
 	"strings"
 	"sync"
@@ -180,8 +181,13 @@ func balance(c *gin.Context) {
 }
 
 func signInfo(c *gin.Context) {
-
 	address := c.Query("address")
+	if address == "" {
+		api_result.NewApiResult(c).Error("400", "missing address")
+		return
+	}
+
+	// 1) 获取 nonce
 	reqAccount := &account.AccountRequest{
 		Chain:   "Polygon",
 		Network: "mainnet",
@@ -193,8 +199,10 @@ func signInfo(c *gin.Context) {
 		return
 	}
 
-	const blockCount = 4
-	percentiles := []int{70, 95}
+	// 2) feeHistory：用更多区块 + 适中分位数（别用 95）
+	// blockCount 太小 + 取最后一块 = 极易被尖峰污染
+	const blockCount = 20
+	percentiles := []int{50, 75} // 更稳（50/75 通常比 95 稳定很多）
 
 	var feeHist struct {
 		OldestBlock   string     `json:"oldestBlock"`
@@ -216,44 +224,89 @@ func signInfo(c *gin.Context) {
 		return
 	}
 
+	parseHexBig := func(hexStr string) (*big.Int, bool) {
+		s := strings.TrimPrefix(hexStr, "0x")
+		if s == "" {
+			return nil, false
+		}
+		v, ok := new(big.Int).SetString(s, 16)
+		return v, ok
+	}
+
+	// 3) baseFee：取最新 baseFee
 	if len(feeHist.BaseFeePerGas) == 0 {
 		api_result.NewApiResult(c).Error(enum.GrpcErr.Code, "invalid baseFee data")
 		return
 	}
 	latestBaseFeeHex := feeHist.BaseFeePerGas[len(feeHist.BaseFeePerGas)-1]
-	latestBaseFee, _ := new(big.Int).SetString(strings.TrimPrefix(latestBaseFeeHex, "0x"), 16)
-
-	if len(feeHist.Reward) == 0 {
-		api_result.NewApiResult(c).Error(enum.GrpcErr.Code, "invalid reward data")
+	baseFee, ok := parseHexBig(latestBaseFeeHex)
+	if !ok || baseFee.Sign() <= 0 {
+		api_result.NewApiResult(c).Error(enum.GrpcErr.Code, "invalid baseFee hex")
 		return
 	}
-	lastReward := feeHist.Reward[len(feeHist.Reward)-1]
 
-	if len(lastReward) < 2 {
-		api_result.NewApiResult(c).Error(enum.GrpcErr.Code, "reward percentile missing")
-		return
+	// 4) tip：从多个区块里取“中位数”，而不是只取最后一块
+	// feeHist.Reward 的长度通常是 blockCount（每块一个 reward 数组）
+	// 每个 reward 数组的长度等于 len(percentiles)
+	getMedian := func(vals []*big.Int) *big.Int {
+		sort.Slice(vals, func(i, j int) bool { return vals[i].Cmp(vals[j]) < 0 })
+		return new(big.Int).Set(vals[len(vals)/2])
 	}
-	tip70Hex := lastReward[0]
-	tip70, _ := new(big.Int).SetString(strings.TrimPrefix(tip70Hex, "0x"), 16)
 
-	tip95Hex := lastReward[1]
-	tip95, _ := new(big.Int).SetString(strings.TrimPrefix(tip95Hex, "0x"), 16)
+	// 从 reward 里拿 percentile[75] 对应的 tip（索引 1）
+	var tipSamples []*big.Int
+	for _, r := range feeHist.Reward {
+		if len(r) < 2 { // 需要 50/75 两个分位数
+			continue
+		}
+		v, ok := parseHexBig(r[1]) // 75th
+		if ok && v.Sign() > 0 {
+			tipSamples = append(tipSamples, v)
+		}
+	}
 
-	slow := new(big.Int).Add(latestBaseFee, tip70)
-	normal := new(big.Int).Add(latestBaseFee, tip95)
+	// fallback tip：2 gwei
+	gwei := big.NewInt(1_000_000_000)
+	tip := new(big.Int).Mul(big.NewInt(2), gwei)
+	if len(tipSamples) > 0 {
+		tip = getMedian(tipSamples)
+	}
 
+	// 5) 强制 clamp：Polygon 上 priority fee 正常 1~5 gwei，给你到 10 gwei 已经很宽
+	maxTip := new(big.Int).Mul(big.NewInt(10), gwei)
+	if tip.Cmp(maxTip) > 0 {
+		tip = maxTip
+	}
+
+	// 6) maxFee：2*baseFee + tip，并做 cap（防止 baseFee/节点异常）
+	maxFee := new(big.Int).Mul(baseFee, big.NewInt(2))
+	maxFee.Add(maxFee, tip)
+
+	// maxFeeCap：给到 200 gwei 已经非常宽（按你业务也可调 100/150/200）
+	maxFeeCap := new(big.Int).Mul(big.NewInt(200), gwei)
+	if maxFee.Cmp(maxFeeCap) > 0 {
+		maxFee = maxFeeCap
+	}
+
+	// 7) gasPrice：如果你还要给 legacy 用，给一个“baseFee + tip”即可（但不要叫 slow/normal 去误导前端）
+	legacyGasPrice := new(big.Int).Add(baseFee, tip)
+	legacyCap := new(big.Int).Mul(big.NewInt(200), gwei)
+	if legacyGasPrice.Cmp(legacyCap) > 0 {
+		legacyGasPrice = legacyCap
+	}
+
+	// 8) gasLimit 建议：approve/transfer 不要拍太大
+	// approve 通常 70k～120k；你先给 100k 更合理
 	retValue := SignReturnValue{
-		Nonce:                responseAccount.Sequence,
+		Nonce:                responseAccount.Sequence, // 你之前返回是 string，这里保持原类型
 		NativeTokenGasLimit:  "21000",
-		Erc20TokenGasLimit:   "150000",
-		MaxFeePerGas:         normal.String(),
-		MaxPriorityFeePerGas: tip95.String(),
-		GasPrice:             slow.String(),
+		Erc20TokenGasLimit:   "100000",
+		MaxFeePerGas:         maxFee.String(),
+		MaxPriorityFeePerGas: tip.String(),
+		GasPrice:             legacyGasPrice.String(),
 	}
 
 	api_result.NewApiResult(c).Success(retValue)
-	return
-
 }
 
 func sentRawTransaction(c *gin.Context) {
