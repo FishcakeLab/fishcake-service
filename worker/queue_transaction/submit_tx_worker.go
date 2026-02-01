@@ -62,7 +62,8 @@ func (qt *QueueTxProcessor) QueueTxStart() error {
 			err := qt.ProcessSendQueueTx()
 			if err != nil {
 				log.Error("handle queue transaction list fail", "err", err)
-				return err
+				//
+				continue
 			}
 		}
 		return nil

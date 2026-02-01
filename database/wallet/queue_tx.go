@@ -1,20 +1,21 @@
 package wallet
 
 import (
+	"time"
+
 	"github.com/pkg/errors"
 	"gorm.io/gorm"
-	"time"
 
 	"github.com/ethereum/go-ethereum/log"
 )
 
 type QueueTx struct {
 	ID              string `json:"id" gorm:"column:id;primaryKey;default:replace((uuid_generate_v4())::text, '-'::text, ''::text)"`
-	RawTx           string `json:"raw_tx" gorm:"raw_tx"`
-	Result          string `json:"result" gorm:"result"`
-	TransactionHash string `gorm:"transaction_hash" json:"transactionHash"`
+	RawTx           string `json:"raw_tx" gorm:"column:raw_tx"`
+	Result          string `json:"result" gorm:"column:result"`
+	TransactionHash string `json:"transactionHash" gorm:"column:transaction_hash"`
 	Status          int8   `json:"status" gorm:"column:status;default:0"`
-	Timestamp       uint64 `json:"timestamp" gorm:"timestamp"`
+	Timestamp       uint64 `json:"timestamp" gorm:"column:timestamp"`
 }
 
 type QueueTxDB interface {
