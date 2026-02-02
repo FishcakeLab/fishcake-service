@@ -199,10 +199,9 @@ func signInfo(c *gin.Context) {
 		return
 	}
 
-	// 2) feeHistory：用更多区块 + 适中分位数（别用 95）
-	// blockCount 太小 + 取最后一块 = 极易被尖峰污染
-	const blockCount = 20
-	percentiles := []int{50, 75} // 更稳（50/75 通常比 95 稳定很多）
+	// 2) feeHistory：增加 blockCount 到 30，percentiles 用更多点，更稳
+	const blockCount = 30
+	percentiles := []int{10, 25, 50, 75, 90} // 增加 10/90，更好捕捉市场
 
 	var feeHist struct {
 		OldestBlock   string     `json:"oldestBlock"`
@@ -233,7 +232,7 @@ func signInfo(c *gin.Context) {
 		return v, ok
 	}
 
-	// 3) baseFee：取最新 baseFee
+	// 3) baseFee：取最新
 	if len(feeHist.BaseFeePerGas) == 0 {
 		api_result.NewApiResult(c).Error(enum.GrpcErr.Code, "invalid baseFee data")
 		return
@@ -245,60 +244,72 @@ func signInfo(c *gin.Context) {
 		return
 	}
 
-	// 4) tip：从多个区块里取“中位数”，而不是只取最后一块
-	// feeHist.Reward 的长度通常是 blockCount（每块一个 reward 数组）
-	// 每个 reward 数组的长度等于 len(percentiles)
+	// 4) tip 计算：用 75th 或 90th percentile 的中位数，更稳
+	// 优先用 90th（更快打包），fallback 75th → 50th
 	getMedian := func(vals []*big.Int) *big.Int {
+		if len(vals) == 0 {
+			return nil
+		}
 		sort.Slice(vals, func(i, j int) bool { return vals[i].Cmp(vals[j]) < 0 })
 		return new(big.Int).Set(vals[len(vals)/2])
 	}
 
-	// 从 reward 里拿 percentile[75] 对应的 tip（索引 1）
-	var tipSamples []*big.Int
+	var tipCandidates []*big.Int
 	for _, r := range feeHist.Reward {
-		if len(r) < 2 { // 需要 50/75 两个分位数
+		if len(r) < 5 { // 需要至少 90th (index 4)
 			continue
 		}
-		v, ok := parseHexBig(r[1]) // 75th
-		if ok && v.Sign() > 0 {
-			tipSamples = append(tipSamples, v)
+		// 优先取 90th percentile (index 4)
+		v90, ok90 := parseHexBig(r[4])
+		if ok90 && v90.Sign() > 0 {
+			tipCandidates = append(tipCandidates, v90)
+			continue
+		}
+		// fallback 75th (index 3)
+		v75, ok75 := parseHexBig(r[3])
+		if ok75 && v75.Sign() > 0 {
+			tipCandidates = append(tipCandidates, v75)
 		}
 	}
 
-	// fallback tip：2 gwei
 	gwei := big.NewInt(1_000_000_000)
-	tip := new(big.Int).Mul(big.NewInt(2), gwei)
-	if len(tipSamples) > 0 {
-		tip = getMedian(tipSamples)
+	tip := new(big.Int).Mul(big.NewInt(30), gwei) // 强制 minimum 30 Gwei (Polygon 官方要求)
+
+	if len(tipCandidates) > 0 {
+		medianTip := getMedian(tipCandidates)
+		if medianTip != nil && medianTip.Cmp(tip) > 0 {
+			tip = medianTip
+		}
 	}
 
-	// 5) 强制 clamp：Polygon 上 priority fee 正常 1~5 gwei，给你到 10 gwei 已经很宽
-	maxTip := new(big.Int).Mul(big.NewInt(10), gwei)
+	// 可选：如果想更激进，tip 上限可放宽到 150 Gwei（当前市场 fast ~120 Gwei）
+	maxTip := new(big.Int).Mul(big.NewInt(150), gwei)
 	if tip.Cmp(maxTip) > 0 {
 		tip = maxTip
 	}
 
-	// 6) maxFee：2*baseFee + tip，并做 cap（防止 baseFee/节点异常）
+	// 5) maxFee：baseFee * 2 + tip，不硬 cap 200 Gwei，而是 cap 在更高值（当前 base fee 高时需要）
+	// 或者干脆不 cap，让 relay 自己处理
 	maxFee := new(big.Int).Mul(baseFee, big.NewInt(2))
 	maxFee.Add(maxFee, tip)
 
-	// maxFeeCap：给到 200 gwei 已经非常宽（按你业务也可调 100/150/200）
-	maxFeeCap := new(big.Int).Mul(big.NewInt(200), gwei)
+	// 推荐 cap：800–1000 Gwei（覆盖当前 ~500–600 base fee + tip）
+	maxFeeCap := new(big.Int).Mul(big.NewInt(1000), gwei)
 	if maxFee.Cmp(maxFeeCap) > 0 {
 		maxFee = maxFeeCap
 	}
 
-	// 7) gasPrice：如果你还要给 legacy 用，给一个“baseFee + tip”即可（但不要叫 slow/normal 去误导前端）
+	// 6) legacy gasPrice：base + tip，cap 1000 Gwei
 	legacyGasPrice := new(big.Int).Add(baseFee, tip)
-	legacyCap := new(big.Int).Mul(big.NewInt(200), gwei)
-	if legacyGasPrice.Cmp(legacyCap) > 0 {
-		legacyGasPrice = legacyCap
+	if legacyGasPrice.Cmp(maxFeeCap) > 0 {
+		legacyGasPrice = maxFeeCap
 	}
 
-	// 8) gasLimit 建议：approve/transfer 不要拍太大
-	// approve 通常 70k～120k；你先给 100k 更合理
+	// 7) gasLimit 建议：approve 实际 45k–65k，设 80k–100k 更合理（避免 over-estimate）
+	// 但你当前 100000 还行，可微调到 "80000"
+
 	retValue := SignReturnValue{
-		Nonce:                responseAccount.Sequence, // 你之前返回是 string，这里保持原类型
+		Nonce:                responseAccount.Sequence,
 		NativeTokenGasLimit:  "21000",
 		Erc20TokenGasLimit:   "100000",
 		MaxFeePerGas:         maxFee.String(),
