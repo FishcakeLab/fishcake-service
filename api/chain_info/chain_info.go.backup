@@ -205,17 +205,39 @@ func signInfo(c *gin.Context) {
 		return
 	}
 
-	// 1) 获取 nonce
-	reqAccount := &account.AccountRequest{
-		Chain:   "Polygon",
-		Network: "mainnet",
-		Address: address,
-	}
-	responseAccount, _ := service.BaseService.RpcService.GetAccount(context.Background(), reqAccount)
-	if responseAccount.Code == account.ReturnCode_ERROR {
-		api_result.NewApiResult(c).Error(enum.GrpcErr.Code, responseAccount.Msg)
+	// 1) 获取 nonce - 临时测试版本:直接用 RPC,不依赖数据库
+	// TODO: 测试完成后恢复为使用 RpcService
+	var nonceHex string
+	err := service.BaseService.Client.CallContext(
+		context.Background(),
+		&nonceHex,
+		"eth_getTransactionCount",
+		address,
+		"pending",
+	)
+	if err != nil {
+		log.Error("get nonce failed", "error", err, "address", address)
+		api_result.NewApiResult(c).Error("500", "failed to get nonce: "+err.Error())
 		return
 	}
+
+	// 定义 parseHexBig 辅助函数
+	parseHexBig := func(hexStr string) (*big.Int, bool) {
+		s := strings.TrimPrefix(hexStr, "0x")
+		if s == "" {
+			return nil, false
+		}
+		v, ok := new(big.Int).SetString(s, 16)
+		return v, ok
+	}
+
+	// 将 hex nonce 转换为十进制字符串
+	nonceBig, ok := parseHexBig(nonceHex)
+	if !ok {
+		api_result.NewApiResult(c).Error("500", "invalid nonce format")
+		return
+	}
+	nonce := nonceBig.String()
 
 	// 2) feeHistory：增加 blockCount 到 30，percentiles 用更多点，更稳
 	const blockCount = 30
@@ -228,7 +250,7 @@ func signInfo(c *gin.Context) {
 		Reward        [][]string `json:"reward"`
 	}
 
-	err := service.BaseService.Client.CallContext(
+	err = service.BaseService.Client.CallContext(
 		context.Background(),
 		&feeHist,
 		"eth_feeHistory",
@@ -239,15 +261,6 @@ func signInfo(c *gin.Context) {
 	if err != nil {
 		api_result.NewApiResult(c).Error(enum.GrpcErr.Code, err.Error())
 		return
-	}
-
-	parseHexBig := func(hexStr string) (*big.Int, bool) {
-		s := strings.TrimPrefix(hexStr, "0x")
-		if s == "" {
-			return nil, false
-		}
-		v, ok := new(big.Int).SetString(s, 16)
-		return v, ok
 	}
 
 	// 3) baseFee：取最新
@@ -370,7 +383,7 @@ func signInfo(c *gin.Context) {
 	// 但你当前 100000 还行，可微调到 "80000"
 
 	retValue := SignReturnValue{
-		Nonce:                responseAccount.Sequence,
+		Nonce:                nonce, // 临时测试版本:使用 RPC 获取的 nonce
 		NativeTokenGasLimit:  "21000",
 		Erc20TokenGasLimit:   "100000",
 		MaxFeePerGas:         maxFee.String(),
