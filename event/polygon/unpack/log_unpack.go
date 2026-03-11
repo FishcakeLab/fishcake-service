@@ -303,7 +303,7 @@ func Drop(event event.ContractEvent, db *database.DB) error {
 	}
 
 	if err := db.Transaction(func(tx *database.DB) error {
-		resultErr, exist := tx.DropInfoDB.IsExist(drop.TransactionHash, drop.LogIndex, drop.DropType)
+		resultErr, exist := tx.DropInfoDB.IsExist(drop.TransactionHash, drop.LogIndex, drop.DropType, drop.Address, drop.BlockNumber)
 		if !exist && resultErr == nil {
 			if err := tx.DropInfoDB.StoreDropInfo(drop); err != nil {
 				log.Warn("StoreDropInfo failed", "err", err)

@@ -19,33 +19,37 @@ $$;
 -- 2. [processed_events] (废弃)：由于业务已实现真·幂等，不再需要此标记表
 -- DROP TABLE IF EXISTS processed_events;
 
--- 3. [block_listener] 进度追踪增强：支持按配置名称(如 'event', 'native') 分开记录同步高度
+-- 3. [block_listener] 进度追踪增强：支持按配置名称分开记录高度
 ALTER TABLE block_listener ADD COLUMN IF NOT EXISTS conf_name VARCHAR(255) DEFAULT 'event';
 CREATE UNIQUE INDEX IF NOT EXISTS idx_block_listener_conf_name ON block_listener(conf_name);
 
--- 4. [drop_info] 空投信息增强：引入物理坐标(block_number, log_index) 并建立最强物理唯一性约束
+-- 4. [drop_info] 增强
 ALTER TABLE drop_info ADD COLUMN IF NOT EXISTS "block_number" int8 DEFAULT 0;
 ALTER TABLE drop_info ADD COLUMN IF NOT EXISTS "log_index" int4 DEFAULT 0;
 
--- 清除旧的/弱的索引，建立基于物理坐标的唯一索引
 DROP INDEX IF EXISTS idx_drop_info_unique_action;
 CREATE UNIQUE INDEX IF NOT EXISTS idx_drop_info_physical_unique 
 ON drop_info (transaction_hash, log_index, drop_type);
 
--- 5. [stake_holder_staking] 质押信息增强
+-- 5. [stake_holder_staking] 增强
 ALTER TABLE stake_holder_staking ADD COLUMN IF NOT EXISTS "block_number" int8 DEFAULT 0;
 ALTER TABLE stake_holder_staking ADD COLUMN IF NOT EXISTS "log_index" int4 DEFAULT 0;
 
 DROP INDEX IF EXISTS idx_stakeholder_nonce;
 DROP INDEX IF EXISTS idx_stakeholder_nonce_unique;
-
 CREATE UNIQUE INDEX IF NOT EXISTS idx_staking_physical_unique 
 ON stake_holder_staking (tx_message_hash, log_index);
 
--- 6. [token_nft] NFT 信息增强：引入物理坐标并建立唯一索引
+-- 6. [token_nft] 增强
 ALTER TABLE token_nft ADD COLUMN IF NOT EXISTS "block_number" int8 DEFAULT 0;
 ALTER TABLE token_nft ADD COLUMN IF NOT EXISTS "log_index" int4 DEFAULT 0;
 ALTER TABLE token_nft ADD COLUMN IF NOT EXISTS "tx_hash" VARCHAR(80);
-
 CREATE UNIQUE INDEX IF NOT EXISTS idx_token_nft_physical_unique 
 ON token_nft (tx_hash, log_index);
+
+-- 7. [token_transfer] 流水表增强 (针对 token_sent 和 token_received)
+CREATE UNIQUE INDEX IF NOT EXISTS idx_token_sent_physical_unique 
+ON token_sent (tx_hash, log_index);
+
+CREATE UNIQUE INDEX IF NOT EXISTS idx_token_received_physical_unique 
+ON token_received (tx_hash, log_index);

@@ -11,6 +11,7 @@ import (
 	"github.com/FishcakeLab/fishcake-service/database/utils"
 	_ "github.com/FishcakeLab/fishcake-service/database/utils/serializers"
 	"github.com/ethereum/go-ethereum/common"
+	"gorm.io/gorm/clause"
 )
 
 type BlockHeader struct {
@@ -76,7 +77,13 @@ func (b blocksDB) LatestBlockHeader() (*BlockHeader, error) {
 }
 
 func (b blocksDB) StoreBlockHeaders(headers []BlockHeader) error {
-	result := b.gorm.Table("block_headers").Omit("guid").Create(&headers)
+	result := b.gorm.Table("block_headers").
+		Clauses(clause.OnConflict{
+			Columns:   []clause.Column{{Name: "hash"}},
+			DoNothing: true,
+		}).
+		Omit("guid").
+		Create(&headers)
 	return result.Error
 }
 

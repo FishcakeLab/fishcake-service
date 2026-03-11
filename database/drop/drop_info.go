@@ -48,7 +48,7 @@ func (DropInfo) TableName() string {
 
 type DropInfoView interface {
 	List(pageNum, pageSize int, address, dropType string) ([]DropInfo, int)
-	IsExist(transactionHash string, logIndex uint, dropType int8) (error, bool)
+	IsExist(transactionHash string, logIndex uint, dropType int8, address string, blockNumber uint64) (error, bool)
 }
 
 type DropInfoDB interface {
@@ -92,16 +92,40 @@ func (d dropInfoDB) List(pageNum, pageSize int, address, dropType string) ([]Dro
 	}
 }
 
-func (d dropInfoDB) IsExist(transactionHash string, logIndex uint, dropType int8) (error, bool) {
+func (d dropInfoDB) IsExist(transactionHash string, logIndex uint, dropType int8, address string, blockNumber uint64) (error, bool) {
 	var drop DropInfo
-	err := d.db.Table(drop.TableName()).Where("transaction_hash = ? and log_index = ? and drop_type = ?", transactionHash, logIndex, dropType).Take(&drop).Error
-	if err != nil {
-		if errors.Is(err, gorm.ErrRecordNotFound) {
-			return nil, false
-		}
+	// 1. 尝试物理匹配 (未来标准格式)
+	err := d.db.Table(DropInfo{}.TableName()).
+		Where("transaction_hash = ? AND log_index = ? AND drop_type = ?", transactionHash, logIndex, dropType).
+		Take(&drop).Error
+	if err == nil {
+		return nil, true
+	}
+
+	if !errors.Is(err, gorm.ErrRecordNotFound) {
 		return err, false
 	}
-	return nil, true
+
+	// 2. 物理匹配失败，尝试业务匹配 (针对 index=0 的历史数据)
+	var exist DropInfo
+	errLocate := d.db.Table(DropInfo{}.TableName()).
+		Where("transaction_hash = ? AND address = ? AND drop_type = ?", transactionHash, address, dropType).
+		Take(&exist).Error
+
+	if errLocate == nil {
+		// 命中了历史数据，如果它没有 index，顺手帮它补上，实现数据“原地升级”
+		if exist.LogIndex == 0 {
+			d.db.Table(DropInfo{}.TableName()).Where("id = ?", exist.Id).
+				Updates(map[string]interface{}{
+					"log_index":    logIndex,
+					"block_number": blockNumber,
+				})
+		}
+		// 告诉调用者：这活儿已经干过了，别再加人数了
+		return nil, true
+	}
+
+	return nil, false
 }
 
 func (d dropInfoDB) StoreDropInfo(drop DropInfo) error {
