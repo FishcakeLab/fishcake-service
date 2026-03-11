@@ -29,6 +29,9 @@ type DropInfo struct {
 	EventSignature    string   `gorm:"event_signature" json:"eventSignature"`
 	ReturnAmount      *big.Int `gorm:"serializer:u256;column:return_amount" json:"returnAmount"`
 	MinedAmount       *big.Int `gorm:"serializer:u256;column:mined_amount" json:"minedAmount"`
+
+	BlockNumber uint64 `gorm:"column:block_number" json:"blockNumber"`
+	LogIndex    uint   `gorm:"column:log_index" json:"logIndex"`
 }
 type WalletAddress struct {
 	ID        string `gorm:"column:id;primaryKey;default:replace((uuid_generate_v4())::text, '-'::text, ''::text)"`
@@ -45,7 +48,7 @@ func (DropInfo) TableName() string {
 
 type DropInfoView interface {
 	List(pageNum, pageSize int, address, dropType string) ([]DropInfo, int)
-	IsExist(transactionHash, eventSignature string, dropType int8) (error, bool)
+	IsExist(transactionHash string, logIndex uint, dropType int8) (error, bool)
 }
 
 type DropInfoDB interface {
@@ -89,9 +92,9 @@ func (d dropInfoDB) List(pageNum, pageSize int, address, dropType string) ([]Dro
 	}
 }
 
-func (d dropInfoDB) IsExist(transactionHash, eventSignature string, dropType int8) (error, bool) {
+func (d dropInfoDB) IsExist(transactionHash string, logIndex uint, dropType int8) (error, bool) {
 	var drop DropInfo
-	err := d.db.Table(drop.TableName()).Where("transaction_hash = ? and event_signature = ? and drop_type = ?", transactionHash, eventSignature, dropType).Take(&drop).Error
+	err := d.db.Table(drop.TableName()).Where("transaction_hash = ? and log_index = ? and drop_type = ?", transactionHash, logIndex, dropType).Take(&drop).Error
 	if err != nil {
 		if errors.Is(err, gorm.ErrRecordNotFound) {
 			return nil, false
@@ -104,7 +107,7 @@ func (d dropInfoDB) IsExist(transactionHash, eventSignature string, dropType int
 func (d dropInfoDB) StoreDropInfo(drop DropInfo) error {
 
 	var exist DropInfo
-	err := d.db.Table(DropInfo{}.TableName()).Where("transaction_hash = ? and event_signature = ? and drop_type = ?", drop.TransactionHash, drop.EventSignature, drop.DropType).Take(&exist).Error
+	err := d.db.Table(DropInfo{}.TableName()).Where("transaction_hash = ? and log_index = ? and drop_type = ?", drop.TransactionHash, drop.LogIndex, drop.DropType).Take(&exist).Error
 	if err != nil && errors.Is(err, gorm.ErrRecordNotFound) {
 		errCreate := d.db.Table(DropInfo{}.TableName()).
 			Omit("id", "token_contract_addr", "business_name", "return_amount", "mined_amount").

@@ -11,10 +11,11 @@ import (
 )
 
 type BlockListener struct {
-	GUID        string   `json:"guid"`
-	BlockNumber *big.Int `json:"block_number" gorm:"serializer:u256"`
-	Created     uint64   `json:"created"`
-	Updated     uint64   `json:"updated"`
+	GUID        string   `json:"guid" gorm:"column:guid;primaryKey"`
+	BlockNumber *big.Int `json:"block_number" gorm:"serializer:u256;column:block_number"`
+	ConfName    string   `json:"conf_name" gorm:"column:conf_name;uniqueIndex"`
+	Created     uint64   `json:"created" gorm:"column:created"`
+	Updated     uint64   `json:"updated" gorm:"column:updated"`
 }
 
 func (BlockListener) TableName() string {
@@ -22,7 +23,7 @@ func (BlockListener) TableName() string {
 }
 
 type BlockListenerDBView interface {
-	GetLastBlockNumber() (lastBlock *BlockListener, err error)
+	GetLastBlockNumber(name string) (lastBlock *BlockListener, err error)
 }
 type BlockListenerDB interface {
 	BlockListenerDBView
@@ -37,10 +38,10 @@ func (db blockListenerDB) SaveOrUpdateLastBlockNumber(lastBlock BlockListener) e
 	bl := new(BlockListener)
 	var exitsLastBlock BlockListener
 
-	err := db.gorm.Table(bl.TableName()).Take(&exitsLastBlock).Error
+	err := db.gorm.Table(bl.TableName()).Where("conf_name = ?", lastBlock.ConfName).Take(&exitsLastBlock).Error
 	if err != nil {
 		if errors.Is(err, gorm.ErrRecordNotFound) {
-			log.Info("No last block number found, will insert it")
+			log.Info("No last block number found, will insert it", "conf_name", lastBlock.ConfName)
 			lastBlock.Created = uint64(time.Now().Unix())
 			lastBlock.Updated = uint64(time.Now().Unix())
 			result := db.gorm.Table(bl.TableName()).Omit("guid").Create(&lastBlock)
@@ -52,7 +53,7 @@ func (db blockListenerDB) SaveOrUpdateLastBlockNumber(lastBlock BlockListener) e
 		return err
 	} else {
 		lastBlock.Updated = uint64(time.Now().Unix())
-		updateResult := db.gorm.Table(bl.TableName()).Where("1 = ?", 1).Omit("guid", "created").Updates(&lastBlock)
+		updateResult := db.gorm.Table(bl.TableName()).Where("conf_name = ?", lastBlock.ConfName).Omit("guid", "created", "conf_name").Updates(&lastBlock)
 		if updateResult.Error != nil {
 			return updateResult.Error
 		}
@@ -60,9 +61,9 @@ func (db blockListenerDB) SaveOrUpdateLastBlockNumber(lastBlock BlockListener) e
 	return nil
 }
 
-func (db blockListenerDB) GetLastBlockNumber() (lastBlock *BlockListener, err error) {
+func (db blockListenerDB) GetLastBlockNumber(name string) (lastBlock *BlockListener, err error) {
 	bl := new(BlockListener)
-	err = db.gorm.Table(bl.TableName()).Take(&lastBlock).Error
+	err = db.gorm.Table(bl.TableName()).Where("conf_name = ?", name).Take(&lastBlock).Error
 	if err != nil {
 		if errors.Is(err, gorm.ErrRecordNotFound) {
 			return nil, nil

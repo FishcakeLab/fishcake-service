@@ -3,6 +3,7 @@ package token_transfer
 import (
 	"net/http"
 	"strconv"
+	"strings"
 
 	"github.com/gin-gonic/gin"
 
@@ -24,9 +25,10 @@ func TokenReceivedApi(rg *gin.Engine) {
 
 func listSent(c *gin.Context) {
 	// 参数
-	address := c.Query("address")
-	tokenType := c.Query("tokenType")
+	address := strings.ToLower(c.Query("address"))
+	tokenType := strings.ToLower(c.Query("tokenType"))
 	lastTimestampStr := c.DefaultQuery("lastTimestamp", "0")
+	lastId := c.Query("lastId")
 	limitStr := c.DefaultQuery("limit", "10")
 
 	// 校验
@@ -39,7 +41,7 @@ func listSent(c *gin.Context) {
 	limit, _ := strconv.Atoi(limitStr)
 
 	// 调用 service 层
-	records, err := service.BaseService.TokenTransferService.ListSent(address, tokenType, lastTimestamp, limit)
+	records, err := service.BaseService.TokenTransferService.ListSent(address, tokenType, lastTimestamp, lastId, limit)
 	if err != nil {
 		api_result.NewApiResult(c).Error(enum.DataErr.Code, err.Error())
 		return
@@ -47,24 +49,29 @@ func listSent(c *gin.Context) {
 
 	// 计算新的游标，给前端下次查询用
 	var nextTimestamp uint64
+	var nextId string
 	if len(records) > 0 {
 		nextTimestamp = records[len(records)-1].Timestamp
+		nextId = records[len(records)-1].Id
 	} else {
 		nextTimestamp = lastTimestamp
+		nextId = lastId
 	}
 
 	// 返回结果
 	c.JSON(http.StatusOK, gin.H{
 		"data":          records,
 		"nextTimestamp": nextTimestamp,
+		"nextId":        nextId,
 	})
 }
 
 func listReceived(c *gin.Context) {
 	// 参数
-	address := c.Query("address")
-	tokenType := c.Query("tokenType")
+	address := strings.ToLower(c.Query("address"))
+	tokenType := strings.ToLower(c.Query("tokenType"))
 	lastTimestampStr := c.DefaultQuery("lastTimestamp", "0")
+	lastId := c.Query("lastId")
 	limitStr := c.DefaultQuery("limit", "10")
 
 	// 校验
@@ -77,7 +84,7 @@ func listReceived(c *gin.Context) {
 	limit, _ := strconv.Atoi(limitStr)
 
 	// 调用 service 层
-	records, err := service.BaseService.TokenTransferService.ListReceived(address, tokenType, lastTimestamp, limit)
+	records, err := service.BaseService.TokenTransferService.ListReceived(address, tokenType, lastTimestamp, lastId, limit)
 	if err != nil {
 		api_result.NewApiResult(c).Error(enum.DataErr.Code, err.Error())
 		return
@@ -85,15 +92,19 @@ func listReceived(c *gin.Context) {
 
 	// 计算新的游标，给前端下次查询用
 	var nextTimestamp uint64
+	var nextId string
 	if len(records) > 0 {
 		nextTimestamp = records[len(records)-1].Timestamp
+		nextId = records[len(records)-1].Id
 	} else {
 		nextTimestamp = lastTimestamp
+		nextId = lastId
 	}
 
 	// 返回结果
 	c.JSON(http.StatusOK, gin.H{
 		"data":          records,
 		"nextTimestamp": nextTimestamp,
+		"nextId":        nextId,
 	})
 }

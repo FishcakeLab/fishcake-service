@@ -202,14 +202,21 @@ func (a *activityInfoDB) UpdateActivityInfo(activityId string) error {
 func (a *activityInfoDB) ActivityFinish(activityId string, returnAmount, minedAmount *big.Int) error {
 	return a.db.Transaction(func(tx *gorm.DB) error {
 
-		// 1. 更新 activity_info
+		// 1. 更新 activity_info，增加幂等条件：只有 status 为 1 时才允许更新为 2
 		finishSql := `UPDATE activity_info 
                       SET activity_status = 2, return_amount = ?, mined_amount = ? 
-                      WHERE activity_id = ?`
+                      WHERE activity_id = ? AND activity_status = 1`
 
-		if err := tx.Exec(finishSql, returnAmount, minedAmount, activityId).Error; err != nil {
-			log.Error("update activity_info fail", "err", err)
-			return err // return error -> 自动 rollback
+		res := tx.Exec(finishSql, returnAmount, minedAmount, activityId)
+		if res.Error != nil {
+			log.Error("update activity_info fail", "err", res.Error)
+			return res.Error
+		}
+
+		// 如果影响行数为 0，说明已经结算过了，直接成功退出，不重复累加余额
+		if res.RowsAffected == 0 {
+			log.Info("Activity already finished, skipping", "activityId", activityId)
+			return nil
 		}
 
 		// 2. 读取 business_account

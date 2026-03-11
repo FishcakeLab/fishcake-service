@@ -31,6 +31,9 @@ type StakeHolderStaking struct {
 	StakingReward *big.Int  `gorm:"serializer:u256;column:staking_reward" json:"stakingReward"`
 	StakingStatus int16     `gorm:"column:staking_status;default:0" json:"stakingStatus"` // 0=staking, 1=ended
 	CreateTime    time.Time `gorm:"column:create_time;default:CURRENT_TIMESTAMP" json:"createTime"`
+
+	BlockNumber uint64 `gorm:"column:block_number" json:"blockNumber"`
+	LogIndex    uint   `gorm:"column:log_index" json:"logIndex"`
 }
 
 func (StakeHolderStaking) TableName() string {
@@ -124,7 +127,7 @@ func (d stakeHolderStakingDB) GetUserStakingInfo(
 func (d stakeHolderStakingDB) InsertDepositRecord(record StakeHolderStaking) error {
 	err := d.db.Table(record.TableName()).
 		Clauses(clause.OnConflict{
-			Columns:   []clause.Column{{Name: "user_address"}, {Name: "message_nonce"}},
+			Columns:   []clause.Column{{Name: "tx_message_hash"}, {Name: "log_index"}},
 			DoNothing: true,
 		}).
 		Create(&record).Error

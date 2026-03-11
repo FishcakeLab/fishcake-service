@@ -2,6 +2,7 @@ package token_transfer
 
 import (
 	"math/big"
+	"strings"
 
 	"gorm.io/gorm"
 	"gorm.io/gorm/clause"
@@ -40,7 +41,7 @@ func (TokenReceived) TableName() string {
 }
 
 type TokenSentView interface {
-	List(address, tokenType string, lastTimestamp uint64, limit int) ([]TokenSent, error)
+	List(address, tokenType string, lastTimestamp uint64, lastId string, limit int) ([]TokenSent, error)
 }
 
 type TokenSentDB interface {
@@ -53,7 +54,7 @@ type tokenSentDB struct {
 }
 
 type TokenReceivedView interface {
-	List(address, tokenType string, lastTimestamp uint64, limit int) ([]TokenReceived, error)
+	List(address, tokenType string, lastTimestamp uint64, lastId string, limit int) ([]TokenReceived, error)
 }
 
 type TokenReceivedDB interface {
@@ -65,8 +66,11 @@ type tokenReceivedDB struct {
 	db *gorm.DB
 }
 
-func (ts tokenSentDB) List(address, tokenType string, lastTimestamp uint64, limit int) ([]TokenSent, error) {
+func (ts tokenSentDB) List(address, tokenType string, lastTimestamp uint64, lastId string, limit int) ([]TokenSent, error) {
 	var records []TokenSent
+
+	address = strings.ToLower(address)
+	tokenType = strings.ToLower(tokenType)
 
 	query := ts.db.Table(TokenSent{}.TableName()).
 		Where("address = ?", address)
@@ -75,14 +79,17 @@ func (ts tokenSentDB) List(address, tokenType string, lastTimestamp uint64, limi
 		query = query.Where("token_address = ?", tokenType)
 	}
 
-	// 查询比上次游标新的数据
+	// 游标分页逻辑：(timestamp, id) < (lastTimestamp, lastId)
 	if lastTimestamp > 0 {
-		query = query.Where("timestamp < ?", lastTimestamp)
+		if lastId != "" {
+			query = query.Where("timestamp < ? OR (timestamp = ? AND id < ?)", lastTimestamp, lastTimestamp, lastId)
+		} else {
+			query = query.Where("timestamp < ?", lastTimestamp)
+		}
 	}
 
-	// 返回最新数据，时间降序保证前端拼接顺序稳定
 	err := query.
-		Order("timestamp DESC").
+		Order("timestamp DESC, id DESC").
 		Limit(limit).
 		Find(&records).Error
 
@@ -108,8 +115,11 @@ func (ts tokenSentDB) StoreTokenSent(tokenSent TokenSent) error {
 	return nil
 }
 
-func (ts tokenReceivedDB) List(address, tokenType string, lastTimestamp uint64, limit int) ([]TokenReceived, error) {
+func (ts tokenReceivedDB) List(address, tokenType string, lastTimestamp uint64, lastId string, limit int) ([]TokenReceived, error) {
 	var records []TokenReceived
+
+	address = strings.ToLower(address)
+	tokenType = strings.ToLower(tokenType)
 
 	query := ts.db.Table(TokenReceived{}.TableName()).
 		Where("address = ?", address)
@@ -118,14 +128,17 @@ func (ts tokenReceivedDB) List(address, tokenType string, lastTimestamp uint64, 
 		query = query.Where("token_address = ?", tokenType)
 	}
 
-	// 查询比上次游标新的数据
+	// 游标分页逻辑：(timestamp, id) < (lastTimestamp, lastId)
 	if lastTimestamp > 0 {
-		query = query.Where("timestamp < ?", lastTimestamp)
+		if lastId != "" {
+			query = query.Where("timestamp < ? OR (timestamp = ? AND id < ?)", lastTimestamp, lastTimestamp, lastId)
+		} else {
+			query = query.Where("timestamp < ?", lastTimestamp)
+		}
 	}
 
-	// 返回最新数据，时间降序保证前端拼接顺序稳定
 	err := query.
-		Order("timestamp DESC").
+		Order("timestamp DESC, id DESC").
 		Limit(limit).
 		Find(&records).Error
 

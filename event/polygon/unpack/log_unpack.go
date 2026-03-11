@@ -67,6 +67,8 @@ func ActivityAdd(event event.ContractEvent, db *database.DB) error {
 		),
 		Description: uEvent.ActivityContent,
 		Timestamp:   uint64(activityInfo.ActivityCreateTime),
+		TxHash:      event.TransactionHash.Hex(),
+		LogIndex:    uint(event.RLPLog.Index),
 	}
 
 	if err := db.Transaction(func(tx *database.DB) error {
@@ -83,7 +85,7 @@ func ActivityAdd(event event.ContractEvent, db *database.DB) error {
 
 		return nil
 	}); err != nil {
-		return nil
+		return err
 	}
 	return nil
 
@@ -109,6 +111,8 @@ func ActivityFinish(event event.ContractEvent, db *database.DB) error {
 		Amount:       ReturnAmount,
 		Description:  content,
 		Timestamp:    event.Timestamp,
+		TxHash:       event.TransactionHash.Hex(),
+		LogIndex:     uint(event.RLPLog.Index),
 	}
 
 	log.Info("Parse activity finish success", "txHash", uEvent.Raw.TxHash)
@@ -154,6 +158,10 @@ func MintNft(event event.ContractEvent, db *database.DB) error {
 		CostValue:       uEvent.Value,
 		Deadline:        uEvent.Deadline.Uint64(),
 		NftType:         int8(uEvent.Type),
+
+		BlockNumber: event.BlockNumber.Uint64(),
+		LogIndex:    uint(event.RLPLog.Index),
+		TxHash:      event.TransactionHash.Hex(),
 	}
 	accountNftInfo := account_nft_info.AccountNftInfo{
 		Address: uEvent.Creator.String(),
@@ -247,6 +255,10 @@ func MintBoosterNft(event event.ContractEvent, db *database.DB) error {
 			ContractAddress: strings.ToLower(event.ContractAddress.Hex()),
 			BusinessName:    "BoosterNFT",
 			Description:     "Miner Booster NFT",
+
+			BlockNumber: event.BlockNumber.Uint64(),
+			LogIndex:    uint(event.RLPLog.Index),
+			TxHash:      event.TransactionHash.Hex(),
 		}
 
 		if err := tx.TokenNftDB.UpsertBoosterNft(token); err != nil {
@@ -273,6 +285,9 @@ func Drop(event event.ContractEvent, db *database.DB) error {
 		Timestamp:       event.Timestamp,
 		TransactionHash: event.TransactionHash.String(),
 		EventSignature:  event.EventSignature.String(),
+
+		BlockNumber: event.BlockNumber.Uint64(),
+		LogIndex:    uint(event.RLPLog.Index),
 	}
 
 	log.Info("Parse drop success", "txHash", uEvent.Raw.TxHash)
@@ -283,10 +298,12 @@ func Drop(event event.ContractEvent, db *database.DB) error {
 		Amount:       uEvent.DropAmt,
 		Description:  db.ActivityInfoDB.ActivityInfo(int(uEvent.ActivityId.Int64())).ActivityContent,
 		Timestamp:    uint64(event.Timestamp),
+		TxHash:       event.TransactionHash.Hex(),
+		LogIndex:     uint(event.RLPLog.Index),
 	}
 
 	if err := db.Transaction(func(tx *database.DB) error {
-		resultErr, exist := tx.DropInfoDB.IsExist(drop.TransactionHash, drop.EventSignature, drop.DropType)
+		resultErr, exist := tx.DropInfoDB.IsExist(drop.TransactionHash, drop.LogIndex, drop.DropType)
 		if !exist && resultErr == nil {
 			if err := tx.DropInfoDB.StoreDropInfo(drop); err != nil {
 				log.Warn("StoreDropInfo failed", "err", err)
@@ -300,18 +317,19 @@ func Drop(event event.ContractEvent, db *database.DB) error {
 			if err := tx.ActivityInfoDB.UpdateActivityInfo(uEvent.ActivityId.String()); err != nil {
 				log.Warn("UpdateActivityInfo failed", "err", err)
 				return err
-			} // 重复加了
-		} else {
-			log.Warn("Drop record already exists", "txHash", drop.TransactionHash, "eventSig", drop.EventSignature, "resultErr", resultErr)
+			}
+
+			// create merchant drop record
+			activityInfo := tx.ActivityInfoDB.ActivityInfo(int(drop.ActivityId))
+			drop.Address = activityInfo.BusinessAccount
+			drop.DropType = 2
+			if err := tx.DropInfoDB.StoreDropInfo(drop); err != nil {
+				log.Warn("StoreMerchantDropInfo failed", "err", err)
+				return err
+			}
+		} else if resultErr != nil {
+			log.Warn("Drop IsExist check failed", "txHash", drop.TransactionHash, "err", resultErr)
 			return resultErr
-		}
-		// create merchant drop record
-		activityInfo := tx.ActivityInfoDB.ActivityInfo(int(drop.ActivityId))
-		drop.Address = activityInfo.BusinessAccount
-		drop.DropType = 2
-		if err := tx.DropInfoDB.StoreDropInfo(drop); err != nil {
-			log.Warn("StoreMerchantDropInfo failed", "err", err)
-			return err
 		}
 		return nil
 	}); err != nil {
@@ -340,10 +358,13 @@ func StakeHolderDepositStaking(event event.ContractEvent, db *database.DB) error
 			NftApr:        uEvent.NftApr.Int64(),
 			IsAutoRenew:   uEvent.IsAutoRenew,
 			MessageNonce:  uEvent.MessageNonce.Int64(),
-			TxMessageHash: "",
+			TxMessageHash: event.TransactionHash.Hex(),
 			StakingReward: big.NewInt(0),
 			StakingStatus: 0,
 			CreateTime:    time.Now(),
+
+			BlockNumber: event.BlockNumber.Uint64(),
+			LogIndex:    uint(event.RLPLog.Index),
 		}
 
 		// 1. 插入 staking 记录

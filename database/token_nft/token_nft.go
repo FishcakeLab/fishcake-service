@@ -5,6 +5,7 @@ import (
 	"math/big"
 
 	"gorm.io/gorm"
+	"gorm.io/gorm/clause"
 
 	"github.com/FishcakeLab/fishcake-service/common/enum"
 	"github.com/FishcakeLab/fishcake-service/common/errors_h"
@@ -24,6 +25,10 @@ type TokenNft struct {
 	CostValue       *big.Int `json:"costValue" gorm:"serializer:u256;column:cost_value"`
 	Deadline        uint64   `json:"deadline" gorm:"deadline"`
 	NftType         int8     `json:"nftType" gorm:"nft_type"`
+
+	BlockNumber uint64 `gorm:"column:block_number" json:"blockNumber"`
+	LogIndex    uint   `gorm:"column:log_index" json:"logIndex"`
+	TxHash      string `gorm:"column:tx_hash" json:"txHash"`
 }
 
 func (TokenNft) TableName() string {
@@ -99,8 +104,14 @@ func (t tokenNftDB) UpsertBoosterNft(token TokenNft) error {
 		Take(&exist).Error
 
 	if errors.Is(err, gorm.ErrRecordNotFound) {
-		// 首次 mint
-		return t.db.Omit("id").Create(&token).Error
+		// 首次 mint：加入物理幂等保护
+		return t.db.Table(TokenNft{}.TableName()).
+			Clauses(clause.OnConflict{
+				Columns:   []clause.Column{{Name: "tx_hash"}, {Name: "log_index"}},
+				DoNothing: true,
+			}).
+			Omit("id").
+			Create(&token).Error
 	}
 
 	if err != nil {
@@ -133,16 +144,13 @@ func (t tokenNftDB) NftCount(contractAddress string) int64 {
 }
 
 func (t tokenNftDB) StoreTokenNft(token TokenNft) error {
-	tokenNft := new(TokenNft)
-	var exist TokenNft
-	err := t.db.Table(tokenNft.TableName()).Where("token_id = ?", token.TokenId).Take(&exist).Error
-	if err != nil {
-		if errors.Is(err, gorm.ErrRecordNotFound) {
-			result := t.db.Table(tokenNft.TableName()).Omit("id").Create(&token)
-			return result.Error
-		}
-	}
-	return err
+	return t.db.Table(TokenNft{}.TableName()).
+		Clauses(clause.OnConflict{
+			Columns:   []clause.Column{{Name: "tx_hash"}, {Name: "log_index"}},
+			DoNothing: true,
+		}).
+		Omit("id").
+		Create(&token).Error
 }
 
 func (t tokenNftDB) List(pageNum, pageSize int, contractAddress, address string) ([]TokenNft, int) {

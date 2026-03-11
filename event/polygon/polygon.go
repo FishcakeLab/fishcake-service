@@ -81,50 +81,24 @@ func NewEventProcessor(db *database.DB, cfg *config.Config, client node.EthClien
 	}, nil
 }
 
-// func NewEventProcessor1(db *database.DB, loopInterval time.Duration, contracts []string,
-// 	startHeight uint64, eventStartBlock uint64, epoch uint64, shutdown context.CancelCauseFunc,
-// 	aliConfig config.AliConfig) (*PolygonEventProcessor, error) {
-// 	resCtx, resCancel := context.WithCancel(context.Background())
-// 	//aliContentClient, createGreenClientErr := green.NewClientWithAccessKey(
-// 	//	aliConfig.RegionId,
-// 	//	aliConfig.AccessKeyId,
-// 	//	aliConfig.AccessKeySecret)
-// 	//if createGreenClientErr != nil {
-// 	//	log.Info("failed to create green client", "err", createGreenClientErr)
-// 	//	// handle exceptions
-// 	//	panic(createGreenClientErr)
-// 	//}
-// 	return &PolygonEventProcessor{
-// 		db:             db,
-// 		resourceCtx:    resCtx,
-// 		resourceCancel: resCancel,
-// 		tasks: tasks.Group{HandleCrit: func(err error) {
-// 			shutdown(fmt.Errorf("critical error processor: %w", err))
-// 		}},
-// 		startHeight:      new(big.Int).SetUint64(startHeight),
-// 		eventStartBlock:  eventStartBlock,
-// 		contracts:        contracts,
-// 		loopInterval:     loopInterval,
-// 		epoch:            epoch,
-// 		aliContentClient: nil,
-// 	}, nil
-// }
-
 func (pp *PolygonEventProcessor) Start() error {
-	tickerEventOn1 := time.NewTicker(pp.loopInterval)
 	log.Info("starting polygon bridge processor...")
 	pp.tasks.Go(func() error {
-		for range tickerEventOn1.C {
+		ticker := time.NewTicker(pp.loopInterval)
+		defer ticker.Stop()
+		for range ticker.C {
 			err := pp.onData()
 			if err != nil {
-				log.Info("no more l1 etl updates. shutting down l1 task")
+				log.Info("no more l1 etl updates. skipping this tick")
 				continue
 			}
 		}
 		return nil
 	})
 	pp.tasks.Go(func() error {
-		for range tickerEventOn1.C {
+		ticker := time.NewTicker(pp.loopInterval)
+		defer ticker.Stop()
+		for range ticker.C {
 			err := pp.onNativeToken()
 			if err != nil {
 				log.Warn("native token scan failed", "err", err)
@@ -146,8 +120,18 @@ func (pp *PolygonEventProcessor) onNativeToken() error {
 
 	// 第一次初始化 currentHeight
 	if pp.nativeCurrentHeight == nil {
-		pp.nativeCurrentHeight = big.NewInt(int64(pp.cfg.EventStartBlock))
-		log.Info("init native scanner start block", "height", pp.nativeCurrentHeight)
+		lastHeight, err := pp.db.BlockListener.GetLastBlockNumber("native")
+		if err != nil {
+			log.Warn("native: failed to get last block height", "err", err)
+			return nil
+		}
+		if lastHeight != nil {
+			pp.nativeCurrentHeight = lastHeight.BlockNumber
+			log.Info("resume native scanner from db", "height", pp.nativeCurrentHeight)
+		} else {
+			pp.nativeCurrentHeight = big.NewInt(int64(pp.cfg.EventStartBlock))
+			log.Info("init native scanner from config start block", "height", pp.nativeCurrentHeight)
+		}
 	}
 
 	// 每次 tick 只处理一个区块（防止卡死）
@@ -188,6 +172,8 @@ func (pp *PolygonEventProcessor) onNativeToken() error {
 			Amount:       tx.Value(),
 			Description:  "Polygon Native Token Transfer",
 			Timestamp:    uint64(block.Time()),
+			TxHash:       tx.Hash().Hex(),
+			LogIndex:     0, // 原生转账没有 log index，设为0
 		}
 
 		tokenReceived := token_transfer.TokenReceived{
@@ -196,6 +182,8 @@ func (pp *PolygonEventProcessor) onNativeToken() error {
 			Amount:       tx.Value(),
 			Description:  "Polygon Native Token Received",
 			Timestamp:    uint64(block.Time()),
+			TxHash:       tx.Hash().Hex(),
+			LogIndex:     0,
 		}
 
 		if err := pp.db.Transaction(func(txdb *database.DB) error {
@@ -212,7 +200,19 @@ func (pp *PolygonEventProcessor) onNativeToken() error {
 	}
 
 	// 完成一个区块后 +1
-	pp.nativeCurrentHeight = new(big.Int).Add(pp.nativeCurrentHeight, big.NewInt(1))
+	nextHeight := new(big.Int).Add(pp.nativeCurrentHeight, big.NewInt(1))
+
+	// 更新数据库中的扫描高度
+	err = pp.db.BlockListener.SaveOrUpdateLastBlockNumber(block_listener.BlockListener{
+		BlockNumber: nextHeight,
+		ConfName:    "native",
+	})
+	if err != nil {
+		log.Error("native: save last block number fail", "err", err)
+		return nil
+	}
+
+	pp.nativeCurrentHeight = nextHeight
 
 	log.Info("native: finished block", "nextHeight", pp.nativeCurrentHeight)
 
@@ -302,7 +302,7 @@ func (pp *PolygonEventProcessor) onData() error {
 	defer log.Info("onData exited", "startHeight", pp.startHeight)
 
 	if pp.startHeight == nil { // 如果设置为空
-		lastListenBlock, err := pp.db.BlockListener.GetLastBlockNumber() // 获取上次监听的区块高度
+		lastListenBlock, err := pp.db.BlockListener.GetLastBlockNumber("event") // 获取上次监听的区块高度
 		if err != nil {
 			log.Info("failed to get last block heard", "err", err)
 			return err
@@ -369,6 +369,7 @@ func (pp *PolygonEventProcessor) onData() error {
 		}
 		lastBlock := block_listener.BlockListener{
 			BlockNumber: toHeight,
+			ConfName:    "event",
 		}
 		updateErr := tx.BlockListener.SaveOrUpdateLastBlockNumber(lastBlock)
 		if updateErr != nil {
@@ -416,12 +417,6 @@ func (pp *PolygonEventProcessor) eventsFetch(fromHeight, toHeight *big.Int, tx *
 
 func (pp *PolygonEventProcessor) eventUnpack(event event.ContractEvent, tx *database.DB) error {
 
-	// 过滤重复处理的事件
-	if database.AlreadyHandled(event, tx) {
-		log.Warn("ActivityFinish already processed", "tx", event.TransactionHash, "log", event.LogIndex)
-		return nil
-	}
-
 	transferSig := crypto.Keccak256Hash([]byte("Transfer(address,address,uint256)"))
 	if event.EventSignature == transferSig {
 
@@ -435,8 +430,6 @@ func (pp *PolygonEventProcessor) eventUnpack(event event.ContractEvent, tx *data
 			log.Error("failed to unpack transfer event", "err", err)
 			return err
 		}
-		// 标记该事件已处理
-		database.MarkProcessed(event, tx)
 		return nil
 	}
 
@@ -444,7 +437,8 @@ func (pp *PolygonEventProcessor) eventUnpack(event event.ContractEvent, tx *data
 
 	merchantAbi, _ := abi.FishcakeEventManagerMetaData.GetAbi()
 	nftTokenAbi, _ := abi.NftManagerMetaData.GetAbi()
-	// stakeAbi, _ := abi.StakingManagerMetaData.GetAbi()
+	stakeAbi, _ := abi.StakingManagerMetaData.GetAbi()
+
 	switch event.EventSignature.String() {
 
 	case merchantAbi.Events["ActivityAdd"].ID.String():
@@ -453,8 +447,6 @@ func (pp *PolygonEventProcessor) eventUnpack(event event.ContractEvent, tx *data
 			log.Error("failed to unpack ActivityAdd event", "err", err)
 			return err
 		}
-		// 标记该事件已处理
-		database.MarkProcessed(event, tx)
 		return nil
 
 	case merchantAbi.Events["ActivityFinish"].ID.String():
@@ -463,8 +455,6 @@ func (pp *PolygonEventProcessor) eventUnpack(event event.ContractEvent, tx *data
 			log.Error("failed to unpack ActivityFinish event", "err", err)
 			return err
 		}
-		// 标记该事件已处理
-		database.MarkProcessed(event, tx)
 		return nil
 
 	case nftTokenAbi.Events["CreateNFT"].ID.String():
@@ -473,13 +463,15 @@ func (pp *PolygonEventProcessor) eventUnpack(event event.ContractEvent, tx *data
 			log.Error("failed to unpack CreateNFT event", "err", err)
 			return err
 		}
-		// 标记该事件已处理
-		database.MarkProcessed(event, tx)
 		return nil
 
-	//case nftTokenAbi.Events["MintBoosterNFT"].ID.String():
-	//	err := unpack.MintBoosterNft(event, tx)
-	//	return err
+	case nftTokenAbi.Events["MintBoosterNFT"].ID.String():
+		err := unpack.MintBoosterNft(event, tx)
+		if err != nil {
+			log.Error("failed to unpack MintBoosterNFT event", "err", err)
+			return err
+		}
+		return nil
 
 	case merchantAbi.Events["Drop"].ID.String():
 		err := unpack.Drop(event, tx)
@@ -487,20 +479,24 @@ func (pp *PolygonEventProcessor) eventUnpack(event event.ContractEvent, tx *data
 			log.Error("failed to unpack Drop event", "err", err)
 			return err
 		}
-		// 标记该事件已处理
-		database.MarkProcessed(event, tx)
 		return nil
 
-		//case stakeAbi.Events["StakeHolderDepositStaking"].ID.String():
-		//	err := unpack.StakeHolderDepositStaking(event, tx)
-		//	return err
+	case stakeAbi.Events["StakeHolderDepositStaking"].ID.String():
+		err := unpack.StakeHolderDepositStaking(event, tx)
+		if err != nil {
+			log.Error("failed to unpack StakeHolderDepositStaking event", "err", err)
+			return err
+		}
+		return nil
 
-		//case stakeAbi.Events["StakeHolderWithdrawStaking"].ID.String():
-		//	err := unpack.StakeHolderWithdrawStaking(event, tx)
-		//	return err
+	case stakeAbi.Events["StakeHolderWithdrawStaking"].ID.String():
+		err := unpack.StakeHolderWithdrawStaking(event, tx)
+		if err != nil {
+			log.Error("failed to unpack StakeHolderWithdrawStaking event", "err", err)
+			return err
+		}
+		return nil
 	}
 
-	// 标记该事件已处理
-	database.MarkProcessed(event, tx)
 	return nil
 }

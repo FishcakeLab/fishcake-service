@@ -39,15 +39,21 @@ func (a accountNftInfoDB) StoreAccountNftInfo(accountNftInfo AccountNftInfo) err
 			return result.Error
 		}
 	} else {
-		if accountNftInfo.BasicDeadline > 0 {
+		needsUpdate := false
+		if accountNftInfo.BasicDeadline > exist.BasicDeadline {
 			exist.BasicDeadline = accountNftInfo.BasicDeadline
+			needsUpdate = true
 		}
-		if accountNftInfo.ProDeadline > 0 {
+		if accountNftInfo.ProDeadline > exist.ProDeadline {
 			exist.ProDeadline = accountNftInfo.ProDeadline
+			needsUpdate = true
 		}
-		updateResult := a.db.Table(nftInfo.TableName()).Save(&exist)
-		if updateResult.Error != nil {
-			return updateResult.Error
+
+		if needsUpdate {
+			updateResult := a.db.Table(AccountNftInfo{}.TableName()).Save(&exist)
+			if updateResult.Error != nil {
+				return updateResult.Error
+			}
 		}
 	}
 	return err
