@@ -145,7 +145,7 @@ func (t tokenNftDB) NftCount(contractAddress string) int64 {
 
 func (t tokenNftDB) StoreTokenNft(token TokenNft) error {
 	var exist TokenNft
-	err := t.db.Table(TokenNft{}.TableName()).Where("token_id = ? AND contract_address = ?", token.TokenId, token.ContractAddress).Take(&exist).Error
+	err := t.db.Table(TokenNft{}.TableName()).Where("token_id = ? AND contract_address ILIKE ?", token.TokenId, token.ContractAddress).Take(&exist).Error
 
 	if errors.Is(err, gorm.ErrRecordNotFound) {
 		// 彻底不存在，直接插入，并带上物理唯一保护

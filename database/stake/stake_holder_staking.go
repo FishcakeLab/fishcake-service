@@ -92,7 +92,7 @@ func (d stakeHolderStakingDB) GetUserStakingInfo(
 	table := StakeHolderStaking{}.TableName()
 
 	query := d.db.Table(table).
-		Where("user_address = ?", address)
+		Where("user_address ILIKE ?", address)
 
 	if status != nil {
 		query = query.Where("staking_status = ?", *status)
@@ -142,7 +142,7 @@ func (d stakeHolderStakingDB) InsertDepositRecord(record StakeHolderStaking) err
 // UpdateWithdrawRecord — triggered by StakeHolderWithdrawStaking event
 func (d stakeHolderStakingDB) UpdateWithdrawRecord(address string, nonce int64, txHash string, reward *big.Int) error {
 	result := d.db.Table(StakeHolderStaking{}.TableName()).
-		Where("user_address = ? AND message_nonce = ?", address, nonce).
+		Where("user_address ILIKE ? AND message_nonce = ?", address, nonce).
 		Updates(map[string]interface{}{
 			"staking_status":  1,
 			"staking_reward":  reward,
@@ -162,7 +162,7 @@ func (d stakeHolderStakingDB) UpdateWithdrawRecord(address string, nonce int64, 
 // UpdateStatus — manually update staking status (e.g. job timeout cleanup)
 func (d stakeHolderStakingDB) UpdateStatus(address string, nonce int64, status int16) error {
 	err := d.db.Table(StakeHolderStaking{}.TableName()).
-		Where("user_address = ? AND message_nonce = ?", address, nonce).
+		Where("user_address ILIKE ? AND message_nonce = ?", address, nonce).
 		Update("staking_status", status).Error
 
 	if err != nil {
@@ -176,7 +176,7 @@ func (d stakeHolderStakingDB) UpdateStatus(address string, nonce int64, status i
 func (d stakeHolderStakingDB) GetByAddressAndNonce(address string, nonce int64) (*StakeHolderStaking, error) {
 	var record StakeHolderStaking
 	result := d.db.Table(record.TableName()).
-		Where("user_address = ? AND message_nonce = ?", address, nonce).
+		Where("user_address ILIKE ? AND message_nonce = ?", address, nonce).
 		Take(&record)
 
 	if result.Error != nil {
@@ -195,7 +195,7 @@ func (d stakeHolderStakingDB) ListByAddress(address string, pageNum, pageSize in
 	var count int64
 
 	this := d.db.Table(StakeHolderStaking{}.TableName()).
-		Where("user_address = ?", address).
+		Where("user_address ILIKE ?", address).
 		Order("create_time DESC")
 
 	this.Count(&count)
@@ -328,7 +328,7 @@ func (d *stakeHolderStakingDB) GetTotalRewardRank(monthFilter bool) ([]TotalRewa
 		// 2.1 计算已领取的 staking_reward（status = 1）
 		claimedQuery := d.db.Table(StakeHolderStaking{}.TableName()).
 			Select("COALESCE(SUM(staking_reward), 0)").
-			Where("staking_status = 1 AND user_address = ?", addr)
+			Where("staking_status = 1 AND user_address ILIKE ?", addr)
 		if monthFilter {
 			start := time.Date(now.Year(), now.Month(), 1, 0, 0, 0, 0, now.Location())
 			claimedQuery = claimedQuery.Where("create_time >= ?", start)
@@ -340,7 +340,7 @@ func (d *stakeHolderStakingDB) GetTotalRewardRank(monthFilter bool) ([]TotalRewa
 
 		// 2.2 查询未结束记录（status = 0）
 		unclaimedQuery := d.db.Table(StakeHolderStaking{}.TableName()).
-			Where("staking_status = 0 AND user_address = ?", addr)
+			Where("staking_status = 0 AND user_address ILIKE ?", addr)
 		if monthFilter {
 			start := time.Date(now.Year(), now.Month(), 1, 0, 0, 0, 0, now.Location())
 			unclaimedQuery = unclaimedQuery.Where("create_time >= ?", start)

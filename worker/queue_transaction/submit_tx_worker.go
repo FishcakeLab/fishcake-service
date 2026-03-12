@@ -168,7 +168,7 @@ func (qt *QueueTxProcessor) AfterSentQueueTx() error {
 				"txHash",
 				unhandledTx.TransactionHash,
 			)
-		} else if fetchTx != nil {
+		} else {
 			if fetchTx.Status == 1 {
 				unhandledTx.Status = 2
 				unhandledTx.Result = "success to send"

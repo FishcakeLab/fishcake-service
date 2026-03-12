@@ -66,8 +66,8 @@ func (d dropInfoDB) List(pageNum, pageSize int, address, dropType string) ([]Dro
 	var this = d.db.Table(DropInfo{}.TableName())
 	// dropType=1 is Token Received need inject system drop info
 	if dropType == "1" {
-		this = d.db.Table("(SELECT id,activity_id,address,drop_amount,drop_type,timestamp,transaction_hash,event_signature,null as system_drop_type FROM drop_info" +
-			" UNION ALL SELECT id,null as activity_id,address,drop_amount,1 as drop_type,timestamp,transaction_hash,null as event_signature,drop_type as system_drop_type FROM system_drop_info where status = 1) AS drop_info")
+		this = d.db.Table("(SELECT id,activity_id,address,drop_amount,drop_type,timestamp,transaction_hash,event_signature,null as system_drop_type,block_number,log_index FROM drop_info" +
+			" UNION ALL SELECT id,null as activity_id,address,drop_amount,1 as drop_type,timestamp,transaction_hash,null as event_signature,drop_type as system_drop_type,0 as block_number,0 as log_index FROM system_drop_info where status = 1) AS drop_info")
 	}
 	if address != "" {
 		this = this.Where("address ILIKE ?", address)
@@ -109,7 +109,7 @@ func (d dropInfoDB) IsExist(transactionHash string, logIndex uint, dropType int8
 	// 2. 物理匹配失败，尝试业务匹配 (针对 index=0 的历史数据)
 	var exist DropInfo
 	errLocate := d.db.Table(DropInfo{}.TableName()).
-		Where("transaction_hash = ? AND address = ? AND drop_type = ?", transactionHash, address, dropType).
+		Where("transaction_hash = ? AND address ILIKE ? AND drop_type = ?", transactionHash, address, dropType).
 		Take(&exist).Error
 
 	if errLocate == nil {

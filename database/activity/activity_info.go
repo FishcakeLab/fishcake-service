@@ -119,7 +119,7 @@ type miningInfoDB struct {
 func (d *activityInfoDB) GetUserMinedAmount(address string, monthFilter bool) (*big.Int, error) {
 	db := d.db.Table("activity_info").
 		Select("SUM(mined_amount::numeric) as total_mined").
-		Where("business_account = ? AND activity_status = 2", address)
+		Where("business_account ILIKE ? AND activity_status = 2", address)
 
 	if monthFilter {
 		now := time.Now().Unix()
@@ -235,7 +235,7 @@ func (a *activityInfoDB) ActivityFinish(activityId string, returnAmount, minedAm
 
 		// 3. 查询 mining_info
 		var mi MiningInfo
-		err := tx.Where(`address = ?`, address).First(&mi).Error
+		err := tx.Where(`address ILIKE ?`, address).First(&mi).Error
 
 		// 3.1 不存在 -> 插入
 		amtStr := "0"
@@ -295,7 +295,7 @@ func (a *activityInfoDB) ActivityFinish(activityId string, returnAmount, minedAm
 		// mi.MinedFishCakePower = new(big.Int).Add(mi.MinedFishCakePower, minedAmount)
 
 		if err := tx.Model(&MiningInfo{}).
-			Where(`address = ?`, address).
+			Where(`address ILIKE ?`, address).
 			Updates(map[string]interface{}{
 				"mined_amount":        &newMinedStr,
 				"mined_fishcakepower": &newPowerStr,
@@ -348,7 +348,7 @@ func (a *activityInfoDB) StoreActivityInfo(activityInfo ActivityInfo) error {
 	// }
 	var walletAddress WalletAddress
 	this := a.db.Table("wallet_addresses")
-	result := this.Where("address = ?", activityInfo.BusinessAccount).Take(&walletAddress)
+	result := this.Where("address ILIKE ?", activityInfo.BusinessAccount).Take(&walletAddress)
 	if result.Error == nil {
 
 		var existAddress ActivityParticipantAddress
@@ -501,7 +501,7 @@ func (m *miningInfoDB) Create(info *MiningInfo) error {
 
 func (m *miningInfoDB) GetByAddress(address string) (*MiningInfo, error) {
 	var info MiningInfo
-	err := m.db.Where("address = ?", address).First(&info).Error
+	err := m.db.Where("address ILIKE ?", address).First(&info).Error
 	if err != nil {
 		return nil, err
 	}

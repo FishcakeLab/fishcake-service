@@ -2,7 +2,6 @@ package token_transfer
 
 import (
 	"math/big"
-	"strings"
 
 	"gorm.io/gorm"
 	"gorm.io/gorm/clause"
@@ -69,14 +68,11 @@ type tokenReceivedDB struct {
 func (ts tokenSentDB) List(address, tokenType string, lastTimestamp uint64, lastId string, limit int) ([]TokenSent, error) {
 	var records []TokenSent
 
-	address = strings.ToLower(address)
-	tokenType = strings.ToLower(tokenType)
-
 	query := ts.db.Table(TokenSent{}.TableName()).
-		Where("address = ?", address)
+		Where("address ILIKE ?", address)
 
 	if tokenType != "" {
-		query = query.Where("token_address = ?", tokenType)
+		query = query.Where("token_address ILIKE ?", tokenType)
 	}
 
 	// 游标分页逻辑：(timestamp, id) < (lastTimestamp, lastId)
@@ -118,14 +114,11 @@ func (ts tokenSentDB) StoreTokenSent(tokenSent TokenSent) error {
 func (ts tokenReceivedDB) List(address, tokenType string, lastTimestamp uint64, lastId string, limit int) ([]TokenReceived, error) {
 	var records []TokenReceived
 
-	address = strings.ToLower(address)
-	tokenType = strings.ToLower(tokenType)
-
 	query := ts.db.Table(TokenReceived{}.TableName()).
-		Where("address = ?", address)
+		Where("address ILIKE ?", address)
 
 	if tokenType != "" {
-		query = query.Where("token_address = ?", tokenType)
+		query = query.Where("token_address ILIKE ?", tokenType)
 	}
 
 	// 游标分页逻辑：(timestamp, id) < (lastTimestamp, lastId)
