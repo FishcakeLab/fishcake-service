@@ -158,7 +158,7 @@ func (f *FishCake) newIndex(ctx *cli.Context, cfg *config.Config, db *database.D
 	syncConfig := &synchronizer.Config{
 		LoopIntervalMsec: 1,
 
-		HeaderBufferSize: 50, // 5
+		HeaderBufferSize: 500, // 5
 
 		StartHeight:       new(big.Int).SetUint64(cfg.StartBlock),
 		ConfirmationDepth: big.NewInt(100),
