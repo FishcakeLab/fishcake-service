@@ -157,18 +157,16 @@ func (syncer *Synchronizer) processBatch(headers []types.Header, ymlCfg *config.
 		headerMap[headers[i].Hash()] = &headers[i]
 	}
 	addresses := make([]common.Address, len(ymlCfg.Contracts))
-	addresses[0] = common.HexToAddress(ymlCfg.Contracts[0])
-	addresses[1] = common.HexToAddress(ymlCfg.Contracts[1])
-	addresses[2] = common.HexToAddress(ymlCfg.Contracts[2])
-	addresses[3] = common.HexToAddress(ymlCfg.Contracts[3])
-	addresses[4] = common.HexToAddress(ymlCfg.Contracts[4])
+	for i, contract := range ymlCfg.Contracts {
+		addresses[i] = common.HexToAddress(contract)
+	}
 
 	filterQuery := ethereum.FilterQuery{FromBlock: firstHeader.Number, ToBlock: lastHeader.Number, Addresses: addresses}
 	logs, err := syncer.ethClient.FilterLogs(filterQuery)
 	if err != nil {
 		log.Info("failed to extract logs", "err", err)
 		return err
-	} // 这个一直在报错，FromBlock = nil, ToBlock = nil
+	}
 
 	if logs.ToBlockHeader.Number.Cmp(lastHeader.Number) != 0 {
 		return fmt.Errorf("mismatch in FilterLog#ToBlock number")
@@ -204,12 +202,6 @@ func (syncer *Synchronizer) processBatch(headers []types.Header, ymlCfg *config.
 		timestamp := headerMap[logEvent.BlockHash].Time
 		blockNumber := headerMap[logEvent.BlockHash].Number
 		chainContractEvent[i] = event.ContractEventFromLog(&logs.Logs[i], timestamp, blockNumber)
-		// log.Info("Handle contract logs",
-		// 	"timestamp", headerMap[logEvent.BlockHash].Time,
-		// 	"blockNumber", headerMap[logEvent.BlockHash].Number,
-		// 	"eventSignature", chainContractEvent[i].EventSignature,
-		// 	"rlpLog", chainContractEvent[i].RLPLog,
-		// )
 	}
 
 	retryStrategy := &retry.ExponentialStrategy{Min: 1000, Max: 20_000, MaxJitter: 250}

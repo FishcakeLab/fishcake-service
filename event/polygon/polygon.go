@@ -4,12 +4,10 @@ import (
 	"context"
 	"fmt"
 	"math/big"
-	"sync"
 	"time"
 
 	"github.com/aliyun/alibaba-cloud-sdk-go/services/green"
 	"github.com/ethereum/go-ethereum/common"
-	"github.com/ethereum/go-ethereum/core/types"
 	"github.com/ethereum/go-ethereum/crypto"
 	"github.com/ethereum/go-ethereum/log"
 
@@ -19,7 +17,6 @@ import (
 	"github.com/FishcakeLab/fishcake-service/database"
 	"github.com/FishcakeLab/fishcake-service/database/block_listener"
 	"github.com/FishcakeLab/fishcake-service/database/event"
-	"github.com/FishcakeLab/fishcake-service/database/token_transfer"
 	"github.com/FishcakeLab/fishcake-service/event/polygon/abi"
 	"github.com/FishcakeLab/fishcake-service/event/polygon/unpack"
 	"github.com/FishcakeLab/fishcake-service/synchronizer/node"
@@ -95,207 +92,9 @@ func (pp *PolygonEventProcessor) Start() error {
 		}
 		return nil
 	})
-	pp.tasks.Go(func() error {
-		ticker := time.NewTicker(pp.loopInterval)
-		defer ticker.Stop()
-		for range ticker.C {
-			err := pp.onNativeToken()
-			if err != nil {
-				log.Warn("native token scan failed", "err", err)
-				time.Sleep(time.Second * 3)
-				continue
-			}
-		}
-		return nil
-	})
-	return nil
-}
-
-// 记录当前扫描到的区块
-var nativeScanLock sync.Mutex
-
-func (pp *PolygonEventProcessor) onNativeToken() error {
-	nativeScanLock.Lock()
-	defer nativeScanLock.Unlock()
-
-	// 第一次初始化 currentHeight
-	if pp.nativeCurrentHeight == nil {
-		lastHeight, err := pp.db.BlockListener.GetLastBlockNumber("native")
-		if err != nil {
-			log.Warn("native: failed to get last block height", "err", err)
-			return nil
-		}
-		if lastHeight != nil {
-			pp.nativeCurrentHeight = lastHeight.BlockNumber
-			log.Info("resume native scanner from db", "height", pp.nativeCurrentHeight)
-		} else {
-			pp.nativeCurrentHeight = big.NewInt(int64(pp.cfg.EventStartBlock))
-			log.Info("init native scanner from config start block", "height", pp.nativeCurrentHeight)
-		}
-	}
-
-	// 每次 tick 只处理一个区块（防止卡死）
-	height := new(big.Int).Set(pp.nativeCurrentHeight)
-
-	block, err := pp.client.BlockByNumber(height)
-	if err != nil {
-		log.Warn("native: fetch block failed", "height", height, "err", err)
-		return nil // 不退出任务
-	}
-	if block == nil {
-		log.Warn("native: block is nil", "height", height)
-		return nil
-	}
-
-	log.Info("native: success getting block", "height", height, "txs", len(block.Transactions()))
-
-	for _, tx := range block.Transactions() {
-		if tx.Value().Cmp(big.NewInt(0)) <= 0 {
-			continue
-		}
-
-		signer := types.LatestSignerForChainID(tx.ChainId()) // 找出正确的签名规则
-		from, err := types.Sender(signer, tx)                // 根据交易内容和签名恢复发送者地址
-		if err != nil {
-			log.Warn("native: failed to get sender", "txHash", tx.Hash(), "err", err)
-			continue
-		}
-
-		to := "ContractCreation"
-		if tx.To() != nil {
-			to = tx.To().Hex()
-		}
-
-		tokenSent := token_transfer.TokenSent{
-			Address:      from.Hex(),
-			TokenAddress: "0x0000000000000000000000000000000000001010", // Polygon 原生代币地址
-			Amount:       tx.Value(),
-			Description:  "Polygon Native Token Transfer",
-			Timestamp:    uint64(block.Time()),
-			TxHash:       tx.Hash().Hex(),
-			LogIndex:     0, // 原生转账没有 log index，设为0
-		}
-
-		tokenReceived := token_transfer.TokenReceived{
-			Address:      to,
-			TokenAddress: "0x0000000000000000000000000000000000001010", // Polygon 原生代币地址
-			Amount:       tx.Value(),
-			Description:  "Polygon Native Token Received",
-			Timestamp:    uint64(block.Time()),
-			TxHash:       tx.Hash().Hex(),
-			LogIndex:     0,
-		}
-
-		if err := pp.db.Transaction(func(txdb *database.DB) error {
-			if err := txdb.TokenSentDB.StoreTokenSent(tokenSent); err != nil {
-				return err
-			}
-			if err := txdb.TokenReceivedDB.StoreTokenReceived(tokenReceived); err != nil {
-				return err
-			}
-			return nil
-		}); err != nil {
-			log.Error("native: store transfer fail", "err", err)
-		}
-	}
-
-	// 完成一个区块后 +1
-	nextHeight := new(big.Int).Add(pp.nativeCurrentHeight, big.NewInt(1))
-
-	// 更新数据库中的扫描高度
-	err = pp.db.BlockListener.SaveOrUpdateLastBlockNumber(block_listener.BlockListener{
-		BlockNumber: nextHeight,
-		ConfName:    "native",
-	})
-	if err != nil {
-		log.Error("native: save last block number fail", "err", err)
-		return nil
-	}
-
-	pp.nativeCurrentHeight = nextHeight
-
-	log.Info("native: finished block", "nextHeight", pp.nativeCurrentHeight)
 
 	return nil
 }
-
-// func (pp *PolygonEventProcessor) onNativeToken(startBlock uint64) error {
-// 	//  再处理原生代币转账
-// 	for height := new(big.Int).Set(fromHeight); height.Cmp(toHeight) <= 0; height.Add(height, big.NewInt(1)) {
-// 		var block *types.Block
-
-// 		for retry := 0; retry < 3; retry++ {
-// 			block1, err := pp.client.BlockByNumber(height)
-// 			if err != nil {
-// 				log.Warn("fetch block failed", "height", height, "retry", retry, "err", err)
-// 				time.Sleep(time.Second * 2)
-// 				continue
-// 			}
-// 			if block1 == nil {
-// 				log.Warn("block is nil, will retry", "height", height, "retry", retry)
-// 				time.Sleep(time.Second)
-// 				continue
-// 			}
-// 			block = block1
-// 			log.Info("Success getting whole block")
-// 			break // 成功拿到 block
-// 		}
-// 		if block == nil {
-// 			log.Error("skip block after 3 retries", "height", height)
-// 			// 可以记录到 missed_blocks 表里，下次同步补偿
-// 			continue
-// 		}
-
-// 		for _, tx := range block.Transactions() {
-// 			if tx.Value().Cmp(big.NewInt(0)) > 0 {
-
-// 				signer := types.LatestSignerForChainID(tx.ChainId()) // 找出正确的签名规则
-
-// 				from, err := types.Sender(signer, tx) // 根据交易内容和签名恢复发送者地址
-// 				if err != nil {
-// 					log.Warn("failed to get sender", "txHash", tx.Hash(), "err", err)
-// 					continue
-// 				}
-
-// 				to := ""
-// 				if tx.To() != nil {
-// 					to = tx.To().Hex()
-// 				} else {
-// 					to = "ContractCreation"
-// 				}
-
-// 				tokenSent := token_transfer.TokenSent{
-// 					Address:      from.Hex(),
-// 					TokenAddress: "0x0000000000000000000000000000000000001010", // Polygon 原生代币地址
-// 					Amount:       tx.Value(),
-// 					Description:  "Polygon Native Token Transfer",
-// 					Timestamp:    uint64(block.Time()),
-// 				}
-
-// 				tokenReceived := token_transfer.TokenReceived{
-// 					Address:      to,
-// 					TokenAddress: "0x0000000000000000000000000000000000001010", // Polygon 原生代币地址
-// 					Amount:       tx.Value(),
-// 					Description:  "Polygon Native Token Received",
-// 					Timestamp:    uint64(block.Time()),
-// 				}
-
-// 				if err := pp.db.Transaction(func(tx *database.DB) error {
-
-// 					if err := tx.TokenSentDB.StoreTokenSent(tokenSent); err != nil {
-// 						return err
-// 					}
-// 					if err := tx.TokenReceivedDB.StoreTokenReceived(tokenReceived); err != nil {
-// 						return err
-// 					}
-// 					return nil
-// 				}); err != nil {
-// 					return err
-// 				}
-// 			}
-// 		}
-// 	}
-// }
 
 func (pp *PolygonEventProcessor) onData() error {
 	log.Info("onData triggered tick") // 第一行，证明 for-loop 触发了
@@ -391,27 +190,22 @@ func (pp *PolygonEventProcessor) eventsFetch(fromHeight, toHeight *big.Int, tx *
 	//  先处理合约事件
 	contracts := pp.contracts
 	for _, contract := range contracts {
-
 		contractEventFilter := event.ContractEvent{ContractAddress: common.HexToAddress(contract)}
 		events, err := pp.db.ContractEvent.ContractEventsWithFilter(contractEventFilter, fromHeight, toHeight)
-		if contract == "0x2caf752814f244b3778e30c27051cc6b45cb1fc9" && fromHeight.Int64() == 80600006 {
-			log.Info("Debug fetch events", "length: ", len(events))
-		}
 		if err != nil {
 			log.Warn("failed to index ContractEventsWithFilter ", "err", err)
 			return err
 		}
 		log.Info("fetched contract events", "count", len(events), "contract", contract, "fromHeight", fromHeight, "toHeight", toHeight)
-		for _, contractEvent := range events {
 
+		for _, contractEvent := range events {
 			unpackErr := pp.eventUnpack(contractEvent, tx)
 			if unpackErr != nil {
-				log.Warn("failed to index events 27c1049", "unpackErr", unpackErr)
+				log.Warn("failed to index events", "unpackErr", unpackErr)
 				return unpackErr
 			}
 		}
 	}
-
 	return nil
 }
 
@@ -419,12 +213,11 @@ func (pp *PolygonEventProcessor) eventUnpack(event event.ContractEvent, tx *data
 
 	transferSig := crypto.Keccak256Hash([]byte("Transfer(address,address,uint256)"))
 	if event.EventSignature == transferSig {
-
 		address := event.RLPLog.Address.Hex()
-		if address != "0x84eBc138F4Ab844A3050a6059763D269dC9951c6" && address != "0xc2132D05D31c914a87C6611C10748AEb04B58e8F" {
-			log.Info("skipping transfer event for non fcc/USDT", "address", address)
+		if address != "0x84eBc138F4Ab844A3050a6059763D269dC9951c6" {
+			log.Info("skipping transfer event for non fcc", "address", address)
 			return nil
-		} // 筛选出 FCC 和 USDT 合约地址的 Transfer 事件
+		} // 筛选出 FCC 合约地址的 Transfer 事件
 		err := unpack.Transfer(event, tx, address)
 		if err != nil {
 			log.Error("failed to unpack transfer event", "err", err)
@@ -440,7 +233,6 @@ func (pp *PolygonEventProcessor) eventUnpack(event event.ContractEvent, tx *data
 	stakeAbi, _ := abi.StakingManagerMetaData.GetAbi()
 
 	switch event.EventSignature.String() {
-
 	case merchantAbi.Events["ActivityAdd"].ID.String():
 		err := unpack.ActivityAdd(event, tx)
 		if err != nil {
