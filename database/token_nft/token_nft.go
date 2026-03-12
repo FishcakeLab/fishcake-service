@@ -144,6 +144,11 @@ func (t tokenNftDB) NftCount(contractAddress string) int64 {
 }
 
 func (t tokenNftDB) StoreTokenNft(token TokenNft) error {
+	var exist TokenNft
+	err := t.db.Table(TokenNft{}.TableName()).Where("token_id = ? AND contract_address = ?", token.TokenId, token.ContractAddress).Take(&exist).Error
+
+	if errors.Is(err, gorm.ErrRecordNotFound) {
+		// 彻底不存在，直接插入，并带上物理唯一保护
 	return t.db.Table(TokenNft{}.TableName()).
 		Clauses(clause.OnConflict{
 			Columns:   []clause.Column{{Name: "tx_hash"}, {Name: "log_index"}},
@@ -151,6 +156,24 @@ func (t tokenNftDB) StoreTokenNft(token TokenNft) error {
 		}).
 		Omit("id").
 		Create(&token).Error
+}
+
+	if err != nil {
+		return err
+	}
+
+	// 存在旧数据 (可能缺失指纹)：执行“指纹补全计划”
+	if exist.TxHash == "" || exist.LogIndex == 0 {
+		return t.db.Table(TokenNft{}.TableName()).
+			Where("id = ?", exist.Id).
+			Updates(map[string]interface{}{
+				"tx_hash":      token.TxHash,
+				"log_index":    token.LogIndex,
+				"block_number": token.BlockNumber,
+			}).Error
+	}
+
+	return nil
 }
 
 func (t tokenNftDB) List(pageNum, pageSize int, contractAddress, address string) ([]TokenNft, int) {

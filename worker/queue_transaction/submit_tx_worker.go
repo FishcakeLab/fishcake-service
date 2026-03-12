@@ -157,7 +157,7 @@ func (qt *QueueTxProcessor) AfterSentQueueTx() error {
 		log.Info("unhandled transaction", "txHash", unhandledTx.TransactionHash, "blockNumber", unhandledTx.Status)
 		fetchTx, errFetchTx := qt.ethClient.TxReceiptByHash(common.HexToHash(unhandledTx.TransactionHash))
 		if errFetchTx != nil {
-			log.Error("fetch tx receipt error: %w", errFetchTx.Error())
+			log.Warn("fetch tx receipt failed, might still pending", "txHash", unhandledTx.TransactionHash, "err", errFetchTx)
 			unhandledTx.Result = errFetchTx.Error()
 			unhandledTx.Status = 1
 		}

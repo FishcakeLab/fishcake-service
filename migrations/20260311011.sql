@@ -29,7 +29,7 @@ ALTER TABLE drop_info ADD COLUMN IF NOT EXISTS "log_index" int4 DEFAULT 0;
 
 DROP INDEX IF EXISTS idx_drop_info_unique_action;
 CREATE UNIQUE INDEX IF NOT EXISTS idx_drop_info_physical_unique 
-ON drop_info (transaction_hash, log_index, drop_type);
+ON drop_info (transaction_hash, address, log_index, drop_type);
 
 -- 5. [stake_holder_staking] 增强
 ALTER TABLE stake_holder_staking ADD COLUMN IF NOT EXISTS "block_number" int8 DEFAULT 0;
@@ -53,3 +53,9 @@ ON token_sent (tx_hash, log_index);
 
 CREATE UNIQUE INDEX IF NOT EXISTS idx_token_received_physical_unique 
 ON token_received (tx_hash, log_index);
+
+-- 8. [block_headers] 唯一索引：确保区块头不重复
+CREATE UNIQUE INDEX IF NOT EXISTS idx_block_headers_hash ON block_headers (hash);
+
+-- 9. [block_headers] 唯一索引：确保区块头不重复
+CREATE UNIQUE INDEX IF NOT EXISTS idx_block_headers_number ON block_headers (number);

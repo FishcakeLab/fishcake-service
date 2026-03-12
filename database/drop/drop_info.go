@@ -131,7 +131,7 @@ func (d dropInfoDB) IsExist(transactionHash string, logIndex uint, dropType int8
 func (d dropInfoDB) StoreDropInfo(drop DropInfo) error {
 
 	var exist DropInfo
-	err := d.db.Table(DropInfo{}.TableName()).Where("transaction_hash = ? and log_index = ? and drop_type = ?", drop.TransactionHash, drop.LogIndex, drop.DropType).Take(&exist).Error
+	err := d.db.Table(DropInfo{}.TableName()).Where("transaction_hash = ? AND address = ? AND log_index = ? AND drop_type = ?", drop.TransactionHash, drop.Address, drop.LogIndex, drop.DropType).Take(&exist).Error
 	if err != nil && errors.Is(err, gorm.ErrRecordNotFound) {
 		errCreate := d.db.Table(DropInfo{}.TableName()).
 			Omit("id", "token_contract_addr", "business_name", "return_amount", "mined_amount").
