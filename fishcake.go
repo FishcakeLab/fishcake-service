@@ -34,7 +34,8 @@ import (
 	"github.com/FishcakeLab/fishcake-service/service"
 	"github.com/FishcakeLab/fishcake-service/synchronizer"
 	"github.com/FishcakeLab/fishcake-service/synchronizer/node"
-	"github.com/FishcakeLab/fishcake-service/worker/clean_data_worker"
+
+	// "github.com/FishcakeLab/fishcake-service/worker/clean_data_worker"
 	"github.com/FishcakeLab/fishcake-service/worker/drop_worker"
 	"github.com/FishcakeLab/fishcake-service/worker/queue_transaction"
 )
@@ -155,9 +156,9 @@ func (f *FishCake) newApi(cfg *config.Config, db *database.DB) error {
 func (f *FishCake) newIndex(ctx *cli.Context, cfg *config.Config, db *database.DB, shutdown context.CancelCauseFunc) error {
 	chainId, _ := strconv.ParseUint(cfg.PolygonChainId, 10, 64)
 	syncConfig := &synchronizer.Config{
-		LoopIntervalMsec:  1,
+		LoopIntervalMsec: 1,
 
-		HeaderBufferSize:  50, // 5
+		HeaderBufferSize: 50, // 5
 
 		StartHeight:       new(big.Int).SetUint64(cfg.StartBlock),
 		ConfirmationDepth: big.NewInt(100),
@@ -165,7 +166,7 @@ func (f *FishCake) newIndex(ctx *cli.Context, cfg *config.Config, db *database.D
 	}
 	client, _ := node.DialEthClient(ctx.Context, cfg.PolygonRpc)
 	syncer, _ := synchronizer.NewSynchronizer(cfg, syncConfig, db, client, shutdown)
-	worker, _ := clean_data_worker.NewWorkerProcessor(db, shutdown)
+	// worker, _ := clean_data_worker.NewWorkerProcessor(db, shutdown)
 	dropWorker, _ := drop_worker.NewDropWorkerProcessor(db, cfg, shutdown)
 	systemDropWorker, _ := drop_worker.NewSystemDropWorkerProcessor(db, cfg, shutdown, client)
 	queueTxProcessor, _ := queue_transaction.NewQueueTxProcessor(db, cfg, client, shutdown)
@@ -175,11 +176,11 @@ func (f *FishCake) newIndex(ctx *cli.Context, cfg *config.Config, db *database.D
 		log.Error("failed to start synchronizer:", err)
 		return err
 	}
-	err = worker.WorkerStart()
-	if err != nil {
-		log.Error("failed to start clean data worker:", err)
-		return err
-	}
+	// err = worker.WorkerStart()
+	// if err != nil {
+	// 	log.Error("failed to start clean data worker:", err)
+	// 	return err
+	// }
 	err = dropWorker.DropWorkerStart()
 	if err != nil {
 		log.Error("failed to start drop  worker:", err)
