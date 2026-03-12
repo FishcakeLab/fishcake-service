@@ -137,6 +137,8 @@ func (syncer *Synchronizer) processBatch(headers []types.Header, ymlCfg *config.
 	addresses[0] = common.HexToAddress(ymlCfg.Contracts[0])
 	addresses[1] = common.HexToAddress(ymlCfg.Contracts[1])
 	addresses[2] = common.HexToAddress(ymlCfg.Contracts[2])
+	addresses[3] = common.HexToAddress(ymlCfg.Contracts[3])
+	addresses[4] = common.HexToAddress(ymlCfg.Contracts[4])
 
 	filterQuery := ethereum.FilterQuery{FromBlock: firstHeader.Number, ToBlock: lastHeader.Number, Addresses: addresses}
 	logs, err := syncer.ethClient.FilterLogs(filterQuery)

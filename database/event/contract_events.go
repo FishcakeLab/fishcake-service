@@ -107,7 +107,16 @@ func (db *contractEventDB) ContractEventsWithFilter(filter ContractEvent, fromHe
 	if fromHeight.Cmp(toHeight) > 0 {
 		return nil, fmt.Errorf("fromHeight %d is greater than toHeight %d", fromHeight, toHeight)
 	}
-	query := db.gorm.Table("contract_events").Where(&filter)
+	query := db.gorm.Table("contract_events")
+	if filter.ContractAddress != (common.Address{}) {
+		query = query.Where("contract_address ILIKE ?", filter.ContractAddress.Hex())
+	}
+	if filter.TransactionHash != (common.Hash{}) {
+		query = query.Where("transaction_hash = ?", filter.TransactionHash.Hex())
+	}
+	if filter.EventSignature != (common.Hash{}) {
+		query = query.Where("event_signature = ?", filter.EventSignature.Hex())
+	}
 	query = query.Joins("INNER JOIN block_headers ON contract_events.block_hash = block_headers.hash")
 	query = query.Where("block_headers.number >= ? AND block_headers.number <= ?", fromHeight, toHeight)
 	query = query.Order("block_headers.number ASC").Select("contract_events.*")
