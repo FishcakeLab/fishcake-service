@@ -9,6 +9,7 @@ import (
 type Config struct {
 	Migrations          string       `yaml:"migrations"`
 	PolygonRpc          string       `yaml:"polygon_rpc"`
+	PolygonBackupRpcs   []string     `yaml:"polygon_backup_rpcs"`
 	RpcUrl              string       `yaml:"rpc_url"`
 	PolygonChainId      string       `yaml:"polygon_chain_id"`
 	HttpHost            string       `yaml:"http_host"`

@@ -7,7 +7,9 @@ import (
 	"math/big"
 	"net"
 	"net/url"
+	"strings"
 	"sync"
+	"sync/atomic"
 	"time"
 
 	"github.com/ethereum/go-ethereum"
@@ -59,38 +61,52 @@ type EthClient interface {
 
 type clnt struct {
 	rpc RPC
-	ec  *ethclient.Client // 新增一个 ethclient
+	ecs []*ethclient.Client // 多 ethclient
+	idx uint32              // 当前使用的备份索引
 }
 
-func DialEthClient(ctx context.Context, rpcUrl string) (EthClient, error) {
-	ctx, cancel := context.WithTimeout(ctx, defaultDialTimeout)
-	defer cancel()
-
-	bOff := retry.Exponential()
-	rpcClient, err := retry.Do(ctx, defaultDialAttempts, bOff, func() (*rpc.Client, error) {
-		if !IsURLAvailable(rpcUrl) {
-			return nil, fmt.Errorf("address unavailable (%s)", rpcUrl)
-		}
-
-		client, err := rpc.DialContext(ctx, rpcUrl)
-		if err != nil {
-			return nil, fmt.Errorf("failed to dial address (%s): %w", rpcUrl, err)
-		}
-
-		return client, nil
-	})
-
-	if err != nil {
-		return nil, err
+func DialEthClient(ctx context.Context, rpcUrls []string) (EthClient, error) {
+	if len(rpcUrls) == 0 {
+		return nil, fmt.Errorf("no RPC URLs provided")
 	}
 
-	// 基于同一个底层连接创建 ethclient
-	ethCl := ethclient.NewClient(rpcClient)
+	ctx, cancel := context.WithTimeout(ctx, defaultDialTimeout*time.Duration(len(rpcUrls)))
+	defer cancel()
 
-	// 初始化并返回
+	var rpcClients []*rpc.Client
+	var ethClients []*ethclient.Client
+
+	for _, rpcUrl := range rpcUrls {
+		if !IsURLAvailable(rpcUrl) {
+			log.Warn("address unavailable", "rpcUrl", rpcUrl)
+			continue
+		}
+
+		bOff := retry.Exponential()
+		rpcClient, err := retry.Do(ctx, defaultDialAttempts, bOff, func() (*rpc.Client, error) {
+			client, err := rpc.DialContext(ctx, rpcUrl)
+			if err != nil {
+				return nil, fmt.Errorf("failed to dial address (%s): %w", rpcUrl, err)
+			}
+			return client, nil
+		})
+
+		if err != nil {
+			log.Warn("failed to dial RPC node", "rpcUrl", rpcUrl, "err", err)
+			continue
+		}
+
+		rpcClients = append(rpcClients, rpcClient)
+		ethClients = append(ethClients, ethclient.NewClient(rpcClient))
+	}
+
+	if len(rpcClients) == 0 {
+		return nil, fmt.Errorf("failed to dial any of the provided RPC nodes")
+	}
+
 	return &clnt{
-		rpc: NewRPC(rpcClient),
-		ec:  ethCl,
+		rpc: NewRPC(rpcClients),
+		ecs: ethClients,
 	}, nil
 }
 
@@ -167,16 +183,23 @@ func (c *clnt) BlockByNumber(number *big.Int) (*types.Block, error) {
 	ctxwt, cancel := context.WithTimeout(context.Background(), defaultRequestTimeout)
 	defer cancel()
 
-	block, err := c.ec.BlockByNumber(ctxwt, number)
-	if err != nil {
-		return nil, fmt.Errorf("ethclient.BlockByNumber failed: %w", err)
+	var block *types.Block
+	var err error
+
+	for i := 0; i < len(c.ecs); i++ {
+		idx := (atomic.LoadUint32(&c.idx) + uint32(i)) % uint32(len(c.ecs))
+		block, err = c.ecs[idx].BlockByNumber(ctxwt, number)
+		if err == nil {
+			if block == nil {
+				return nil, fmt.Errorf("ethclient returned nil block at number=%v", number)
+			}
+			return block, nil
+		}
+		log.Warn("BlockByNumber failed, trying backup", "err", err, "idx", idx)
+		atomic.AddUint32(&c.idx, 1) // Move default for subsequent calls too
 	}
 
-	if block == nil {
-		return nil, fmt.Errorf("ethclient returned nil block at number=%v", number)
-	}
-
-	return block, nil
+	return nil, fmt.Errorf("ethclient.BlockByNumber failed on all RPCs: %w", err)
 }
 
 // BlockHeadersByRange will retrieve block headers within the specified range -- inclusive. No restrictions
@@ -294,9 +317,7 @@ func (c *clnt) BlockHeadersByRange(startHeight, endHeight *big.Int, chainId uint
 
 		// 1) RPC 层错误处理
 		if be.Error != nil {
-			if firstErr == nil {
-				firstErr = be.Error
-			}
+			firstErr = be.Error
 			// 如果一条都没拿到就报错 -> 直接 return
 			if size == 0 {
 				return nil, be.Error
@@ -540,24 +561,68 @@ type RPC interface {
 }
 
 type rpcClient struct {
-	rpc *rpc.Client
+	clients []*rpc.Client
+	idx     uint32
 }
 
-func NewRPC(client *rpc.Client) RPC {
-	return &rpcClient{client}
+func NewRPC(clients []*rpc.Client) RPC {
+	return &rpcClient{clients: clients}
 }
 
 func (c *rpcClient) Close() {
-	c.rpc.Close()
+	for _, client := range c.clients {
+		client.Close()
+	}
 }
 
 func (c *rpcClient) CallContext(ctx context.Context, result any, method string, args ...any) error {
-	err := c.rpc.CallContext(ctx, result, method, args...)
+	var err error
+	for i := 0; i < len(c.clients); i++ {
+		idx := (atomic.LoadUint32(&c.idx) + uint32(i)) % uint32(len(c.clients))
+		err = c.clients[idx].CallContext(ctx, result, method, args...)
+		if err == nil {
+			return nil
+		}
+		log.Warn("RPC single call failed, trying backup", "err", err, "method", method, "idx", idx)
+		atomic.AddUint32(&c.idx, 1)
+	}
 	return err
 }
 
 func (c *rpcClient) BatchCallContext(ctx context.Context, b []rpc.BatchElem) error {
-	err := c.rpc.BatchCallContext(ctx, b)
+	var err error
+	for i := 0; i < len(c.clients); i++ {
+		idx := (atomic.LoadUint32(&c.idx) + uint32(i)) % uint32(len(c.clients))
+		err = c.clients[idx].BatchCallContext(ctx, b)
+		
+		// 检查是否有内部错误，尤其是 429 和 Too Many Requests 等限流
+		hasLimitError := false
+		if err == nil {
+			for _, elem := range b {
+				if elem.Error != nil && (strings.Contains(strings.ToLower(elem.Error.Error()), "too many") || strings.Contains(elem.Error.Error(), "429")) {
+					hasLimitError = true
+					err = elem.Error
+					// Clear the error for the next retry attempt so it is properly re-evaluated
+					elem.Error = nil 
+					break
+				}
+			}
+		}
+
+		if err == nil && !hasLimitError {
+			return nil
+		}
+
+		// Prepare for retry by clearing Result / Error fields and creating new objects if needed?
+		// Note that `Result` pointer is supplied externally, we should just let `BatchCallContext` overwrite it.
+		// Usually we just need to clear `Error` flag.
+		for j := range b {
+			b[j].Error = nil
+		}
+
+		log.Warn("RPC batch call failed or limited, trying backup", "err", err, "idx", idx)
+		atomic.AddUint32(&c.idx, 1)
+	}
 	return err
 }
 

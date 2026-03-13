@@ -165,7 +165,8 @@ func (f *FishCake) newIndex(ctx *cli.Context, cfg *config.Config, db *database.D
 		ConfirmationDepth: big.NewInt(100),
 		ChainId:           uint(chainId),
 	}
-	client, _ := node.DialEthClient(ctx.Context, cfg.PolygonRpc)
+	rpcUrls := append([]string{cfg.PolygonRpc}, cfg.PolygonBackupRpcs...)
+	client, _ := node.DialEthClient(ctx.Context, rpcUrls)
 	syncer, _ := synchronizer.NewSynchronizer(cfg, syncConfig, db, client, shutdown)
 	// worker, _ := clean_data_worker.NewWorkerProcessor(db, shutdown)
 	dropWorker, _ := drop_worker.NewDropWorkerProcessor(db, cfg, shutdown)
@@ -202,7 +203,8 @@ func (f *FishCake) newIndex(ctx *cli.Context, cfg *config.Config, db *database.D
 
 func (f *FishCake) newEvent(ctx *cli.Context, cfg *config.Config, db *database.DB, shutdown context.CancelCauseFunc) error {
 
-	client, _ := node.DialEthClient(ctx.Context, cfg.PolygonRpc)
+	rpcUrls := append([]string{cfg.PolygonRpc}, cfg.PolygonBackupRpcs...)
+	client, _ := node.DialEthClient(ctx.Context, rpcUrls)
 	var epoch uint64 = 100_000 // 100
 	var loopInterval time.Duration = time.Second * 2
 	eventProcessor, _ := polygon.NewEventProcessor(db, cfg, client, loopInterval, epoch, shutdown)
