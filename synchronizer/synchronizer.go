@@ -52,41 +52,41 @@ func NewSynchronizer(ymlCfg *config.Config, cfg *Config, db *database.DB, client
 	}
 
 	var fromHeader *types.Header
-	// if latestHeader != nil {
-	// 	log.Info("detected last indexed block", "number", latestHeader.Number, "hash", latestHeader.Hash)
-	// 	fromHeader = latestHeader.RLPHeader.Header()
-	// } else if cfg.StartHeight.BitLen() > 0 {
-	// 	log.Info("no indexed state starting from supplied L1 height;", "height =", cfg.StartHeight.String())
-	// 	header, err := client.BlockHeaderByNumber(cfg.StartHeight)
-	// 	if err != nil {
-	// 		log.Error("fetch block header by number fail", "err", err)
-	// 		return nil, fmt.Errorf("could not fetch starting block header: %w", err)
-	// 	}
-	// 	fromHeader = header
-	// } else {
-	// 	log.Info("no indexed state, starting from genesis")
-	// }
 	if latestHeader != nil {
-		// 比较数据库高度与配置高度
-		if cfg.StartHeight.BitLen() > 0 && cfg.StartHeight.Cmp(latestHeader.Number) < 0 {
-			log.Warn("Detected manual rollback in config! Prioritizing config StartHeight", "config", cfg.StartHeight, "db", latestHeader.Number)
-			// fromHeader 保持为 nil，触发下面的从 RPC 获取逻辑
-		} else {
-			log.Info("detected last indexed block", "number", latestHeader.Number, "hash", latestHeader.Hash)
-			fromHeader = latestHeader.RLPHeader.Header()
-		}
-	}
-	if fromHeader == nil && cfg.StartHeight.BitLen() > 0 {
-		log.Info("no indexed state or manual rollback, starting from supplied L1 height;", "height =", cfg.StartHeight.String())
+		log.Info("detected last indexed block", "number", latestHeader.Number, "hash", latestHeader.Hash)
+		fromHeader = latestHeader.RLPHeader.Header()
+	} else if cfg.StartHeight.BitLen() > 0 {
+		log.Info("no indexed state starting from supplied L1 height;", "height =", cfg.StartHeight.String())
 		header, err := client.BlockHeaderByNumber(cfg.StartHeight)
 		if err != nil {
 			log.Error("fetch block header by number fail", "err", err)
 			return nil, fmt.Errorf("could not fetch starting block header: %w", err)
 		}
 		fromHeader = header
-	} else if fromHeader == nil {
+	} else {
 		log.Info("no indexed state, starting from genesis")
 	}
+	// if latestHeader != nil {
+	// 	// 比较数据库高度与配置高度
+	// 	if cfg.StartHeight.BitLen() > 0 && cfg.StartHeight.Cmp(latestHeader.Number) < 0 {
+	// 		log.Warn("Detected manual rollback in config! Prioritizing config StartHeight", "config", cfg.StartHeight, "db", latestHeader.Number)
+	// 		// fromHeader 保持为 nil，触发下面的从 RPC 获取逻辑
+	// 	} else {
+	// 		log.Info("detected last indexed block", "number", latestHeader.Number, "hash", latestHeader.Hash)
+	// 		fromHeader = latestHeader.RLPHeader.Header()
+	// 	}
+	// }
+	// if fromHeader == nil && cfg.StartHeight.BitLen() > 0 {
+	// 	log.Info("no indexed state or manual rollback, starting from supplied L1 height;", "height =", cfg.StartHeight.String())
+	// 	header, err := client.BlockHeaderByNumber(cfg.StartHeight)
+	// 	if err != nil {
+	// 		log.Error("fetch block header by number fail", "err", err)
+	// 		return nil, fmt.Errorf("could not fetch starting block header: %w", err)
+	// 	}
+	// 	fromHeader = header
+	// } else if fromHeader == nil {
+	// 	log.Info("no indexed state, starting from genesis")
+	// }
 
 	chainIdInt, _ := strconv.Atoi(strconv.Itoa(int(cfg.ChainId)))
 	log.Info("Support chain", "chainId=", chainIdInt)
