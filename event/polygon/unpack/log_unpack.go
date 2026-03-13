@@ -207,8 +207,8 @@ func MintBoosterNft(event event.ContractEvent, db *database.DB) error {
 		// ---------- 1. 锁行读取 mining_info ----------
 		miningInfo, err := tx.MiningInfoDB.GetByAddressForUpdate(address)
 		if err != nil {
-			log.Warn("GetByAddressForUpdate failed", "err", err)
-			return err
+			log.Warn("GetByAddressForUpdate failed", "err", err, "address", address, "txHash", uEvent.Raw.TxHash.Hex())
+			return fmt.Errorf("failed to find mining_info for miner %s, tx %s: %w", address, uEvent.Raw.TxHash.Hex(), err)
 		}
 
 		// ---------- 2. 幂等判断（必须在事务里） ----------
