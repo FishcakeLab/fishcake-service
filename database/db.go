@@ -116,6 +116,7 @@ func (db *DB) Transaction(fn func(db *DB) error) error {
 			StakingDB:         stake.NewStakeHolderStakingDB(tx),
 			TokenSentDB:       token_transfer.NewTokenSentDB(tx),
 			TokenReceivedDB:   token_transfer.NewTokenReceivedDB(tx),
+			MiningInfoDB:      activity.NewMiningInfoDB(tx),
 		}
 		return fn(txDB)
 	})
