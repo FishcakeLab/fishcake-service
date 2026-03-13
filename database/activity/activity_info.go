@@ -233,76 +233,66 @@ func (a *activityInfoDB) ActivityFinish(activityId string, returnAmount, minedAm
 			return fmt.Errorf("empty business_account for activity_id %s", activityId)
 		}
 
-		// 3. 查询 mining_info
-		var mi MiningInfo
-		err := tx.Where(`address ILIKE ?`, address).First(&mi).Error
-
-		// 3.1 不存在 -> 插入
-		amtStr := "0"
-		if minedAmount != nil {
-			amtStr = minedAmount.String()
-		}
-
-		if errors.Is(err, gorm.ErrRecordNotFound) {
-			newInfo := MiningInfo{
-				Address:            address,
-				MinedAmount:        &amtStr,
-				MinedFishCakePower: &amtStr,
-			}
-
-			if err := tx.Create(&newInfo).Error; err != nil {
-				log.Error("insert mining_info fail", "err", err)
-				return err
-			}
-
-			return nil // return nil -> 自动 commit
-		}
-
-		// 3.2 查询报其他错误
-		if err != nil {
-			log.Error("query mining_info fail", "err", err)
-			return err
-		}
-
 		if minedAmount == nil {
 			return fmt.Errorf("minedAmount is nil")
 		}
 
-		if mi.MinedFishCakePower == nil {
-			return fmt.Errorf("minedFishCakePower is nil")
-		}
+		// ---------- 只有 minedAmount > 0 才处理 MiningInfo ----------
+		if minedAmount.Cmp(big.NewInt(0)) > 0 {
+			// 3. 查询 mining_info
+			var mi MiningInfo
+			err := tx.Where(`address ILIKE ?`, address).First(&mi).Error
 
-		// 把 DB 里的 string 转成 big.Int（严格：转不了就报错）
-		curMined, err := strToBigInt(mi.MinedAmount)
-		if err != nil {
-			return fmt.Errorf("invalid mi.MinedAmount for address %s: %w", mi.Address, err)
-		}
-		curPower, err := strToBigInt(mi.MinedFishCakePower)
-		if err != nil {
-			return fmt.Errorf("invalid mi.MinedFishCakePower for address %s: %w", mi.Address, err)
-		}
+			// 3.1 不存在 -> 插入
+			amtStr := minedAmount.String()
 
-		// 3.3 已存在 -> 累加更新（big.Int 运算）
-		newMined := new(big.Int).Add(curMined, minedAmount)
-		newPower := new(big.Int).Add(curPower, minedAmount)
+			if errors.Is(err, gorm.ErrRecordNotFound) {
+				newInfo := MiningInfo{
+					Address:            address,
+					MinedAmount:        &amtStr,
+					MinedFishCakePower: &amtStr,
+				}
+				if err := tx.Create(&newInfo).Error; err != nil {
+					log.Error("insert mining_info fail", "err", err)
+					return err
+				}
+			} else if err != nil {
+				// 3.2 查询报其他错误
+				log.Error("query mining_info fail", "err", err)
+				return err
+			} else {
+				// 3.3 已存在 -> 累加更新
+				if mi.MinedFishCakePower == nil || mi.MinedAmount == nil {
+					return fmt.Errorf("mined fields are nil in db for address %s", address)
+				}
 
-		// 回写：big.Int -> string
-		newMinedStr := newMined.String()
-		newPowerStr := newPower.String()
+				// 把 DB 里的 string 转成 big.Int
+				curMined, err := strToBigInt(mi.MinedAmount)
+				if err != nil {
+					return fmt.Errorf("invalid mi.MinedAmount for address %s: %w", mi.Address, err)
+				}
+				curPower, err := strToBigInt(mi.MinedFishCakePower)
+				if err != nil {
+					return fmt.Errorf("invalid mi.MinedFishCakePower for address %s: %w", mi.Address, err)
+				}
 
-		// // 3.3 已存在 -> 累加更新
-		// mi.MinedAmount = new(big.Int).Add(mi.MinedAmount, minedAmount)
-		// mi.MinedFishCakePower = new(big.Int).Add(mi.MinedFishCakePower, minedAmount)
+				newMined := new(big.Int).Add(curMined, minedAmount)
+				newPower := new(big.Int).Add(curPower, minedAmount)
 
-		if err := tx.Model(&MiningInfo{}).
-			Where(`address ILIKE ?`, address).
-			Updates(map[string]interface{}{
-				"mined_amount":        &newMinedStr,
-				"mined_fishcakepower": &newPowerStr,
-			}).Error; err != nil {
+				newMinedStr := newMined.String()
+				newPowerStr := newPower.String()
 
-			log.Error("update mining_info fail", "err", err)
-			return err
+				if err := tx.Model(&MiningInfo{}).
+					Where(`address ILIKE ?`, address).
+					Updates(map[string]interface{}{
+						"mined_amount":        &newMinedStr,
+						"mined_fishcakepower": &newPowerStr,
+					}).Error; err != nil {
+
+					log.Error("update mining_info fail", "err", err)
+					return err
+				}
+			}
 		}
 
 		return nil // return nil -> 自动 commit
@@ -512,7 +502,7 @@ func (m *miningInfoDB) GetByAddressForUpdate(address string) (*MiningInfo, error
 	var info MiningInfo
 	err := m.db.
 		Clauses(clause.Locking{Strength: "UPDATE"}).
-		Where("address = ?", address).
+		Where("address ILIKE ?", address).
 		Take(&info).Error
 	return &info, err
 }
