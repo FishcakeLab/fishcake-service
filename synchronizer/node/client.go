@@ -185,9 +185,11 @@ func (c *clnt) BlockByNumber(number *big.Int) (*types.Block, error) {
 
 	var block *types.Block
 	var err error
+	numClients := uint32(len(c.ecs))
+	startIdx := atomic.LoadUint32(&c.idx)
 
-	for i := 0; i < len(c.ecs); i++ {
-		idx := (atomic.LoadUint32(&c.idx) + uint32(i)) % uint32(len(c.ecs))
+	for i := uint32(0); i < numClients; i++ {
+		idx := (startIdx + i) % numClients
 		block, err = c.ecs[idx].BlockByNumber(ctxwt, number)
 		if err == nil {
 			if block == nil {
@@ -196,7 +198,8 @@ func (c *clnt) BlockByNumber(number *big.Int) (*types.Block, error) {
 			return block, nil
 		}
 		log.Warn("BlockByNumber failed, trying backup", "err", err, "idx", idx)
-		atomic.AddUint32(&c.idx, 1) // Move default for subsequent calls too
+		// 只要还在报错，就尝试将全局指针往后推一位，但 CAS 保证了多个并发报错也只推一次
+		atomic.CompareAndSwapUint32(&c.idx, idx, (idx+1)%numClients)
 	}
 
 	return nil, fmt.Errorf("ethclient.BlockByNumber failed on all RPCs: %w", err)
@@ -577,24 +580,30 @@ func (c *rpcClient) Close() {
 
 func (c *rpcClient) CallContext(ctx context.Context, result any, method string, args ...any) error {
 	var err error
-	for i := 0; i < len(c.clients); i++ {
-		idx := (atomic.LoadUint32(&c.idx) + uint32(i)) % uint32(len(c.clients))
+	numClients := uint32(len(c.clients))
+	startIdx := atomic.LoadUint32(&c.idx)
+
+	for i := uint32(0); i < numClients; i++ {
+		idx := (startIdx + i) % numClients
 		err = c.clients[idx].CallContext(ctx, result, method, args...)
 		if err == nil {
 			return nil
 		}
 		log.Warn("RPC single call failed, trying backup", "err", err, "method", method, "idx", idx)
-		atomic.AddUint32(&c.idx, 1)
+		atomic.CompareAndSwapUint32(&c.idx, idx, (idx+1)%numClients)
 	}
 	return err
 }
 
 func (c *rpcClient) BatchCallContext(ctx context.Context, b []rpc.BatchElem) error {
 	var err error
-	for i := 0; i < len(c.clients); i++ {
-		idx := (atomic.LoadUint32(&c.idx) + uint32(i)) % uint32(len(c.clients))
+	numClients := uint32(len(c.clients))
+	startIdx := atomic.LoadUint32(&c.idx)
+
+	for i := uint32(0); i < numClients; i++ {
+		idx := (startIdx + i) % numClients
 		err = c.clients[idx].BatchCallContext(ctx, b)
-		
+
 		// 检查是否有内部错误，尤其是 429 和 Too Many Requests 等限流
 		hasLimitError := false
 		if err == nil {
@@ -603,7 +612,7 @@ func (c *rpcClient) BatchCallContext(ctx context.Context, b []rpc.BatchElem) err
 					hasLimitError = true
 					err = elem.Error
 					// Clear the error for the next retry attempt so it is properly re-evaluated
-					elem.Error = nil 
+					elem.Error = nil
 					break
 				}
 			}
@@ -613,15 +622,13 @@ func (c *rpcClient) BatchCallContext(ctx context.Context, b []rpc.BatchElem) err
 			return nil
 		}
 
-		// Prepare for retry by clearing Result / Error fields and creating new objects if needed?
-		// Note that `Result` pointer is supplied externally, we should just let `BatchCallContext` overwrite it.
-		// Usually we just need to clear `Error` flag.
+		// Prepare for retry by clearing Result / Error fields
 		for j := range b {
 			b[j].Error = nil
 		}
 
 		log.Warn("RPC batch call failed or limited, trying backup", "err", err, "idx", idx)
-		atomic.AddUint32(&c.idx, 1)
+		atomic.CompareAndSwapUint32(&c.idx, idx, (idx+1)%numClients)
 	}
 	return err
 }
