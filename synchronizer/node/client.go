@@ -60,9 +60,10 @@ type EthClient interface {
 }
 
 type clnt struct {
-	rpc RPC
-	ecs []*ethclient.Client // 多 ethclient
-	idx uint32              // 当前使用的备份索引
+	rpc       RPC
+	ecs       []*ethclient.Client // 多 ethclient
+	idx       uint32              // 当前使用的备份索引
+	lastReset int64               // 上次重置到主节点的时间戳
 }
 
 func DialEthClient(ctx context.Context, rpcUrls []string) (EthClient, error) {
@@ -105,8 +106,9 @@ func DialEthClient(ctx context.Context, rpcUrls []string) (EthClient, error) {
 	}
 
 	return &clnt{
-		rpc: NewRPC(rpcClients),
-		ecs: ethClients,
+		rpc:       NewRPC(rpcClients),
+		ecs:       ethClients,
+		lastReset: time.Now().Unix(),
 	}, nil
 }
 
@@ -183,10 +185,21 @@ func (c *clnt) BlockByNumber(number *big.Int) (*types.Block, error) {
 	ctxwt, cancel := context.WithTimeout(context.Background(), defaultRequestTimeout)
 	defer cancel()
 
+	numClients := uint32(len(c.ecs))
+
+	// 每隔 10 天尝试回到主节点 (idx 0)
+	now := time.Now().Unix()
+	last := atomic.LoadInt64(&c.lastReset)
+	if now-last > 10*24*3600 {
+		if atomic.CompareAndSwapInt64(&c.lastReset, last, now) {
+			atomic.StoreUint32(&c.idx, 0)
+			log.Info("10 days passed, resetting RPC index to 0")
+		}
+	}
+
+	startIdx := atomic.LoadUint32(&c.idx)
 	var block *types.Block
 	var err error
-	numClients := uint32(len(c.ecs))
-	startIdx := atomic.LoadUint32(&c.idx)
 
 	for i := uint32(0); i < numClients; i++ {
 		idx := (startIdx + i) % numClients
@@ -564,12 +577,16 @@ type RPC interface {
 }
 
 type rpcClient struct {
-	clients []*rpc.Client
-	idx     uint32
+	clients   []*rpc.Client
+	idx       uint32
+	lastReset int64
 }
 
 func NewRPC(clients []*rpc.Client) RPC {
-	return &rpcClient{clients: clients}
+	return &rpcClient{
+		clients:   clients,
+		lastReset: time.Now().Unix(),
+	}
 }
 
 func (c *rpcClient) Close() {
@@ -581,6 +598,17 @@ func (c *rpcClient) Close() {
 func (c *rpcClient) CallContext(ctx context.Context, result any, method string, args ...any) error {
 	var err error
 	numClients := uint32(len(c.clients))
+
+	// 每隔 10 天尝试回到主节点 (idx 0)
+	now := time.Now().Unix()
+	last := atomic.LoadInt64(&c.lastReset)
+	if now-last > 10*24*3600 {
+		if atomic.CompareAndSwapInt64(&c.lastReset, last, now) {
+			atomic.StoreUint32(&c.idx, 0)
+			log.Info("10 days passed, resetting RPC index to 0 (CallContext)")
+		}
+	}
+
 	startIdx := atomic.LoadUint32(&c.idx)
 
 	for i := uint32(0); i < numClients; i++ {
@@ -598,6 +626,17 @@ func (c *rpcClient) CallContext(ctx context.Context, result any, method string, 
 func (c *rpcClient) BatchCallContext(ctx context.Context, b []rpc.BatchElem) error {
 	var err error
 	numClients := uint32(len(c.clients))
+
+	// 每隔 10 天尝试回到主节点 (idx 0)
+	now := time.Now().Unix()
+	last := atomic.LoadInt64(&c.lastReset)
+	if now-last > 10*24*3600 {
+		if atomic.CompareAndSwapInt64(&c.lastReset, last, now) {
+			atomic.StoreUint32(&c.idx, 0)
+			log.Info("10 days passed, resetting RPC index to 0 (BatchCallContext)")
+		}
+	}
+
 	startIdx := atomic.LoadUint32(&c.idx)
 
 	for i := uint32(0); i < numClients; i++ {

@@ -37,6 +37,7 @@ import (
 
 	// "github.com/FishcakeLab/fishcake-service/worker/clean_data_worker"
 
+	"github.com/FishcakeLab/fishcake-service/worker/clean_data_worker"
 	"github.com/FishcakeLab/fishcake-service/worker/drop_worker"
 	"github.com/FishcakeLab/fishcake-service/worker/queue_transaction"
 )
@@ -168,7 +169,7 @@ func (f *FishCake) newIndex(ctx *cli.Context, cfg *config.Config, db *database.D
 	rpcUrls := append([]string{cfg.PolygonRpc}, cfg.PolygonBackupRpcs...)
 	client, _ := node.DialEthClient(ctx.Context, rpcUrls)
 	syncer, _ := synchronizer.NewSynchronizer(cfg, syncConfig, db, client, shutdown)
-	// worker, _ := clean_data_worker.NewWorkerProcessor(db, shutdown)
+	worker, _ := clean_data_worker.NewWorkerProcessor(db, shutdown)
 	dropWorker, _ := drop_worker.NewDropWorkerProcessor(db, cfg, shutdown)
 	systemDropWorker, _ := drop_worker.NewSystemDropWorkerProcessor(db, cfg, shutdown, client)
 	queueTxProcessor, _ := queue_transaction.NewQueueTxProcessor(db, cfg, client, shutdown)
@@ -178,11 +179,11 @@ func (f *FishCake) newIndex(ctx *cli.Context, cfg *config.Config, db *database.D
 		log.Error("failed to start synchronizer:", err)
 		return err
 	}
-	// err = worker.WorkerStart()
-	// if err != nil {
-	// 	log.Error("failed to start clean data worker:", err)
-	// 	return err
-	// }
+	err = worker.WorkerStart()
+	if err != nil {
+		log.Error("failed to start clean data worker:", err)
+		return err
+	}
 	err = dropWorker.DropWorkerStart()
 	if err != nil {
 		log.Error("failed to start drop  worker:", err)
