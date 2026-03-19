@@ -30,10 +30,13 @@ import (
 	"github.com/FishcakeLab/fishcake-service/common/middleware"
 	"github.com/FishcakeLab/fishcake-service/config"
 	"github.com/FishcakeLab/fishcake-service/database"
+	_ "github.com/FishcakeLab/fishcake-service/docs/swagger"
 	"github.com/FishcakeLab/fishcake-service/event/polygon"
 	"github.com/FishcakeLab/fishcake-service/service"
 	"github.com/FishcakeLab/fishcake-service/synchronizer"
 	"github.com/FishcakeLab/fishcake-service/synchronizer/node"
+	swaggerFiles "github.com/swaggo/files"
+	ginSwagger "github.com/swaggo/gin-swagger"
 
 	// "github.com/FishcakeLab/fishcake-service/worker/clean_data_worker"
 
@@ -86,6 +89,10 @@ func NewIndex(ctx *cli.Context, cfg *config.Config, db *database.DB, shutdown co
 	return f
 }
 
+// @title Fishcake Service API
+// @version 1.0
+// @description Backend API for Fishcake ecosystem - activity, drop, staking, mining and leaderboard
+// @BasePath /
 func (f *FishCake) newApi(cfg *config.Config, db *database.DB) error {
 
 	service.NewApiBaseService(db, cfg)
@@ -111,8 +118,13 @@ func (f *FishCake) newApi(cfg *config.Config, db *database.DB) error {
 	wallet_info.WalletInfoApi(r)
 	notification.NotificationApi(r)
 	staking_info.StakingInfoApi(r)
+	nft_info.BoosterInfoApi(r)
 	token_transfer.TokenSentApi(r)
 	token_transfer.TokenReceivedApi(r)
+
+	// Swagger docs
+	r.GET("/swagger/*any", ginSwagger.WrapHandler(swaggerFiles.Handler))
+
 	port := fmt.Sprintf(":%d", cfg.HttpPort)
 
 	// ✅ 改成 http.Server

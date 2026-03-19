@@ -16,6 +16,17 @@ func BoosterInfoApi(rg *gin.Engine) {
 	r.GET("list", listBooster)
 }
 
+// listBooster godoc
+// @Summary User Booster NFT list
+// @Description Query Booster NFTs owned by a user. nftType >= 10 means used by staking (original type + 10)
+// @Tags Earnings
+// @Accept json
+// @Produce json
+// @Param address query string true "Wallet address"
+// @Param pageNum query int false "Page number, default 1"
+// @Param pageSize query int false "Page size, default 50, max 100"
+// @Success 200 {object} api_result.ApiResult
+// @Router /v1/booster/list [get]
 func listBooster(c *gin.Context) {
 	address := strings.ToLower(c.Query("address"))
 	if address == "" {

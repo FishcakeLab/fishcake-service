@@ -76,11 +76,17 @@ func (d dropInfoDB) List(pageNum, pageSize int, address, dropType string) ([]Dro
 		this = this.Where("drop_info.drop_type = ?", dropType)
 	}
 	this = this.Joins("LEFT JOIN activity_info ON drop_info.activity_id = activity_info.activity_id")
+
+	// 用独立 session 计算总数，避免 Count 污染后续 Select
+	countQuery := this.Session(&gorm.Session{})
+	if err := countQuery.Count(&count).Error; err != nil {
+		log.Error("count query failed", "err", err)
+	}
+
 	this = this.Order("drop_info.timestamp DESC")
 	if pageNum > 0 && pageSize > 0 {
 		this = this.Limit(pageSize).Offset((pageNum - 1) * pageSize)
 	}
-	this = this.Count(&count)
 	result := this.Select("drop_info.*, activity_info.token_contract_addr, activity_info.business_name, activity_info.return_amount, activity_info.mined_amount").Scan(&tokenNft)
 	if result.Error == nil {
 		return tokenNft, int(count)

@@ -14,6 +14,18 @@ func DropInfoApi(rg *gin.Engine) {
 	r.GET("list", list)
 }
 
+// list godoc
+// @Summary Drop/Receive records
+// @Description Query drop/receive records, corresponds to contract Drop events
+// @Tags History
+// @Accept json
+// @Produce json
+// @Param pageNum query int true "Page number, starts from 1"
+// @Param pageSize query int true "Page size"
+// @Param address query string false "Wallet address (case insensitive)"
+// @Param dropType query string false "1=user received, 2=merchant dropped"
+// @Success 200 {object} api_result.ApiResult
+// @Router /v1/drop/list [get]
 func list(c *gin.Context) {
 	pageSizeStr := c.Query("pageSize")
 	pageNumStr := c.Query("pageNum")

@@ -1,0 +1,468 @@
+basePath: /
+definitions:
+  api_result.ApiResult:
+    properties:
+      code:
+        type: string
+      msg:
+        type: string
+      obj: {}
+      success:
+        type: boolean
+    type: object
+info:
+  contact: {}
+  description: Backend API for Fishcake ecosystem - activity, drop, staking, mining
+    and leaderboard
+  title: Fishcake Service API
+  version: "1.0"
+paths:
+  /v1/activity/info:
+    get:
+      consumes:
+      - application/json
+      description: Get single activity info by ID
+      parameters:
+      - description: Activity ID
+        in: query
+        name: activityId
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/api_result.ApiResult'
+      summary: Activity detail
+      tags:
+      - Activity
+  /v1/activity/list:
+    get:
+      consumes:
+      - application/json
+      description: Query activity list with filters, corresponds to contract ActivityAdd
+        events
+      parameters:
+      - description: Page number, starts from 1
+        in: query
+        name: pageNum
+        required: true
+        type: integer
+      - description: Page size
+        in: query
+        name: pageSize
+        required: true
+        type: integer
+      - description: Activity ID
+        in: query
+        name: activityId
+        type: integer
+      - description: 'Status: 1=active, 2=finished, 3=expired'
+        in: query
+        name: activityStatus
+        type: string
+      - description: Business name (fuzzy search)
+        in: query
+        name: businessName
+        type: string
+      - description: Business wallet address (fuzzy search)
+        in: query
+        name: businessAccount
+        type: string
+      - description: Token contract address (fuzzy search)
+        in: query
+        name: tokenContractAddr
+        type: string
+      - description: Latitude (requires longitude and scope)
+        in: query
+        name: latitude
+        type: string
+      - description: Longitude
+        in: query
+        name: longitude
+        type: string
+      - description: Search radius in meters
+        in: query
+        name: scope
+        type: string
+      - description: 'NFT filter: 1=Pro NFT valid, 2=Basic NFT valid'
+        in: query
+        name: activityFilter
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/api_result.ApiResult'
+      summary: Activity list
+      tags:
+      - Activity
+  /v1/activity/minedAmount:
+    get:
+      consumes:
+      - application/json
+      description: Get cumulative mining amount for a user (business account)
+      parameters:
+      - description: Wallet address
+        in: query
+        name: address
+        required: true
+        type: string
+      - description: 1=last 30 days only, omit for all-time
+        in: query
+        name: month
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            allOf:
+            - $ref: '#/definitions/api_result.ApiResult'
+            - properties:
+                obj:
+                  properties:
+                    month:
+                      type: boolean
+                    totalMined:
+                      type: string
+                    userAddress:
+                      type: string
+                  type: object
+              type: object
+      summary: Get user mined amount
+      tags:
+      - Activity
+  /v1/activity/miningInfo:
+    get:
+      consumes:
+      - application/json
+      description: Get real-time mining info including Fishcake Power for a user
+      parameters:
+      - description: Wallet address
+        in: query
+        name: address
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/api_result.ApiResult'
+      summary: User mining info & Fishcake Power
+      tags:
+      - Earnings
+  /v1/activity/miningRank:
+    get:
+      consumes:
+      - application/json
+      description: Get mining rank by business account mined amount
+      parameters:
+      - description: 1=last 30 days, omit for all-time
+        in: query
+        name: month
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/api_result.ApiResult'
+      summary: Mining leaderboard
+      tags:
+      - Leaderboard
+  /v1/booster/list:
+    get:
+      consumes:
+      - application/json
+      description: Query Booster NFTs owned by a user. nftType >= 10 means used by
+        staking (original type + 10)
+      parameters:
+      - description: Wallet address
+        in: query
+        name: address
+        required: true
+        type: string
+      - description: Page number, default 1
+        in: query
+        name: pageNum
+        type: integer
+      - description: Page size, default 50, max 100
+        in: query
+        name: pageSize
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/api_result.ApiResult'
+      summary: User Booster NFT list
+      tags:
+      - Earnings
+  /v1/drop/list:
+    get:
+      consumes:
+      - application/json
+      description: Query drop/receive records, corresponds to contract Drop events
+      parameters:
+      - description: Page number, starts from 1
+        in: query
+        name: pageNum
+        required: true
+        type: integer
+      - description: Page size
+        in: query
+        name: pageSize
+        required: true
+        type: integer
+      - description: Wallet address (case insensitive)
+        in: query
+        name: address
+        type: string
+      - description: 1=user received, 2=merchant dropped
+        in: query
+        name: dropType
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/api_result.ApiResult'
+      summary: Drop/Receive records
+      tags:
+      - History
+  /v1/staking/claimedRank:
+    get:
+      consumes:
+      - application/json
+      description: Rank users by claimed staking rewards (status=1 only)
+      parameters:
+      - description: 1=current month only, omit for all-time
+        in: query
+        name: month
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/api_result.ApiResult'
+      summary: Claimed reward leaderboard
+      tags:
+      - Leaderboard
+  /v1/staking/stakingInfo:
+    get:
+      consumes:
+      - application/json
+      description: Query user staking records with pagination, includes staking/renew/unlock
+        status
+      parameters:
+      - description: Wallet address
+        in: query
+        name: address
+        required: true
+        type: string
+      - description: 0=staking, 1=ended(unlocked), omit for all
+        in: query
+        name: status
+        type: integer
+      - description: Page number, default 1
+        in: query
+        name: page
+        type: integer
+      - description: Page size, default 10, max 100
+        in: query
+        name: size
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/api_result.ApiResult'
+      summary: User staking records
+      tags:
+      - Earnings
+  /v1/staking/stakingRank:
+    get:
+      consumes:
+      - application/json
+      description: Rank users by total staked amount
+      parameters:
+      - description: 1=current month only, omit for all-time
+        in: query
+        name: month
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/api_result.ApiResult'
+      summary: Staking leaderboard
+      tags:
+      - Leaderboard
+  /v1/staking/totalRewardRank:
+    get:
+      consumes:
+      - application/json
+      description: Rank users by total rewards (claimed + estimated unclaimed)
+      parameters:
+      - description: 1=current month only, omit for all-time
+        in: query
+        name: month
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/api_result.ApiResult'
+      summary: Total reward leaderboard
+      tags:
+      - Leaderboard
+  /v1/token/received/list:
+    get:
+      consumes:
+      - application/json
+      description: Query token received records, includes Drop received, ActivityFinish
+        refund and ERC20 Transfer received
+      parameters:
+      - description: Wallet address
+        in: query
+        name: address
+        required: true
+        type: string
+      - description: Token contract address filter
+        in: query
+        name: tokenType
+        type: string
+      - description: 'Cursor: last record timestamp, default 0'
+        in: query
+        name: lastTimestamp
+        type: integer
+      - description: 'Cursor: last record id'
+        in: query
+        name: lastId
+        type: string
+      - description: Page size, default 10
+        in: query
+        name: limit
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            properties:
+              data:
+                items:
+                  properties:
+                    address:
+                      type: string
+                    amount:
+                      type: string
+                    description:
+                      type: string
+                    id:
+                      type: string
+                    log_index:
+                      type: integer
+                    timestamp:
+                      type: integer
+                    token_address:
+                      type: string
+                    tx_hash:
+                      type: string
+                  type: object
+                type: array
+              nextId:
+                type: string
+              nextTimestamp:
+                type: integer
+            type: object
+      summary: Token received history
+      tags:
+      - History
+  /v1/token/sent/list:
+    get:
+      consumes:
+      - application/json
+      description: Query token sent records, includes ActivityAdd sent and ERC20 Transfer
+        sent
+      parameters:
+      - description: Wallet address
+        in: query
+        name: address
+        required: true
+        type: string
+      - description: Token contract address filter
+        in: query
+        name: tokenType
+        type: string
+      - description: 'Cursor: last record timestamp, default 0'
+        in: query
+        name: lastTimestamp
+        type: integer
+      - description: 'Cursor: last record id'
+        in: query
+        name: lastId
+        type: string
+      - description: Page size, default 10
+        in: query
+        name: limit
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            properties:
+              data:
+                items:
+                  properties:
+                    address:
+                      type: string
+                    amount:
+                      type: string
+                    description:
+                      type: string
+                    id:
+                      type: string
+                    log_index:
+                      type: integer
+                    timestamp:
+                      type: integer
+                    token_address:
+                      type: string
+                    tx_hash:
+                      type: string
+                  type: object
+                type: array
+              nextId:
+                type: string
+              nextTimestamp:
+                type: integer
+            type: object
+      summary: Token sent history
+      tags:
+      - History
+swagger: "2.0"

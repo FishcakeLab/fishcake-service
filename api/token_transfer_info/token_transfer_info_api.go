@@ -23,6 +23,19 @@ func TokenReceivedApi(rg *gin.Engine) {
 	r.GET("list", listReceived)
 }
 
+// listSent godoc
+// @Summary Token sent history
+// @Description Query token sent records, includes ActivityAdd sent and ERC20 Transfer sent
+// @Tags History
+// @Accept json
+// @Produce json
+// @Param address query string true "Wallet address"
+// @Param tokenType query string false "Token contract address filter"
+// @Param lastTimestamp query int false "Cursor: last record timestamp, default 0"
+// @Param lastId query string false "Cursor: last record id"
+// @Param limit query int false "Page size, default 10"
+// @Success 200 {object} object{data=[]object{id=string,address=string,token_address=string,description=string,amount=string,timestamp=int,tx_hash=string,log_index=int},nextTimestamp=int,nextId=string}
+// @Router /v1/token/sent/list [get]
 func listSent(c *gin.Context) {
 	// 参数
 	address := strings.ToLower(c.Query("address"))
@@ -66,6 +79,19 @@ func listSent(c *gin.Context) {
 	})
 }
 
+// listReceived godoc
+// @Summary Token received history
+// @Description Query token received records, includes Drop received, ActivityFinish refund and ERC20 Transfer received
+// @Tags History
+// @Accept json
+// @Produce json
+// @Param address query string true "Wallet address"
+// @Param tokenType query string false "Token contract address filter"
+// @Param lastTimestamp query int false "Cursor: last record timestamp, default 0"
+// @Param lastId query string false "Cursor: last record id"
+// @Param limit query int false "Page size, default 10"
+// @Success 200 {object} object{data=[]object{id=string,address=string,token_address=string,description=string,amount=string,timestamp=int,tx_hash=string,log_index=int},nextTimestamp=int,nextId=string}
+// @Router /v1/token/received/list [get]
 func listReceived(c *gin.Context) {
 	// 参数
 	address := strings.ToLower(c.Query("address"))

@@ -26,7 +26,18 @@ func StakingInfoApi(rg *gin.Engine) {
 	r.GET("stakingInfo", getUserStakingInfo)
 }
 
-// GET /v1/staking/stakingInfo?address=0x123&page=1&size=10&status=0
+// getUserStakingInfo godoc
+// @Summary User staking records
+// @Description Query user staking records with pagination, includes staking/renew/unlock status
+// @Tags Earnings
+// @Accept json
+// @Produce json
+// @Param address query string true "Wallet address"
+// @Param status query int false "0=staking, 1=ended(unlocked), omit for all"
+// @Param page query int false "Page number, default 1"
+// @Param size query int false "Page size, default 10, max 100"
+// @Success 200 {object} api_result.ApiResult
+// @Router /v1/staking/stakingInfo [get]
 // status = 0（质押中）/ 1（已结束）/ 不传表示全部
 func getUserStakingInfo(c *gin.Context) {
 	address := c.Query("address")
@@ -73,7 +84,15 @@ func getUserStakingInfo(c *gin.Context) {
 	})
 }
 
-// /v1/staking/stakeRank?month=1
+// stakingRank godoc
+// @Summary Staking leaderboard
+// @Description Rank users by total staked amount
+// @Tags Leaderboard
+// @Accept json
+// @Produce json
+// @Param month query int false "1=current month only, omit for all-time"
+// @Success 200 {object} api_result.ApiResult
+// @Router /v1/staking/stakingRank [get]
 func stakingRank(c *gin.Context) {
 	monthStr := c.Query("month")
 	var monthFilter bool
@@ -91,7 +110,15 @@ func stakingRank(c *gin.Context) {
 	api_result.NewApiResult(c).Success(res)
 }
 
-// /v1/staking/claimedRank?month=1
+// claimedRank godoc
+// @Summary Claimed reward leaderboard
+// @Description Rank users by claimed staking rewards (status=1 only)
+// @Tags Leaderboard
+// @Accept json
+// @Produce json
+// @Param month query int false "1=current month only, omit for all-time"
+// @Success 200 {object} api_result.ApiResult
+// @Router /v1/staking/claimedRank [get]
 func claimedRank(c *gin.Context) {
 	monthStr := c.Query("month")
 	var monthFilter bool
@@ -109,7 +136,15 @@ func claimedRank(c *gin.Context) {
 	api_result.NewApiResult(c).Success(ranks)
 }
 
-// /v1/staking/totalRewardRank?month=1
+// totalRewardRank godoc
+// @Summary Total reward leaderboard
+// @Description Rank users by total rewards (claimed + estimated unclaimed)
+// @Tags Leaderboard
+// @Accept json
+// @Produce json
+// @Param month query int false "1=current month only, omit for all-time"
+// @Success 200 {object} api_result.ApiResult
+// @Router /v1/staking/totalRewardRank [get]
 func totalRewardRank(c *gin.Context) {
 	monthStr := c.Query("month")
 	var monthFilter bool

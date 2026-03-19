@@ -102,14 +102,13 @@ func ActivityFinish(event event.ContractEvent, db *database.DB) error {
 	ReturnAmount := uEvent.ReturnAmount
 	MinedAmount := uEvent.MinedAmount
 
-	address := db.ActivityInfoDB.ActivityInfo(int(uEvent.ActivityId.Int64())).BusinessAccount
-	content := db.ActivityInfoDB.ActivityInfo(int(uEvent.ActivityId.Int64())).ActivityContent
+	activityInfo := db.ActivityInfoDB.ActivityInfo(int(uEvent.ActivityId.Int64()))
 
 	tokenReceived := token_transfer.TokenReceived{
-		Address:      address,
-		TokenAddress: db.ActivityInfoDB.ActivityInfo(int(uEvent.ActivityId.Int64())).TokenContractAddr,
+		Address:      activityInfo.BusinessAccount,
+		TokenAddress: activityInfo.TokenContractAddr,
 		Amount:       ReturnAmount,
-		Description:  content,
+		Description:  activityInfo.ActivityContent,
 		Timestamp:    event.Timestamp,
 		TxHash:       event.TransactionHash.Hex(),
 		LogIndex:     uint(event.RLPLog.Index),

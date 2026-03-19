@@ -306,56 +306,77 @@ func (d *stakeHolderStakingDB) GetClaimedRank(monthFilter bool) ([]ClaimedRank, 
 //
 // totalReward = SUM(staking_reward[status=1]) + SUM(预计未领取奖励)
 func (d *stakeHolderStakingDB) GetTotalRewardRank(monthFilter bool) ([]TotalRewardRank, error) {
-	var result []TotalRewardRank
 	now := time.Now()
+	table := StakeHolderStaking{}.TableName()
 
-	//  1. 获取所有地址列表（已结束 + 未结束）
-	var addresses []string
-	addrQuery := d.db.Table(StakeHolderStaking{}.TableName()).Distinct("user_address")
+	// ---------- 1. 一次查询：按地址 GROUP BY 算出所有人的 claimed ----------
+	type claimedRow struct {
+		UserAddress string `gorm:"column:user_address"`
+		Claimed     string `gorm:"column:claimed"`
+	}
+	var claimedRows []claimedRow
+
+	claimedQuery := d.db.Table(table).
+		Select("user_address, COALESCE(SUM(staking_reward), 0) as claimed").
+		Where("staking_status = 1")
 	if monthFilter {
 		start := time.Date(now.Year(), now.Month(), 1, 0, 0, 0, 0, now.Location())
-		addrQuery = addrQuery.Where("create_time >= ?", start)
+		claimedQuery = claimedQuery.Where("create_time >= ?", start)
 	}
-	if err := addrQuery.Find(&addresses).Error; err != nil {
+	if err := claimedQuery.Group("user_address").Find(&claimedRows).Error; err != nil {
 		return nil, err
 	}
 
-	// 2. 遍历每个地址计算 totalReward
-	for _, addr := range addresses {
-		var claimedStr string
-		var unclaimedRecords []StakeHolderStaking
+	claimedMap := make(map[string]*big.Int, len(claimedRows))
+	for _, row := range claimedRows {
+		val, _ := new(big.Int).SetString(row.Claimed, 10)
+		if val == nil {
+			val = big.NewInt(0)
+		}
+		claimedMap[row.UserAddress] = val
+	}
 
-		// 2.1 计算已领取的 staking_reward（status = 1）
-		claimedQuery := d.db.Table(StakeHolderStaking{}.TableName()).
-			Select("COALESCE(SUM(staking_reward), 0)").
-			Where("staking_status = 1 AND user_address ILIKE ?", addr)
-		if monthFilter {
-			start := time.Date(now.Year(), now.Month(), 1, 0, 0, 0, 0, now.Location())
-			claimedQuery = claimedQuery.Where("create_time >= ?", start)
-		}
-		if err := claimedQuery.Scan(&claimedStr).Error; err != nil {
-			return nil, err
-		}
-		claimed, _ := new(big.Int).SetString(claimedStr, 10)
+	// ---------- 2. 一次查询：拿出所有 status=0 的记录，Go 里按地址分组算 unclaimed ----------
+	var activeRecords []StakeHolderStaking
 
-		// 2.2 查询未结束记录（status = 0）
-		unclaimedQuery := d.db.Table(StakeHolderStaking{}.TableName()).
-			Where("staking_status = 0 AND user_address ILIKE ?", addr)
-		if monthFilter {
-			start := time.Date(now.Year(), now.Month(), 1, 0, 0, 0, 0, now.Location())
-			unclaimedQuery = unclaimedQuery.Where("create_time >= ?", start)
-		}
-		if err := unclaimedQuery.Find(&unclaimedRecords).Error; err != nil {
-			return nil, err
-		}
+	activeQuery := d.db.Table(table).Where("staking_status = 0")
+	if monthFilter {
+		start := time.Date(now.Year(), now.Month(), 1, 0, 0, 0, 0, now.Location())
+		activeQuery = activeQuery.Where("create_time >= ?", start)
+	}
+	if err := activeQuery.Find(&activeRecords).Error; err != nil {
+		return nil, err
+	}
 
-		// 2.3 遍历未结束记录计算 unclaimedReward
-		unclaimed := big.NewInt(0)
-		for _, rec := range unclaimedRecords {
-			reward := calculateAprFundingGo(rec, now)
-			unclaimed.Add(unclaimed, reward)
+	unclaimedMap := make(map[string]*big.Int)
+	for _, rec := range activeRecords {
+		reward := calculateAprFundingGo(rec, now)
+		addr := rec.UserAddress
+		if unclaimedMap[addr] == nil {
+			unclaimedMap[addr] = big.NewInt(0)
 		}
+		unclaimedMap[addr].Add(unclaimedMap[addr], reward)
+	}
 
+	// ---------- 3. 合并两个 map，计算 totalReward ----------
+	addrSet := make(map[string]struct{})
+	for addr := range claimedMap {
+		addrSet[addr] = struct{}{}
+	}
+	for addr := range unclaimedMap {
+		addrSet[addr] = struct{}{}
+	}
+
+	result := make([]TotalRewardRank, 0, len(addrSet))
+	for addr := range addrSet {
+		claimed := claimedMap[addr]
+		if claimed == nil {
+			claimed = big.NewInt(0)
+		}
+		unclaimed := unclaimedMap[addr]
+		if unclaimed == nil {
+			unclaimed = big.NewInt(0)
+		}
 		total := new(big.Int).Add(claimed, unclaimed)
 		result = append(result, TotalRewardRank{
 			UserAddress: addr,
@@ -365,7 +386,7 @@ func (d *stakeHolderStakingDB) GetTotalRewardRank(monthFilter bool) ([]TotalRewa
 		})
 	}
 
-	// 3. 按 totalReward 降序排序
+	// 4. 按 totalReward 降序排序
 	sort.Slice(result, func(i, j int) bool {
 		return result[i].TotalReward.Cmp(result[j].TotalReward) > 0
 	})

@@ -128,19 +128,23 @@ func (d *activityInfoDB) GetUserMinedAmount(address string, monthFilter bool) (*
 	}
 
 	var result struct {
-		TotalMined *big.Int `gorm:"column:total_mined"`
+		TotalMined string `gorm:"column:total_mined"`
 	}
 
 	if err := db.Scan(&result).Error; err != nil {
 		return nil, err
 	}
 
-	// 没数据时为 nil → 返回 0
-	if result.TotalMined == nil {
+	if result.TotalMined == "" {
 		return big.NewInt(0), nil
 	}
 
-	return result.TotalMined, nil
+	val, ok := new(big.Int).SetString(result.TotalMined, 10)
+	if !ok {
+		return nil, fmt.Errorf("invalid total_mined value: %s", result.TotalMined)
+	}
+
+	return val, nil
 }
 
 func (d *activityInfoDB) GetActivityRank(monthFilter bool) ([]BusinessRank, error) {

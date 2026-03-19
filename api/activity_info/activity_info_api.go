@@ -19,6 +19,16 @@ func ActivityInfoApi(rg *gin.Engine) {
 	r.GET("miningInfo", getUserMiningInfo)
 }
 
+// getUserMinedAmount godoc
+// @Summary Get user mined amount
+// @Description Get cumulative mining amount for a user (business account)
+// @Tags Activity
+// @Accept json
+// @Produce json
+// @Param address query string true "Wallet address"
+// @Param month query int false "1=last 30 days only, omit for all-time"
+// @Success 200 {object} api_result.ApiResult{obj=object{userAddress=string,totalMined=string,month=bool}}
+// @Router /v1/activity/minedAmount [get]
 func getUserMinedAmount(c *gin.Context) {
 	address := c.Query("address")
 	if address == "" {
@@ -43,6 +53,25 @@ func getUserMinedAmount(c *gin.Context) {
 	api_result.NewApiResult(c).Success(res)
 }
 
+// list godoc
+// @Summary Activity list
+// @Description Query activity list with filters, corresponds to contract ActivityAdd events
+// @Tags Activity
+// @Accept json
+// @Produce json
+// @Param pageNum query int true "Page number, starts from 1"
+// @Param pageSize query int true "Page size"
+// @Param activityId query int false "Activity ID"
+// @Param activityStatus query string false "Status: 1=active, 2=finished, 3=expired"
+// @Param businessName query string false "Business name (fuzzy search)"
+// @Param businessAccount query string false "Business wallet address (fuzzy search)"
+// @Param tokenContractAddr query string false "Token contract address (fuzzy search)"
+// @Param latitude query string false "Latitude (requires longitude and scope)"
+// @Param longitude query string false "Longitude"
+// @Param scope query string false "Search radius in meters"
+// @Param activityFilter query string false "NFT filter: 1=Pro NFT valid, 2=Basic NFT valid"
+// @Success 200 {object} api_result.ApiResult
+// @Router /v1/activity/list [get]
 func list(c *gin.Context) {
 	pageSizeStr := c.Query("pageSize")
 	pageNumStr := c.Query("pageNum")
@@ -67,6 +96,15 @@ func list(c *gin.Context) {
 	api_result.NewApiResult(c).Success(page)
 }
 
+// info godoc
+// @Summary Activity detail
+// @Description Get single activity info by ID
+// @Tags Activity
+// @Accept json
+// @Produce json
+// @Param activityId query int true "Activity ID"
+// @Success 200 {object} api_result.ApiResult
+// @Router /v1/activity/info [get]
 func info(c *gin.Context) {
 	activityIdStr := c.Query("activityId")
 	activityId := bigint.StringToInt(activityIdStr)
@@ -74,7 +112,15 @@ func info(c *gin.Context) {
 	api_result.NewApiResult(c).Success(info)
 }
 
-// /v1/activity/rank?month=1
+// rank godoc
+// @Summary Mining leaderboard
+// @Description Get mining rank by business account mined amount
+// @Tags Leaderboard
+// @Accept json
+// @Produce json
+// @Param month query int false "1=last 30 days, omit for all-time"
+// @Success 200 {object} api_result.ApiResult
+// @Router /v1/activity/miningRank [get]
 func rank(c *gin.Context) {
 	monthStr := c.Query("month") // 可选参数
 	var monthFilter bool
@@ -92,6 +138,15 @@ func rank(c *gin.Context) {
 	api_result.NewApiResult(c).Success(ranks)
 }
 
+// getUserMiningInfo godoc
+// @Summary User mining info & Fishcake Power
+// @Description Get real-time mining info including Fishcake Power for a user
+// @Tags Earnings
+// @Accept json
+// @Produce json
+// @Param address query string true "Wallet address"
+// @Success 200 {object} api_result.ApiResult
+// @Router /v1/activity/miningInfo [get]
 func getUserMiningInfo(c *gin.Context) {
 	address := c.Query("address")
 	if address == "" {
