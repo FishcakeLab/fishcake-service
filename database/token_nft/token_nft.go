@@ -83,7 +83,7 @@ func (t tokenNftDB) ListBoosterByAddress(
 
 	db := t.db.
 		Select("token_id, nft_type").
-		Where("LOWER(who) = LOWER(?)", address)
+		Where("who ILIKE ? AND business_name = 'BoosterNFT'", address)
 
 	db.Count(&count)
 
