@@ -81,13 +81,15 @@ func (t tokenNftDB) ListBoosterByAddress(
 	var list []TokenNft
 	var count int64
 
-	db := t.db.
+	where := "who ILIKE ? AND business_name = 'BoosterNFT'"
+
+	t.db.Table(TokenNft{}.TableName()).
+		Where(where, address).
+		Count(&count)
+
+	t.db.Table(TokenNft{}.TableName()).
+		Where(where, address).
 		Select("token_id, nft_type").
-		Where("who ILIKE ? AND business_name = 'BoosterNFT'", address)
-
-	db.Count(&count)
-
-	db.
 		Order("token_id desc").
 		Limit(pageSize).
 		Offset((pageNum - 1) * pageSize).
