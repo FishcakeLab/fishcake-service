@@ -9,6 +9,7 @@ import (
 	"github.com/FishcakeLab/fishcake-service/service/contract_info"
 	"github.com/FishcakeLab/fishcake-service/service/dapplink_service"
 	"github.com/FishcakeLab/fishcake-service/service/drop_service"
+	"github.com/FishcakeLab/fishcake-service/service/mining_record_service"
 	"github.com/FishcakeLab/fishcake-service/service/nft_service"
 	"github.com/FishcakeLab/fishcake-service/service/reward_service"
 	"github.com/FishcakeLab/fishcake-service/service/rpc_service"
@@ -42,6 +43,7 @@ type Service struct {
 
 	TokenTransferService token_transfer_service.TokenTransferService
 	BoosterService       nft_service.BoosterService
+	MiningRecordService  mining_record_service.MiningRecordService
 }
 
 func NewBaseService(db *database.DB, cfg *config.Config) *Service {
@@ -72,6 +74,7 @@ func NewBaseService(db *database.DB, cfg *config.Config) *Service {
 		StakingInfoService:     staking_service.NewStakingInfoService(db),
 		TokenTransferService:   token_transfer_service.NewTokenTransferService(db),
 		BoosterService:         nft_service.NewBoosterService(db),
+		MiningRecordService:    mining_record_service.NewMiningRecordService(db),
 	}
 }
 

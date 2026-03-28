@@ -34,6 +34,7 @@ func (MiningRecord) TableName() string {
 
 type MiningRecordDB interface {
 	Store(record MiningRecord) error
+	List(address, recordType string, lastTimestamp uint64, lastId string, limit int) ([]MiningRecord, error)
 }
 
 type miningRecordDB struct {
@@ -54,6 +55,32 @@ func (m miningRecordDB) Store(record MiningRecord) error {
 		Omit("id").
 		Create(&record).
 		Error
+}
+
+func (m miningRecordDB) List(address, recordType string, lastTimestamp uint64, lastId string, limit int) ([]MiningRecord, error) {
+	var records []MiningRecord
+
+	query := m.db.Table(MiningRecord{}.TableName()).
+		Where("address ILIKE ?", address)
+
+	if recordType != "" {
+		query = query.Where("record_type = ?", recordType)
+	}
+
+	if lastTimestamp > 0 {
+		if lastId != "" {
+			query = query.Where("timestamp < ? OR (timestamp = ? AND id < ?)", lastTimestamp, lastTimestamp, lastId)
+		} else {
+			query = query.Where("timestamp < ?", lastTimestamp)
+		}
+	}
+
+	err := query.
+		Order("timestamp DESC, id DESC").
+		Limit(limit).
+		Find(&records).Error
+
+	return records, err
 }
 
 func NewMiningRecordDB(db *gorm.DB) MiningRecordDB {

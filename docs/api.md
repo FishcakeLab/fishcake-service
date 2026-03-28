@@ -215,6 +215,55 @@ Base URL: `{host}/v1`
 
 ---
 
+### 1.6 Mining Record 历史
+
+`GET /v1/mining/record/list`
+
+查询挖矿流水记录。包含两类：
+
+- `activity_finish`：活动结束时给商家增加的挖矿收益
+- `mint_booster_nft`：Mint Booster NFT 时消耗的 Fishcake Power
+
+| 参数 | 类型 | 必填 | 说明 |
+|------|------|------|------|
+| address | string | 是 | 钱包地址 |
+| recordType | string | 否 | 记录类型过滤：`activity_finish` 或 `mint_booster_nft` |
+| lastTimestamp | uint64 | 否 | 游标：上一页最后一条的 timestamp，默认 `0` |
+| lastId | string | 否 | 游标：上一页最后一条的 id |
+| limit | int | 否 | 每页条数，默认 `10` |
+
+说明：使用游标分页（cursor-based pagination），按 `(timestamp DESC, id DESC)` 排序。
+
+响应格式（非通用格式，直接返回）：
+
+```json
+{
+  "data": [
+    {
+      "id": "abc123",
+      "address": "0x...",
+      "record_type": "activity_finish",
+      "mined_amount_delta": "1000000000000000000",
+      "power_increase": "1000000000000000000",
+      "power_decrease": "0",
+      "activity_id": 123,
+      "token_id": null,
+      "description": "ActivityFinish reward",
+      "timestamp": 1700000000,
+      "tx_hash": "0x...",
+      "log_index": 0,
+      "block_number": 12345678
+    }
+  ],
+  "nextTimestamp": 1699999999,
+  "nextId": "abc122"
+}
+```
+
+> `mint_booster_nft` 类型记录中，`activity_id` 为空，`token_id` 有值；`activity_finish` 类型则相反。
+
+---
+
 ## 二、Earnings（用户个人数据）
 
 ### 2.1 用户 Staking 记录

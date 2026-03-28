@@ -352,6 +352,117 @@
                 }
             }
         },
+        "/v1/mining/record/list": {
+            "get": {
+                "description": "Query mining records, includes activity finish rewards and MintBoosterNFT power spending records",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Earnings"
+                ],
+                "summary": "Mining record history",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Wallet address",
+                        "name": "address",
+                        "in": "query",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "Record type filter: activity_finish or mint_booster_nft",
+                        "name": "recordType",
+                        "in": "query"
+                    },
+                    {
+                        "type": "integer",
+                        "description": "Cursor: last record timestamp, default 0",
+                        "name": "lastTimestamp",
+                        "in": "query"
+                    },
+                    {
+                        "type": "string",
+                        "description": "Cursor: last record id",
+                        "name": "lastId",
+                        "in": "query"
+                    },
+                    {
+                        "type": "integer",
+                        "description": "Page size, default 10",
+                        "name": "limit",
+                        "in": "query"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "type": "object",
+                            "properties": {
+                                "data": {
+                                    "type": "array",
+                                    "items": {
+                                        "type": "object",
+                                        "properties": {
+                                            "activity_id": {
+                                                "type": "integer"
+                                            },
+                                            "address": {
+                                                "type": "string"
+                                            },
+                                            "block_number": {
+                                                "type": "integer"
+                                            },
+                                            "description": {
+                                                "type": "string"
+                                            },
+                                            "id": {
+                                                "type": "string"
+                                            },
+                                            "log_index": {
+                                                "type": "integer"
+                                            },
+                                            "mined_amount_delta": {
+                                                "type": "string"
+                                            },
+                                            "power_decrease": {
+                                                "type": "string"
+                                            },
+                                            "power_increase": {
+                                                "type": "string"
+                                            },
+                                            "record_type": {
+                                                "type": "string"
+                                            },
+                                            "timestamp": {
+                                                "type": "integer"
+                                            },
+                                            "token_id": {
+                                                "type": "integer"
+                                            },
+                                            "tx_hash": {
+                                                "type": "string"
+                                            }
+                                        }
+                                    }
+                                },
+                                "nextId": {
+                                    "type": "string"
+                                },
+                                "nextTimestamp": {
+                                    "type": "integer"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
         "/v1/staking/claimedRank": {
             "get": {
                 "description": "Rank users by claimed staking rewards (status=1 only)",

@@ -21,6 +21,7 @@ import (
 	"github.com/FishcakeLab/fishcake-service/api/chain_info"
 	"github.com/FishcakeLab/fishcake-service/api/contract_info"
 	"github.com/FishcakeLab/fishcake-service/api/drop_info"
+	"github.com/FishcakeLab/fishcake-service/api/mining_record"
 	"github.com/FishcakeLab/fishcake-service/api/nft_info"
 	"github.com/FishcakeLab/fishcake-service/api/notification"
 	"github.com/FishcakeLab/fishcake-service/api/staking_info"
@@ -114,6 +115,7 @@ func (f *FishCake) newApi(cfg *config.Config, db *database.DB) error {
 	chain_info.ChainInfoApi(r)
 	nft_info.NftInfoApi(r)
 	drop_info.DropInfoApi(r)
+	mining_record.MiningRecordApi(r)
 	contract_info.ContractInfoApi(r)
 	wallet_info.WalletInfoApi(r)
 	notification.NotificationApi(r)

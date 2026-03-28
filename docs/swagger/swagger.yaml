@@ -243,6 +243,80 @@ paths:
       summary: Drop/Receive records
       tags:
       - History
+  /v1/mining/record/list:
+    get:
+      consumes:
+      - application/json
+      description: Query mining records, includes activity finish rewards and MintBoosterNFT
+        power spending records
+      parameters:
+      - description: Wallet address
+        in: query
+        name: address
+        required: true
+        type: string
+      - description: 'Record type filter: activity_finish or mint_booster_nft'
+        in: query
+        name: recordType
+        type: string
+      - description: 'Cursor: last record timestamp, default 0'
+        in: query
+        name: lastTimestamp
+        type: integer
+      - description: 'Cursor: last record id'
+        in: query
+        name: lastId
+        type: string
+      - description: Page size, default 10
+        in: query
+        name: limit
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            properties:
+              data:
+                items:
+                  properties:
+                    activity_id:
+                      type: integer
+                    address:
+                      type: string
+                    block_number:
+                      type: integer
+                    description:
+                      type: string
+                    id:
+                      type: string
+                    log_index:
+                      type: integer
+                    mined_amount_delta:
+                      type: string
+                    power_decrease:
+                      type: string
+                    power_increase:
+                      type: string
+                    record_type:
+                      type: string
+                    timestamp:
+                      type: integer
+                    token_id:
+                      type: integer
+                    tx_hash:
+                      type: string
+                  type: object
+                type: array
+              nextId:
+                type: string
+              nextTimestamp:
+                type: integer
+            type: object
+      summary: Mining record history
+      tags:
+      - Earnings
   /v1/staking/claimedRank:
     get:
       consumes:
