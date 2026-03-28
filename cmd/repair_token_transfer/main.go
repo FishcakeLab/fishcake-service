@@ -109,7 +109,7 @@ func main() {
 			end = resolvedTo
 		}
 
-		batchStats, err := replayBatch(db, merchantAddress, fccAddress, start, end, *apply)
+		batchStats, err := replayBatch(rawDB, db, merchantAddress, fccAddress, start, end, *apply)
 		if err != nil {
 			log.Error("replay batch failed", "fromBlock", start, "toBlock", end, "err", err)
 			os.Exit(1)
@@ -209,14 +209,10 @@ func resetTokenTransferTables(db *gorm.DB) error {
 	})
 }
 
-func replayBatch(db *database.DB, merchantAddress, fccAddress string, fromBlock, toBlock uint64, apply bool) (repairStats, error) {
+func replayBatch(rawDB *gorm.DB, db *database.DB, merchantAddress, fccAddress string, fromBlock, toBlock uint64, apply bool) (repairStats, error) {
 	stats := repairStats{}
 
-	merchantEvents, err := db.ContractEvent.ContractEventsWithFilter(
-		dbEvent.ContractEvent{ContractAddress: common.HexToAddress(merchantAddress)},
-		new(big.Int).SetUint64(fromBlock),
-		new(big.Int).SetUint64(toBlock),
-	)
+	merchantEvents, err := fetchContractEventsDirect(rawDB, merchantAddress, fromBlock, toBlock)
 	if err != nil {
 		return stats, err
 	}
@@ -231,11 +227,7 @@ func replayBatch(db *database.DB, merchantAddress, fccAddress string, fromBlock,
 		}
 	}
 
-	fccEvents, err := db.ContractEvent.ContractEventsWithFilter(
-		dbEvent.ContractEvent{ContractAddress: common.HexToAddress(fccAddress)},
-		new(big.Int).SetUint64(fromBlock),
-		new(big.Int).SetUint64(toBlock),
-	)
+	fccEvents, err := fetchContractEventsDirect(rawDB, fccAddress, fromBlock, toBlock)
 	if err != nil {
 		return stats, err
 	}
@@ -251,6 +243,21 @@ func replayBatch(db *database.DB, merchantAddress, fccAddress string, fromBlock,
 	}
 
 	return stats, nil
+}
+
+func fetchContractEventsDirect(rawDB *gorm.DB, contractAddress string, fromBlock, toBlock uint64) ([]dbEvent.ContractEvent, error) {
+	var events []dbEvent.ContractEvent
+
+	err := rawDB.Table("contract_events").
+		Where("contract_address ILIKE ?", common.HexToAddress(contractAddress).Hex()).
+		Where("block_number >= ? AND block_number <= ?", new(big.Int).SetUint64(fromBlock), new(big.Int).SetUint64(toBlock)).
+		Order("block_number ASC, log_index ASC").
+		Find(&events).Error
+	if err != nil {
+		return nil, err
+	}
+
+	return events, nil
 }
 
 func replayMerchantEvent(db *database.DB, event dbEvent.ContractEvent, apply bool, stats *repairStats) (bool, error) {
