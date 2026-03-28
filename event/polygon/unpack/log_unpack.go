@@ -61,11 +61,8 @@ func ActivityAdd(event event.ContractEvent, db *database.DB) error {
 	tokenSent := token_transfer.TokenSent{
 		Address:      activityInfo.BusinessAccount,
 		TokenAddress: activityInfo.TokenContractAddr,
-		Amount: new(big.Int).Mul(
-			activityInfo.MaxDropAmt,
-			uEvent.DropNumber,
-		),
-		Description: uEvent.ActivityContent,
+		Amount:       uEvent.TotalDropAmts,
+		Description:  fmt.Sprintf("ActivityAdd: %s", uEvent.ActivityContent),
 		Timestamp:   uint64(activityInfo.ActivityCreateTime),
 		TxHash:      event.TransactionHash.Hex(),
 		LogIndex:    uint(event.RLPLog.Index),
@@ -106,9 +103,9 @@ func ActivityFinish(event event.ContractEvent, db *database.DB) error {
 
 	tokenReceived := token_transfer.TokenReceived{
 		Address:      activityInfo.BusinessAccount,
-		TokenAddress: activityInfo.TokenContractAddr,
+		TokenAddress: uEvent.TokenContractAddr.String(),
 		Amount:       ReturnAmount,
-		Description:  activityInfo.ActivityContent,
+		Description:  fmt.Sprintf("ActivityFinish Return: %s", activityInfo.ActivityContent),
 		Timestamp:    event.Timestamp,
 		TxHash:       event.TransactionHash.Hex(),
 		LogIndex:     uint(event.RLPLog.Index),
@@ -295,41 +292,50 @@ func Drop(event event.ContractEvent, db *database.DB) error {
 		Address:      drop.Address,
 		TokenAddress: db.ActivityInfoDB.ActivityInfo(int(uEvent.ActivityId.Int64())).TokenContractAddr,
 		Amount:       uEvent.DropAmt,
-		Description:  db.ActivityInfoDB.ActivityInfo(int(uEvent.ActivityId.Int64())).ActivityContent,
+		Description:  fmt.Sprintf("Drop Receive: %s", db.ActivityInfoDB.ActivityInfo(int(uEvent.ActivityId.Int64())).ActivityContent),
 		Timestamp:    uint64(event.Timestamp),
 		TxHash:       event.TransactionHash.Hex(),
 		LogIndex:     uint(event.RLPLog.Index),
 	}
 
 	if err := db.Transaction(func(tx *database.DB) error {
-		resultErr, exist := tx.DropInfoDB.IsExist(drop.TransactionHash, drop.LogIndex, drop.DropType, drop.Address, drop.BlockNumber)
-		if !exist && resultErr == nil {
-			if err := tx.DropInfoDB.StoreDropInfo(drop); err != nil {
-				log.Warn("StoreDropInfo failed", "err", err)
-				return err
-			}
-			if err := tx.TokenReceivedDB.StoreTokenReceived(tokenReceived); err != nil {
-				log.Warn("StoreTokenReceived failed in Drop", "err", err)
-				return err
-			}
-			// update activity info already drop number
-			if err := tx.ActivityInfoDB.UpdateActivityInfo(uEvent.ActivityId.String()); err != nil {
-				log.Warn("UpdateActivityInfo failed", "err", err)
-				return err
-			}
+		// Token transfer流水单独依赖(tx_hash, log_index)做幂等，允许在业务记录已存在时补写。
+		if err := tx.TokenReceivedDB.StoreTokenReceived(tokenReceived); err != nil {
+			log.Warn("StoreTokenReceived failed in Drop", "err", err)
+			return err
+		}
 
-			// create merchant drop record
-			activityInfo := tx.ActivityInfoDB.ActivityInfo(int(drop.ActivityId))
-			drop.Address = activityInfo.BusinessAccount
-			drop.DropType = 2
-			if err := tx.DropInfoDB.StoreDropInfo(drop); err != nil {
-				log.Warn("StoreMerchantDropInfo failed", "err", err)
-				return err
-			}
-		} else if resultErr != nil {
+		// Drop业务记录继续保持更强的幂等保护，避免already_drop_number被重复累加。
+		resultErr, exist := tx.DropInfoDB.IsExist(drop.TransactionHash, drop.LogIndex, drop.DropType, drop.Address, drop.BlockNumber)
+		if resultErr != nil {
 			log.Warn("Drop IsExist check failed", "txHash", drop.TransactionHash, "err", resultErr)
 			return resultErr
 		}
+
+		if exist {
+			return nil
+		}
+
+		if err := tx.DropInfoDB.StoreDropInfo(drop); err != nil {
+			log.Warn("StoreDropInfo failed", "err", err)
+			return err
+		}
+
+		// update activity info already drop number
+		if err := tx.ActivityInfoDB.UpdateActivityInfo(uEvent.ActivityId.String()); err != nil {
+			log.Warn("UpdateActivityInfo failed", "err", err)
+			return err
+		}
+
+		// create merchant drop record
+		activityInfo := tx.ActivityInfoDB.ActivityInfo(int(drop.ActivityId))
+		drop.Address = activityInfo.BusinessAccount
+		drop.DropType = 2
+		if err := tx.DropInfoDB.StoreDropInfo(drop); err != nil {
+			log.Warn("StoreMerchantDropInfo failed", "err", err)
+			return err
+		}
+
 		return nil
 	}); err != nil {
 		return err
@@ -447,7 +453,7 @@ func Transfer(event event.ContractEvent, db *database.DB, address string) error 
 		Address:      from,
 		TokenAddress: address,
 		Amount:       value,
-		Description:  "ERC20 Token Transfer Sent",
+		Description:  "FCC Transfer Sent",
 		Timestamp:    uint64(event.Timestamp),
 
 		TxHash:   event.RLPLog.TxHash.Hex(),
@@ -458,7 +464,7 @@ func Transfer(event event.ContractEvent, db *database.DB, address string) error 
 		Address:      to,
 		TokenAddress: address,
 		Amount:       value,
-		Description:  "ERC20 Token Transfer Received",
+		Description:  "FCC Transfer Received",
 		Timestamp:    uint64(event.Timestamp),
 
 		TxHash:   event.RLPLog.TxHash.Hex(),
