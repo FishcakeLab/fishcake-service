@@ -17,6 +17,7 @@ import (
 	"github.com/FishcakeLab/fishcake-service/database/activity"
 	"github.com/FishcakeLab/fishcake-service/database/drop"
 	"github.com/FishcakeLab/fishcake-service/database/event"
+	"github.com/FishcakeLab/fishcake-service/database/mining_record"
 	"github.com/FishcakeLab/fishcake-service/database/stake"
 	"github.com/FishcakeLab/fishcake-service/database/token_nft"
 	"github.com/FishcakeLab/fishcake-service/database/token_transfer"
@@ -63,9 +64,9 @@ func ActivityAdd(event event.ContractEvent, db *database.DB) error {
 		TokenAddress: activityInfo.TokenContractAddr,
 		Amount:       uEvent.TotalDropAmts,
 		Description:  fmt.Sprintf("ActivityAdd: %s", uEvent.ActivityContent),
-		Timestamp:   uint64(activityInfo.ActivityCreateTime),
-		TxHash:      event.TransactionHash.Hex(),
-		LogIndex:    uint(event.RLPLog.Index),
+		Timestamp:    uint64(activityInfo.ActivityCreateTime),
+		TxHash:       event.TransactionHash.Hex(),
+		LogIndex:     uint(event.RLPLog.Index),
 	}
 
 	if err := db.Transaction(func(tx *database.DB) error {
@@ -116,6 +117,25 @@ func ActivityFinish(event event.ContractEvent, db *database.DB) error {
 	if err := db.Transaction(func(tx *database.DB) error {
 		if err := tx.ActivityInfoDB.ActivityFinish(ActivityId, ReturnAmount, MinedAmount); err != nil {
 			log.Warn("ActivityFinish failed", "err", err)
+			return err
+		}
+
+		activityID := uEvent.ActivityId.Int64()
+		miningRecord := mining_record.MiningRecord{
+			Address:          activityInfo.BusinessAccount,
+			RecordType:       mining_record.RecordTypeActivityFinish,
+			MinedAmountDelta: new(big.Int).Set(MinedAmount),
+			PowerIncrease:    new(big.Int).Set(MinedAmount),
+			PowerDecrease:    big.NewInt(0),
+			ActivityID:       &activityID,
+			Description:      "ActivityFinish reward",
+			Timestamp:        event.Timestamp,
+			TxHash:           event.TransactionHash.Hex(),
+			LogIndex:         uint(event.RLPLog.Index),
+			BlockNumber:      event.BlockNumber.Uint64(),
+		}
+		if err := tx.MiningRecordDB.Store(miningRecord); err != nil {
+			log.Warn("StoreMiningRecord failed in ActivityFinish", "err", err)
 			return err
 		}
 
@@ -240,6 +260,25 @@ func MintBoosterNft(event event.ContractEvent, db *database.DB) error {
 
 		if err := tx.MiningInfoDB.Update(newMiningInfo); err != nil {
 			log.Warn("Update mining_info failed", "err", err)
+			return err
+		}
+
+		recordTokenID := tokenId
+		miningRecord := mining_record.MiningRecord{
+			Address:          address,
+			RecordType:       mining_record.RecordTypeMintBoosterNFT,
+			MinedAmountDelta: big.NewInt(0),
+			PowerIncrease:    big.NewInt(0),
+			PowerDecrease:    new(big.Int).Set(usedPower),
+			TokenID:          &recordTokenID,
+			Description:      "MintBoosterNFT power spent",
+			Timestamp:        uint64(event.Timestamp),
+			TxHash:           event.TransactionHash.Hex(),
+			LogIndex:         uint(event.RLPLog.Index),
+			BlockNumber:      event.BlockNumber.Uint64(),
+		}
+		if err := tx.MiningRecordDB.Store(miningRecord); err != nil {
+			log.Warn("StoreMiningRecord failed in MintBoosterNFT", "err", err)
 			return err
 		}
 
@@ -440,8 +479,8 @@ func StakeHolderWithdrawStaking(event event.ContractEvent, db *database.DB) erro
 // Transfer 事件解析与入库
 func Transfer(event event.ContractEvent, db *database.DB, address string) error {
 	rlpLog := event.RLPLog
-	from := rlpLog.Topics[1].Hex()
-	to := rlpLog.Topics[2].Hex()
+	from := common.BytesToAddress(rlpLog.Topics[1].Bytes()).Hex()
+	to := common.BytesToAddress(rlpLog.Topics[2].Bytes()).Hex()
 	value := new(big.Int).SetBytes(rlpLog.Data)
 
 	// 忽略给事件合约地址转账的记录，以及从事件合约地址转出的记录

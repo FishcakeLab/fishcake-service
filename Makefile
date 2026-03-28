@@ -35,6 +35,10 @@ fishcake:
 build:
 	env GO111MODULE=on go build -v $(LDFLAGS) ./cmd/fishcake
 
+# 执行 SQL migration，调用现有 fishcake CLI 子命令
+migrate:
+	env GO111MODULE=on GOCACHE=/tmp/gocache go run ./cmd/fishcake migrate
+
 # 清理编译产物，删除生成的二进制文件
 clean:
 	rm fishcake
@@ -91,6 +95,7 @@ binding-staking:
 .PHONY: \
 	fishcake \
 	build \
+	migrate \
 	bindings \
 	clean \
 	test \

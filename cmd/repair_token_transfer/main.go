@@ -369,8 +369,8 @@ func storeDropTokenReceived(db *database.DB, event dbEvent.ContractEvent) error 
 }
 
 func storeFccTransfer(db *database.DB, event dbEvent.ContractEvent, fccAddress string) error {
-	from := event.RLPLog.Topics[1].Hex()
-	to := event.RLPLog.Topics[2].Hex()
+	from := common.BytesToAddress(event.RLPLog.Topics[1].Bytes()).Hex()
+	to := common.BytesToAddress(event.RLPLog.Topics[2].Bytes()).Hex()
 	value := new(big.Int).SetBytes(event.RLPLog.Data)
 
 	fishcakeEventManager := strings.ToLower("0x2CAf752814f244b3778e30c27051cc6B45CB1fc9")

@@ -18,6 +18,7 @@ import (
 	"github.com/FishcakeLab/fishcake-service/database/common"
 	"github.com/FishcakeLab/fishcake-service/database/drop"
 	"github.com/FishcakeLab/fishcake-service/database/event"
+	"github.com/FishcakeLab/fishcake-service/database/mining_record"
 	"github.com/FishcakeLab/fishcake-service/database/stake"
 	"github.com/FishcakeLab/fishcake-service/database/token_nft"
 	"github.com/FishcakeLab/fishcake-service/database/token_transfer"
@@ -44,6 +45,7 @@ type DB struct {
 	TokenSentDB     token_transfer.TokenSentDB
 	TokenReceivedDB token_transfer.TokenReceivedDB
 	MiningInfoDB    activity.MiningInfoDB
+	MiningRecordDB  mining_record.MiningRecordDB
 }
 
 func NewDB(cfg *config.Config) (*DB, error) {
@@ -94,6 +96,7 @@ func NewDB(cfg *config.Config) (*DB, error) {
 		TokenSentDB:     token_transfer.NewTokenSentDB(gorm),
 		TokenReceivedDB: token_transfer.NewTokenReceivedDB(gorm),
 		MiningInfoDB:    activity.NewMiningInfoDB(gorm),
+		MiningRecordDB:  mining_record.NewMiningRecordDB(gorm),
 	}
 	return db, nil
 }
@@ -117,6 +120,7 @@ func (db *DB) Transaction(fn func(db *DB) error) error {
 			TokenSentDB:       token_transfer.NewTokenSentDB(tx),
 			TokenReceivedDB:   token_transfer.NewTokenReceivedDB(tx),
 			MiningInfoDB:      activity.NewMiningInfoDB(tx),
+			MiningRecordDB:    mining_record.NewMiningRecordDB(tx),
 		}
 		return fn(txDB)
 	})
