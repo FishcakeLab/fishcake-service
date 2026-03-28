@@ -44,7 +44,7 @@ contract_info:
     redemption_pool: "0x953E6DB14753552050B04a6393a827661bB4913a"
     direct_sale_pool: "0xff99312c30466740bDA94b3Ff9E8FC1071BF18cE"
     investor_sale_pool: "0xBBFa44467E12e6141B2961EE13705B9b6e3Ebe8B"
-    nft_manager: "0x6298f654b2862B0ED25336f21CA507d8fB8a0b08"
+    nft_manager: "0x2F2Cb24BaB1b6E2353EF6246a2Ea4ce50487008B"
     fishcake_event_manager: "0x2CAf752814f244b3778e30c27051cc6B45CB1fc9"
 
 # 加密字段防空指针：随便填假值
