@@ -2,8 +2,10 @@ package staking_service
 
 import (
 	"math/big"
+	"time"
 
 	"github.com/FishcakeLab/fishcake-service/database"
+	"github.com/FishcakeLab/fishcake-service/database/stake"
 )
 
 // StakingInfoService 定义 stake 信息业务层接口
@@ -113,7 +115,16 @@ func (s *stakeInfoService) GetUserStakingInfo(
 
 	// === 2. 组装 service 层 Response ===
 	var resp []UserStakingInfoResponse
+	now := time.Now()
 	for _, item := range stakingList {
+		reward := item.StakingReward
+		if reward == nil {
+			reward = big.NewInt(0)
+		}
+		if item.StakingStatus == 0 {
+			reward = stake.CalculateAprFunding(item, now)
+		}
+
 		resp = append(resp, UserStakingInfoResponse{
 			TokenId:       item.TokenID,
 			Amount:        item.Amount.String(),
@@ -124,7 +135,7 @@ func (s *stakeInfoService) GetUserStakingInfo(
 			IsAutoRenew:   item.IsAutoRenew,
 			MessageNonce:  item.MessageNonce,
 			TxMessageHash: item.TxMessageHash,
-			StakingReward: item.StakingReward.String(),
+			StakingReward: reward.String(),
 			StakingStatus: item.StakingStatus,
 			CreateTime:    item.CreateTime.Unix(),
 		})

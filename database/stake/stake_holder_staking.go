@@ -447,6 +447,11 @@ func calculateAprFundingGo(rec StakeHolderStaking, now time.Time) *big.Int {
 	return reward
 }
 
+// CalculateAprFunding returns the current estimated reward for an active staking record.
+func CalculateAprFunding(rec StakeHolderStaking, now time.Time) *big.Int {
+	return calculateAprFundingGo(rec, now)
+}
+
 // getStakingPeriodAndAprGo —— 对应 Solidity getStakingPeriodAndApr()
 // 返回 (lockTime, stakingApr)
 func getStakingPeriodAndAprGo(stakingType int16) (lockTime int64, stakingApr int64) {

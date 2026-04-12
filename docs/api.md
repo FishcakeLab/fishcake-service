@@ -162,6 +162,13 @@ Base URL: `{host}/v1`
 
 查询 token 发送记录。包含 `ActivityAdd` 事件产生的商家发送记录，以及 FCC Token 的 ERC20 Transfer 记录。
 
+类型区分：
+
+- `ActivityAdd: ...`
+  表示活动创建时，商家为活动预存 token
+- `FCC Transfer Sent`
+  表示 FCC Token 的普通转出记录（不包含与 FishcakeEventManager 合约直接交互而被过滤掉的记录）
+
 | 参数 | 类型 | 必填 | 说明 |
 |------|------|------|------|
 | address | string | 是 | 钱包地址 |
@@ -202,6 +209,15 @@ Base URL: `{host}/v1`
 `GET /v1/token/received/list`
 
 查询 token 接收记录。包含 `Drop` 事件产生的用户领取记录、`ActivityFinish` 事件产生的商家退款记录，以及 FCC Token 的 ERC20 Transfer 记录。
+
+类型区分：
+
+- `Drop Receive: ...`
+  表示用户收到活动投放的 token
+- `ActivityFinish Return: ...`
+  表示活动结束时，系统返还给活动创建者的剩余 token
+- `FCC Transfer Received`
+  表示 FCC Token 的普通转入记录（不包含与 FishcakeEventManager 合约直接交互而被过滤掉的记录）
 
 | 参数 | 类型 | 必填 | 说明 |
 |------|------|------|------|
