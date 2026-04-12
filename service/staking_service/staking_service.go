@@ -64,6 +64,8 @@ type UserStakingInfoResponse struct {
 	StakingType   int16  `json:"stakingType"`
 	StartTime     int64  `json:"startTime"`
 	EndTime       int64  `json:"endTime"`
+	StakingApr    int64  `json:"stakingApr"`
+	CurrentApr    int64  `json:"currentApr"`
 	NftApr        int64  `json:"nftApr"`
 	IsAutoRenew   bool   `json:"isAutoRenew"`
 	MessageNonce  int64  `json:"messageNonce"`
@@ -124,6 +126,8 @@ func (s *stakeInfoService) GetUserStakingInfo(
 		if item.StakingStatus == 0 {
 			reward = stake.CalculateAprFunding(item, now)
 		}
+		stakingApr := stake.GetStakingApr(item.StakingType)
+		currentApr := stake.GetCurrentApr(item, now)
 
 		resp = append(resp, UserStakingInfoResponse{
 			TokenId:       item.TokenID,
@@ -131,6 +135,8 @@ func (s *stakeInfoService) GetUserStakingInfo(
 			StakingType:   item.StakingType,
 			StartTime:     item.StartTime,
 			EndTime:       item.EndTime,
+			StakingApr:    stakingApr,
+			CurrentApr:    currentApr,
 			NftApr:        item.NftApr,
 			IsAutoRenew:   item.IsAutoRenew,
 			MessageNonce:  item.MessageNonce,

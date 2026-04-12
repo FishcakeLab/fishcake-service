@@ -15,6 +15,8 @@ import (
 	_ "github.com/FishcakeLab/fishcake-service/database/utils/serializers"
 )
 
+const stakingBaseApr int64 = 1
+
 // StakeHolderStaking represents the on-chain staking record for each holder
 type StakeHolderStaking struct {
 	ID            string    `gorm:"column:id;primaryKey;default:replace((uuid_generate_v4())::text, '-'::text, ''::text)" json:"id"`
@@ -430,8 +432,8 @@ func calculateAprFundingGo(rec StakeHolderStaking, now time.Time) *big.Int {
 		base.Mul(base, big.NewInt(lockTime))
 		base.Div(base, big.NewInt(100*365*24*3600))
 
-		// extraReward = (amount * stakingApr * (actual - lock)) / (100 * 365 days)
-		extra := new(big.Int).Mul(stakingAmount, big.NewInt(int64(stakingApr)))
+		// After lock time, only the contract base APR (1%) continues accruing.
+		extra := new(big.Int).Mul(stakingAmount, big.NewInt(stakingBaseApr))
 		extra.Mul(extra, big.NewInt(actualDuration-lockTime))
 		extra.Div(extra, big.NewInt(100*365*24*3600))
 
@@ -450,6 +452,26 @@ func calculateAprFundingGo(rec StakeHolderStaking, now time.Time) *big.Int {
 // CalculateAprFunding returns the current estimated reward for an active staking record.
 func CalculateAprFunding(rec StakeHolderStaking, now time.Time) *big.Int {
 	return calculateAprFundingGo(rec, now)
+}
+
+// GetStakingApr returns the configured staking APR for the staking type.
+func GetStakingApr(stakingType int16) int64 {
+	_, stakingApr := getStakingPeriodAndAprGo(stakingType)
+	return stakingApr
+}
+
+// GetCurrentApr returns the APR currently applied to incremental reward accrual.
+func GetCurrentApr(rec StakeHolderStaking, now time.Time) int64 {
+	lockTime, stakingApr := getStakingPeriodAndAprGo(rec.StakingType)
+	if lockTime == 0 {
+		return 0
+	}
+
+	if now.Unix()-rec.StartTime <= lockTime {
+		return stakingApr + rec.NftApr
+	}
+
+	return stakingBaseApr
 }
 
 // getStakingPeriodAndAprGo —— 对应 Solidity getStakingPeriodAndApr()
