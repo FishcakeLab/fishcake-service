@@ -171,13 +171,30 @@ func (f *FishCake) newApi(cfg *config.Config, db *database.DB) error {
 
 func (f *FishCake) newIndex(ctx *cli.Context, cfg *config.Config, db *database.DB, shutdown context.CancelCauseFunc) error {
 	chainId, _ := strconv.ParseUint(cfg.PolygonChainId, 10, 64)
+	confirmationMode := cfg.ConfirmationMode
+	if confirmationMode == "" {
+		confirmationMode = "finalized"
+	}
+
+	confirmationDepth := cfg.ConfirmationDepth
+	if confirmationDepth == 0 {
+		confirmationDepth = 100
+	}
+
+	fallbackDepth := cfg.FallbackConfirmDepth
+	if fallbackDepth == 0 {
+		fallbackDepth = 15
+	}
+
 	syncConfig := &synchronizer.Config{
 		LoopIntervalMsec: 1,
 
 		HeaderBufferSize: 50, // 5
 
 		StartHeight:       new(big.Int).SetUint64(cfg.StartBlock),
-		ConfirmationDepth: big.NewInt(100),
+		ConfirmationMode:  confirmationMode,
+		ConfirmationDepth: new(big.Int).SetUint64(confirmationDepth),
+		FallbackDepth:     new(big.Int).SetUint64(fallbackDepth),
 		ChainId:           uint(chainId),
 	}
 	rpcUrls := append([]string{cfg.PolygonRpc}, cfg.PolygonBackupRpcs...)

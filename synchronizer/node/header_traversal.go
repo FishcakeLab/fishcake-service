@@ -4,6 +4,7 @@ import (
 	"errors"
 	"fmt"
 	"math/big"
+	"strings"
 
 	"github.com/ethereum/go-ethereum/log"
 
@@ -24,14 +25,27 @@ type HeaderTraversal struct {
 	latestHeader        *types.Header
 	lastTraversedHeader *types.Header
 
+	confirmationMode       string
 	blockConfirmationDepth *big.Int
+	fallbackDepth          *big.Int
 }
 
-func NewHeaderTraversal(ethClient EthClient, fromHeader *types.Header, confDepth *big.Int, chainId uint) *HeaderTraversal {
+func NewHeaderTraversal(ethClient EthClient, fromHeader *types.Header, confirmationMode string, confDepth, fallbackDepth *big.Int, chainId uint) *HeaderTraversal {
+	if confirmationMode == "" {
+		confirmationMode = "depth"
+	}
+	if confDepth == nil {
+		confDepth = bigint.Zero
+	}
+	if fallbackDepth == nil {
+		fallbackDepth = confDepth
+	}
 	return &HeaderTraversal{
 		ethClient:              ethClient,
 		lastTraversedHeader:    fromHeader,
+		confirmationMode:       strings.ToLower(confirmationMode),
 		blockConfirmationDepth: confDepth,
+		fallbackDepth:          fallbackDepth,
 		chainId:                chainId,
 	}
 }
@@ -54,7 +68,10 @@ func (f *HeaderTraversal) NextHeaders(maxSize uint64) ([]types.Header, error) {
 		f.latestHeader = latestHeader
 	}
 
-	endHeight := new(big.Int).Sub(latestHeader.Number, f.blockConfirmationDepth)
+	endHeight, err := f.confirmationTargetHeight(latestHeader)
+	if err != nil {
+		return nil, err
+	}
 	if endHeight.Sign() < 0 {
 		return nil, nil
 	}
@@ -89,4 +106,38 @@ func (f *HeaderTraversal) NextHeaders(maxSize uint64) ([]types.Header, error) {
 
 	f.lastTraversedHeader = &headers[numHeaders-1]
 	return headers, nil
+}
+
+func (f *HeaderTraversal) confirmationTargetHeight(latestHeader *types.Header) (*big.Int, error) {
+	switch f.confirmationMode {
+	case "finalized":
+		finalizedHeader, err := f.ethClient.LatestFinalizedBlockHeader()
+		if err == nil && finalizedHeader != nil && finalizedHeader.Number != nil {
+			return new(big.Int).Set(finalizedHeader.Number), nil
+		}
+		log.Warn("failed to fetch finalized header, falling back to confirmation depth", "err", err, "fallbackDepth", f.fallbackDepth)
+		return confirmedHeight(latestHeader.Number, f.fallbackDepth), nil
+	case "safe":
+		safeHeader, err := f.ethClient.LatestSafeBlockHeader()
+		if err == nil && safeHeader != nil && safeHeader.Number != nil {
+			return new(big.Int).Set(safeHeader.Number), nil
+		}
+		log.Warn("failed to fetch safe header, falling back to confirmation depth", "err", err, "fallbackDepth", f.fallbackDepth)
+		return confirmedHeight(latestHeader.Number, f.fallbackDepth), nil
+	case "depth", "":
+		return confirmedHeight(latestHeader.Number, f.blockConfirmationDepth), nil
+	default:
+		log.Warn("unknown confirmation mode, falling back to confirmation depth", "mode", f.confirmationMode, "confirmationDepth", f.blockConfirmationDepth)
+		return confirmedHeight(latestHeader.Number, f.blockConfirmationDepth), nil
+	}
+}
+
+func confirmedHeight(latestNumber, depth *big.Int) *big.Int {
+	if latestNumber == nil {
+		return nil
+	}
+	if depth == nil {
+		return new(big.Int).Set(latestNumber)
+	}
+	return new(big.Int).Sub(latestNumber, depth)
 }

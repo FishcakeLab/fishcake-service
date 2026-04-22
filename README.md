@@ -67,6 +67,9 @@ metrics_host:
 metrics_port:
 start_block: 58013559
 eventStartBlock: 58013559
+confirmation_mode: "finalized"
+confirmation_depth: 100
+fallback_confirmation_depth: 15
 contracts:
     - "0xE967Df5072C00051a7Df26D8E736b8769fB991b5"
     - "0x4907e1fA441673CC004415784430179B8B4938Cf"
@@ -90,4 +93,3 @@ create database fishcake;
 ```
 ./fishcake api
 ```
-

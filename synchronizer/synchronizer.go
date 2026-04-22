@@ -26,7 +26,9 @@ type Config struct {
 	LoopIntervalMsec  uint
 	HeaderBufferSize  uint
 	StartHeight       *big.Int
+	ConfirmationMode  string
 	ConfirmationDepth *big.Int
+	FallbackDepth     *big.Int
 	ChainId           uint
 }
 
@@ -94,7 +96,7 @@ func NewSynchronizer(ymlCfg *config.Config, cfg *Config, db *database.DB, client
 	return &Synchronizer{
 		loopInterval:     time.Duration(cfg.LoopIntervalMsec) * time.Second,
 		headerBufferSize: uint64(cfg.HeaderBufferSize),
-		headerTraversal:  node.NewHeaderTraversal(client, fromHeader, cfg.ConfirmationDepth, uint(chainIdInt)),
+		headerTraversal:  node.NewHeaderTraversal(client, fromHeader, cfg.ConfirmationMode, cfg.ConfirmationDepth, cfg.FallbackDepth, uint(chainIdInt)),
 		ethClient:        client,
 		LatestHeader:     fromHeader,
 		db:               db,
