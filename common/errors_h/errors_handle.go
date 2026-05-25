@@ -35,7 +35,7 @@ func Recover(c *gin.Context) {
 		if r := recover(); r != nil {
 			if myErr, ok := r.(*error); ok {
 				//打印错误堆栈信息
-				log.Info("panic: %v\n", r)
+				log.Info("panic recovered", "err", r)
 				api_result.NewApiResult(c).Error(myErr.code, myErr.msg)
 			} else {
 				//封装通用json返回
@@ -43,7 +43,7 @@ func Recover(c *gin.Context) {
 				api_result.NewApiResult(c).Error("9999", fmt.Sprintf("panic: %v", r))
 
 				// 未知错误
-				log.Info("panic: %v\n", r)
+				log.Info("panic recovered", "err", r)
 				debug.PrintStack()
 			}
 			//终止后续接口调用，不加的话recover到异常后，还会继续执行接口里后续代码
