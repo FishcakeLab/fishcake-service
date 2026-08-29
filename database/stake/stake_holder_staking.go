@@ -238,6 +238,7 @@ func (d *stakeHolderStakingDB) GetStakeRank(monthFilter bool) ([]StakeRank, erro
 	query := d.db.Table(StakeHolderStaking{}.TableName()).
 		Select("user_address, SUM(amount) as total_stake").
 		Group("user_address").
+		Having("SUM(amount) > 0").
 		Order("SUM(amount) DESC")
 
 	// 如果 monthFilter=true，过滤当月数据

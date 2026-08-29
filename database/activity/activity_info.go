@@ -152,6 +152,7 @@ func (d *activityInfoDB) GetActivityRank(monthFilter bool) ([]BusinessRank, erro
 		Select("business_account, SUM(mined_amount::numeric) as total_mined").
 		Where("activity_status = ?", 2).
 		Group("business_account").
+		Having("SUM(mined_amount::numeric) > 0").
 		Order("total_mined DESC")
 
 	if monthFilter {

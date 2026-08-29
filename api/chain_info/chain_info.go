@@ -142,7 +142,15 @@ func balance(c *gin.Context) {
 		Address:         address,
 		ContractAddress: service.BaseService.RewardService.FccAddress(),
 	}
-	responseFcc, _ := service.BaseService.RpcService.GetAccount(context.Background(), reqFcc)
+	responseFcc, err := service.BaseService.RpcService.GetAccount(context.Background(), reqFcc)
+	if err != nil {
+		api_result.NewApiResult(c).Error(enum.GrpcErr.Code, err.Error())
+		return
+	}
+	if responseFcc == nil {
+		api_result.NewApiResult(c).Error(enum.GrpcErr.Code, "get fcc account failed")
+		return
+	}
 	if responseFcc.Code == account.ReturnCode_ERROR {
 		api_result.NewApiResult(c).Error(enum.GrpcErr.Code, responseFcc.Msg)
 		return
@@ -154,7 +162,15 @@ func balance(c *gin.Context) {
 		Address:         address,
 		ContractAddress: "0x00",
 	}
-	responsePol, _ := service.BaseService.RpcService.GetAccount(context.Background(), reqPol)
+	responsePol, err := service.BaseService.RpcService.GetAccount(context.Background(), reqPol)
+	if err != nil {
+		api_result.NewApiResult(c).Error(enum.GrpcErr.Code, err.Error())
+		return
+	}
+	if responsePol == nil {
+		api_result.NewApiResult(c).Error(enum.GrpcErr.Code, "get pol account failed")
+		return
+	}
 	if responsePol.Code == account.ReturnCode_ERROR {
 		api_result.NewApiResult(c).Error(enum.GrpcErr.Code, responsePol.Msg)
 		return
@@ -166,7 +182,15 @@ func balance(c *gin.Context) {
 		Address:         address,
 		ContractAddress: service.BaseService.RewardService.UsdtAddress(),
 	}
-	responseUsdt, _ := service.BaseService.RpcService.GetAccount(context.Background(), reqUsdt)
+	responseUsdt, err := service.BaseService.RpcService.GetAccount(context.Background(), reqUsdt)
+	if err != nil {
+		api_result.NewApiResult(c).Error(enum.GrpcErr.Code, err.Error())
+		return
+	}
+	if responseUsdt == nil {
+		api_result.NewApiResult(c).Error(enum.GrpcErr.Code, "get usdt account failed")
+		return
+	}
 	if responseUsdt.Code == account.ReturnCode_ERROR {
 		api_result.NewApiResult(c).Error(enum.GrpcErr.Code, responseUsdt.Msg)
 		return
@@ -211,7 +235,15 @@ func signInfo(c *gin.Context) {
 		Network: "mainnet",
 		Address: address,
 	}
-	responseAccount, _ := service.BaseService.RpcService.GetAccount(context.Background(), reqAccount)
+	responseAccount, err := service.BaseService.RpcService.GetAccount(context.Background(), reqAccount)
+	if err != nil {
+		api_result.NewApiResult(c).Error(enum.GrpcErr.Code, err.Error())
+		return
+	}
+	if responseAccount == nil {
+		api_result.NewApiResult(c).Error(enum.GrpcErr.Code, "get account failed")
+		return
+	}
 	if responseAccount.Code == account.ReturnCode_ERROR {
 		api_result.NewApiResult(c).Error(enum.GrpcErr.Code, responseAccount.Msg)
 		return
@@ -228,7 +260,7 @@ func signInfo(c *gin.Context) {
 		Reward        [][]string `json:"reward"`
 	}
 
-	err := service.BaseService.Client.CallContext(
+	err = service.BaseService.Client.CallContext(
 		context.Background(),
 		&feeHist,
 		"eth_feeHistory",

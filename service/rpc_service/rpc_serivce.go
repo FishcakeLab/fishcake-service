@@ -111,7 +111,7 @@ func (r *rpcService) GetBlockHeaderByRange(ctx context.Context, in *account.Bloc
 func (r *rpcService) GetAccount(ctx context.Context, in *account.AccountRequest) (*account.AccountResponse, error) {
 	resp, err := r.accountService.GetAccount(ctx, in)
 	if err != nil {
-		return nil, nil
+		return nil, err
 	}
 	return resp, nil
 }
@@ -119,7 +119,7 @@ func (r *rpcService) GetAccount(ctx context.Context, in *account.AccountRequest)
 func (r *rpcService) GetFee(ctx context.Context, in *account.FeeRequest) (*account.FeeResponse, error) {
 	resp, err := r.accountService.GetFee(ctx, in)
 	if err != nil {
-		return nil, nil
+		return nil, err
 	}
 	return resp, nil
 }
